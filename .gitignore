@@ -5,6 +5,9 @@
 # Ignore Gradle build output directory
 **/build/
 
+# Ignore API Documentation Generation
+server/docs/
+
 # IDE specific directories
 .idea
 
