@@ -5,18 +5,34 @@
 # Ignore Gradle build output directory
 **/build/
 
-# Ignore API Documentation Generation
-server/docs/
+# Ignore Documentation Generation
+**/docs/
 
 # IDE specific directories
 .idea
+.vscode/*
+# To be decided if we wan't to share vscode extension config
+# !.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
+*.tsbuildinfo
 # OS specific files
 kls_database.db
 .DS_Store
 
 # Log Files
+logs
 *.log
+
+*/npm-debug.log*
+*/yarn-debug.log*
+*/yarn-error.log*
+*/pnpm-debug.log*
+*/lerna-debug.log*
 
 # Package Files
 *.jar
@@ -26,6 +42,13 @@ kls_database.db
 *.zip
 *.tar.gz
 *.rar
+
+*/node_modules
+*/dist
+*/dist-ssr
+*/coverage
+*.local
+*.tsbuildinfo
 
 # Avoid ignoring Gradle Wrapper Jar
 !gradle/wrapper/gradle-wrapper.jar

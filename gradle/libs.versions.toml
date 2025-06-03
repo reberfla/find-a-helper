@@ -4,11 +4,11 @@ ktorVersion = "3.1.3"
 exposedVersion = "0.41.1"
 
 [libraries]
-guava = { module = "com.google.guava:guava", version.ref = "33.4.5-jre" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "5.12.1" }
-logging = { module = "ch.qos.logback:logback-classic", version.ref = "1.5.18" }
-config = { module = "com.typesafe:config", version.ref = "1.4.3"}
-dbDriver = { module = "com.mysql:mysql-connector-j", version.ref = "9.3.0"}
+guava = { module = "com.google.guava:guava", version = "33.4.5-jre" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.12.1" }
+logging = { module = "ch.qos.logback:logback-classic", version = "1.5.18" }
+config = { module = "com.typesafe:config", version = "1.4.3"}
+dbDriver = { module = "com.mysql:mysql-connector-j", version = "9.3.0"}
 
 ktor = { module = "io.ktor:ktor-server-core", version.ref = "ktorVersion" }
 ktorNetty = { module = "io.ktor:ktor-server-netty", version.ref = "ktorVersion" }
@@ -17,7 +17,7 @@ ktorContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", v
 ktorSerialization = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }
 ktorSwagger = { module = "io.ktor:ktor-server-swagger", version.ref = "ktorVersion" }
 ktorOpenApi = { module = "io.ktor:ktor-server-openapi", version.ref = "ktorVersion" }
-ktorSwaggerCodeGen = {module = "io.swagger.codegen.v3:swagger-codegen-generators", version.ref = "1.0.56" }
+ktorSwaggerCodeGen = {module = "io.swagger.codegen.v3:swagger-codegen-generators", version = "1.0.56" }
 
 exposedCore = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposedVersion"}
 exposedDao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposedVersion"}
