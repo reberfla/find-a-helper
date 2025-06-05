@@ -17,7 +17,7 @@ import ch.abbts.routes.*
 import ch.abbts.config.DatabaseConfig
 
 fun main() {
-    embeddedServer(Netty, host = "0.0.0.0", port = 8080, module = Application::main)
+    embeddedServer(Netty, host = "0.0.0.0", port = 8080, module = Application::main, watchPaths = listOf("classes", "resources"))
             .start(wait = true)
 }
 

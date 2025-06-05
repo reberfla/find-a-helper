@@ -1,0 +1,75 @@
+#!/bin/bash
+set -e
+
+SCRIPT_DIR=$(cd -- $( dirname -- ${BASH_SOURCE[0]}) &> /dev/null && pwd)
+DOCKER_COMPOSE_FILE=""
+
+rebuild=false
+backend=false
+frontend=false
+
+clean_up () {
+    echo
+    echo "shutting down docker containers"
+    docker compose -f ${SCRIPT_DIR}/${DOCKER_COMPOSE_FILE} down
+}
+
+start_docker_containers () {
+    if $rebuild;then
+        echo "Rebuilding the containers..."
+        docker compose -f ${SCRIPT_DIR}/${DOCKER_COMPOSE_FILE} up --build -d
+    else
+        docker compose -f ${SCRIPT_DIR}/${DOCKER_COMPOSE_FILE} up -d
+    fi
+}
+
+start_backend ()
+{
+    echo "Starting Database for backend development."
+    DOCKER_COMPOSE_FILE="server-docker-compose.yml"
+
+    start_docker_containers
+
+    cd $SCRIPT_DIR
+    cd ..
+    ./gradlew -t build -x test -i
+}
+
+start_frontend ()
+{
+    echo "Starting Database and server for frontend development."
+    DOCKER_COMPOSE_FILE="ui-docker-compose.yml"
+
+    start_docker_containers
+
+    cd $SCRIPT_DIR 
+    cd ../ui
+    npm run dev
+}
+
+start_development () {
+    if $backend; then
+        start_backend
+    elif $frontend; then
+        start_frontend
+    fi
+}
+
+trap clean_up EXIT
+
+while getopts 'rfbh' flag; do
+    case "${flag}" in
+        r)
+            rebuild=true ;;
+        f)
+            frontend=true ;;
+        b)
+            backend=true ;;
+        h)
+            echo "--f = frontend (start db + server)"
+            echo "--b = backend (start db only)"
+            ;;
+    esac
+done
+
+start_development
