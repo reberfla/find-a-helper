@@ -9,5 +9,5 @@ RUN npm run build
 # production stage
 FROM nginx:1.28-alpine3.21 AS final
 COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 8081
+EXPOSE 8085
 CMD ["nginx", "-g", "daemon off;"]
