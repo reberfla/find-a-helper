@@ -66,8 +66,9 @@ while getopts 'rfbh' flag; do
         b)
             backend=true ;;
         h)
-            echo "--f = frontend (start db + server)"
-            echo "--b = backend (start db only)"
+            echo "-f = frontend (start db + server)"
+            echo "-b = backend (start db only)"
+            echo "-r = rebuild local containers"
             ;;
     esac
 done
