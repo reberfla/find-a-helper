@@ -71,8 +71,9 @@ if "%~1"=="-r" (
 ) else if "%~1"=="-b" (
     set "backend=true"
 ) else if "%~1"=="-h" (
-    echo --f = frontend (start db + server)
-    echo --b = backend (start db only)
+    echo -f = frontend (start db + server)
+    echo -b = backend (start db only)
+    echo -r = rebuild local containers
     goto :eof
 )
 shift
