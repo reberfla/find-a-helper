@@ -17,6 +17,7 @@
 
 <style scoped lang="scss">
 $bg-color: #f5f5f5;
+@use "sass:color";
 
 .v-card {
   background-color: $bg-color;
@@ -28,7 +29,7 @@ $bg-color: #f5f5f5;
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: adjust($bg-color, -10%);
+    background-color: color.adjust($bg-color, $lightness:-10%);
   }
 }
 </style>
