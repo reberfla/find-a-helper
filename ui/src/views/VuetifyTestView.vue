@@ -28,7 +28,7 @@ $bg-color: #f5f5f5;
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: darken($bg-color, 10%);
+    background-color: adjust($bg-color, -10%);
   }
 }
 </style>
