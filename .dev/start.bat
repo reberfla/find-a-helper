@@ -8,11 +8,15 @@ set "rebuild=false"
 set "frontend=false"
 set "backend=false"
 
-:: Clean up function
-:clean_up
-echo.
-echo shutting down docker containers
-docker compose -f "%SCRIPT_DIR%\%DOCKER_COMPOSE_FILE%" down
+:: Parse command line arguments
+call :parse_args %*
+
+call :start_development
+if errorlevel 1 (
+    call :clean_up
+)
+
+endlocal
 goto :eof
 
 :: Start docker containers function
@@ -39,7 +43,7 @@ goto :eof
 goto :eof
 
 :: starts server and db running in containers
-:: starts frontend in dev mode 
+:: starts frontend in dev mode
 :start_frontend
     echo Starting Database and server for frontend development.
     set DOCKER_COMPOSE_FILE=ui-docker-compose.yml
@@ -58,6 +62,12 @@ if "%backend%"=="true" (
 ) else if "%frontend%"=="true" (
     call :start_frontend
 )
+
+:: Clean up function
+:clean_up
+echo.
+echo shutting down docker containers
+docker compose -f "%SCRIPT_DIR%\%DOCKER_COMPOSE_FILE%" down
 goto :eof
 
 :: Parse command line arguments
