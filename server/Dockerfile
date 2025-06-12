@@ -1,7 +1,8 @@
-FROM gradle:8.14.1-jdk21-alpine AS build
-COPY --chown=gradle:gradle . /home/gradle/src
+FROM amazoncorretto:21-alpine3.21 AS build
+
+COPY . /home/gradle/src
 WORKDIR /home/gradle/src
-RUN gradle build --no-daemon -q
+RUN ./gradlew build --no-daemon
 
 FROM amazoncorretto:21-alpine3.21 AS final
 
