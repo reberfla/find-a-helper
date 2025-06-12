@@ -1,0 +1,41 @@
+name: Pull Request Checks
+on:
+  pull_request:
+    branches:
+      - 'main'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Kotlin Unit Tests
+        uses: ./.github/actions/unit-tests-kotlin
+
+      - name: Run Vitest Unit Tests
+        uses: ./.github/actions/unit-tests-vitest
+        if: always()
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker Images
+        uses: ./.github/actions/build-docker-images
+        with:
+          push: false
+          platform: ${{ matrix.platform }}
+
