@@ -1,0 +1,60 @@
+name: Build Docker Images
+
+inputs:
+  push:
+    required: true
+    type: boolean
+
+  version:
+    required: false
+    default: "snapshot"
+    type: string
+
+  token:
+    description: 'GitHub Token'
+    required: false
+
+  platform:
+    description: 'Target Platform'
+    required: true
+
+  registry:
+    description: 'Container Registry'
+    default: ghcr.io
+    required: false
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Login to ghcr.io
+      uses: docker/login-action@v3
+      if: inputs.push == 'true'
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ github.actor }}
+        password: ${{ inputs.token }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+      # Add support for cross platform builds
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Build Server Image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: ${{ inputs.push }}
+        file: ./server/Dockerfile
+        platforms: ${{ inputs.platform }}
+        tags: ${{ inputs.registry }}/${{ github.repository }}/server:${{ inputs.version }},${{ inputs.registry }}/${{ github.repository }}/server:latest
+
+    - name: Build UI Image
+      uses: docker/build-push-action@v6
+      with:
+        context: ./ui
+        push: ${{ inputs.push }}
+        platforms: ${{ inputs.platform }}
+        tags: ${{ inputs.registry }}/${{ github.repository }}/ui:${{ inputs.version }},${{ inputs.registry }}/${{ github.repository }}/ui:latest

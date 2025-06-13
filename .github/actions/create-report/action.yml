@@ -1,0 +1,40 @@
+name: Publish Report
+description: Publishes a report artifact, then posts a comment with a link to download the report on the pull request.
+
+inputs:
+  artifact-path:
+    required: true
+    type: string
+  test-type:
+    required: true
+    type: string
+
+runs:
+  using: "composite"
+  steps:
+    - name: Create Artifact ID
+      id: create-artifact-id
+      shell: bash
+      run: echo "artifact_id=${{ inputs.test-type}}-$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_OUTPUT"
+
+    - name: Check Artifact ID
+      shell: bash
+      run: echo "Artifact-ID = ${{ steps.create-artifact-id.outputs.artifact_id }}"
+
+    - name: Publish Report to Artifacts
+      uses: actions/upload-artifact@v4
+      id: artifacts-upload
+      with: 
+        name: ${{ steps.create-artifact-id.outputs.artifact_id }}
+        path: ${{ inputs.artifact-path }} 
+
+    - name: Post Comment with Link to Artifact
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+          issue_number: context.issue.number,
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          body: '❌ some ${{ inputs.test-type }} tests have failed!\n🗒️ [Download the test report.](${{ steps.artifacts-upload.outputs.artifact-url }})'
+          })

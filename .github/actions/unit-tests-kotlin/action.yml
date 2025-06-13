@@ -1,0 +1,23 @@
+name: Unit Tests (Kotlin)
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up JDK 21 Amazon Corretto
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'corretto'
+
+    - name: Run Unit Tests
+      id: run-unit-tests
+      shell: bash
+      run: |
+        ./gradlew test
+
+    - name: Publish Test Report if Tests failed
+      if: ${{ failure() && steps.run-unit-tests.conclusion == 'failure' }}
+      uses: ./.github/actions/create-report
+      with:
+        artifact-path: ./server/build/reports/tests/test/
+        test-type: Kotlin

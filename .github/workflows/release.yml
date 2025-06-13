@@ -1,0 +1,129 @@
+name: Release Version
+
+permissions:
+  contents: write
+  packages: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      major:
+        required: true
+        type: number
+      minor:
+        required: true
+        type: number
+      patch:
+        required: true
+        type: number
+      pre-release:
+        required: false
+        type: choice
+        options:
+          - ''
+          - alpha
+          - beta
+          - rc
+        description: "Pre Release like \"alpha\" (optional)"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Kotlin Unit Tests
+        uses: ./.github/actions/unit-tests-kotlin
+
+      - name: Run Vitest Unit Tests
+        uses: ./.github/actions/unit-tests-vitest
+
+  build-push-docker-images:
+    if: github.ref_name == github.event.repository.default_branch
+    needs: test
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+
+    steps:     
+      - name: Create Realease Version with pre-release
+        id: release-version-prerelease
+        if: ${{ inputs.pre-release != '' }}
+        run: echo "release_version=v${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}-${{ inputs.pre-release}}" >> "$GITHUB_ENV"
+
+      - name: Create Realease Version without pre-release
+        id: release-version
+        if: ${{ inputs.pre-release == '' }}
+        run: echo "release_version=v${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}" >> "$GITHUB_ENV"
+
+      - name: Check Release Version
+        run: echo "Releasing with version ${{ env.release_version }} 🚀"
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build and Push Docker Images
+        uses: ./.github/actions/build-docker-images
+        with:
+          push: true
+          version: ${{ env.release_version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+          platform: ${{ matrix.platform }}
+
+  create-release:
+    if: github.ref_name == github.event.repository.default_branch
+    needs: build-push-docker-images
+
+    runs-on: ubuntu-latest
+
+    steps:     
+      - name: Checkout repository with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true 
+
+      - name: Create Realease Version with pre-release
+        id: release-version-prerelease
+        if: ${{ inputs.pre-release != '' }}
+        run: echo "release_version=v${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}-${{ inputs.pre-release}}" >> "$GITHUB_ENV"
+
+      - name: Create Realease Version without pre-release
+        id: release-version
+        if: ${{ inputs.pre-release == '' }}
+        run: echo "release_version=v${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}" >> "$GITHUB_ENV"
+
+      - name: Echo Release Version
+        run: echo "Releasing with version ${{ env.release_version }}"
+
+      - name: Get previous release Tag
+        id: prev-release
+        shell: bash
+        run: echo "prev_release=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
+
+      - name: Create Git Tag
+        run: |
+          git tag ${{ env.release_version }}
+          git push origin ${{ env.release_version }}
+
+      - name: Create Release Note Template
+        shell: bash
+        run: |
+          echo "## 🛠️What has changed ?" > changelog.md
+          echo >> changelog.md
+          echo "$(git log --pretty=format:"* %an: %s" ${{ steps.prev-release.outputs.prev_release }}..${{ env.release_version }})" >> changelog.md
+
+      - name: Create Release
+        id: create-release
+        uses: ncipollo/release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag: ${{ env.release_version }}
+          name: ${{ env.release_version }}
+          bodyFile: changelog.md
+          prerelease: ${{ inputs.pre-release != '' }}
