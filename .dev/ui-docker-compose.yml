@@ -6,6 +6,8 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: "dev"
+      MYSQL_USER: "dev"
+      MYSQL_PASSWORD: "dev"
       MYSQL_DATABASE: findahelper
     ports:
       - "3306:3306"
