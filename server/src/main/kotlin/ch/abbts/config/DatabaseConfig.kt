@@ -1,4 +1,4 @@
-package ch.abbts.config
+package config
 
 import com.typesafe.config.ConfigFactory
 // import adapter.persistence.database.table.User

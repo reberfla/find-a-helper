@@ -13,10 +13,14 @@ import io.ktor.server.routing.*
 import io.swagger.codegen.v3.generators.html.StaticHtmlCodegen
 import kotlinx.serialization.Serializable
 
-import ch.abbts.routes.*
-import ch.abbts.config.DatabaseConfig
+import adapter.routes.*
+import config.DatabaseConfig
+import models.JWebToken
 
 fun main() {
+
+    println(JWebToken.generateToken())
+
     embeddedServer(Netty, host = "0.0.0.0", port = 8080, module = Application::main, watchPaths = listOf("classes", "resources"))
             .start(wait = true)
 }

@@ -1,4 +1,4 @@
-package ch.abbts.routes
+package adapter.routes
 
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
@@ -11,9 +11,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-import ch.abbts.models.Test
+import models.Test
 
-@Tag(["All Endpoints"])
 fun Application.configureTestRoute() {
     routing {
         @Tag(["Test"])

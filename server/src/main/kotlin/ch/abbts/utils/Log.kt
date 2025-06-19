@@ -1,4 +1,4 @@
-package ch.abbts.utils
+package utils
 
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
