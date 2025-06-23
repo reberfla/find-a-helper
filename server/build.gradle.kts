@@ -24,10 +24,14 @@ dependencies {
     // utility dependencies
     implementation(libs.config)
     implementation(libs.logging)
+    implementation("io.ktor:ktor-server-cors:3.1.3")
 
     // Use JUnit Jupiter for testing.
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    implementation("io.ktor:ktor-server-cors:2.3.0")
+
 }
 
 java {

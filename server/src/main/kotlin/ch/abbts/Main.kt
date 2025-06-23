@@ -1,32 +1,53 @@
 package ch.abbts
 
+import ch.abbts.adapter.database.repository.usersRepository
+import ch.abbts.adapter.*
+import ch.abbts.config.DatabaseConfig
+import ch.abbts.adapter.routes.configureRouting
 import io.github.tabilzad.ktor.annotations.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.openapi.*
-import io.ktor.server.plugins.swagger.*
-import io.ktor.server.response.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
-import io.swagger.codegen.v3.generators.html.StaticHtmlCodegen
-import kotlinx.serialization.Serializable
+import usersInteractor
 
-import adapter.routes.*
-import config.DatabaseConfig
+
 fun main() {
-
-    embeddedServer(Netty, host = "0.0.0.0", port = 8080, module = Application::main, watchPaths = listOf("classes", "resources"))
-            .start(wait = true)
+    embeddedServer(
+        Netty,
+        host = "0.0.0.0",
+        port = 8080,
+        module = Application::main,
+        watchPaths = listOf("classes", "resources")
+    )
+        .start(wait = true)
 }
 
 @GenerateOpenApi
 fun Application.main() {
     install(ContentNegotiation) { json() }
-    
-    configureOpenApi()
-    configureTestRoute()
-
+    install(CORS) {
+        /*for developement*/
+        anyHost()
+        /*for produktion*/
+        /*allowHost("findahelper.ch")
+        allowHost("www.findahelper.ch")*/
+        allowMethod(io.ktor.http.HttpMethod.Options)
+        allowHeader(io.ktor.http.HttpHeaders.ContentType)
+        allowHeader(io.ktor.http.HttpHeaders.Authorization)
+        allowMethod(io.ktor.http.HttpMethod.Get)
+        allowMethod(io.ktor.http.HttpMethod.Post)
+        allowMethod(io.ktor.http.HttpMethod.Put)
+        allowMethod(io.ktor.http.HttpMethod.Delete)
+    }
     DatabaseConfig.init()
+
+    val userInteractor = usersInteractor(usersRepository())
+
+    configureRouting(userInteractor)
+    configureOpenApi()
+
 }
