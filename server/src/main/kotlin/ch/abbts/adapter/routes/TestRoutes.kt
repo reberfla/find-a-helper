@@ -11,7 +11,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-import models.Test
+import model.Test
 
 fun Application.configureTestRoute() {
     routing {

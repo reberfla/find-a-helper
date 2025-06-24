@@ -15,14 +15,17 @@ import kotlinx.serialization.Serializable
 
 import adapter.routes.*
 import config.DatabaseConfig
-import models.JWebToken
+import model.JWebToken
 
 fun main() {
 
-    println(JWebToken.generateToken())
+    val generatedToken = JWebToken.generateToken("flavio reber", "mail@mail.com")
+    println(generatedToken)
+    JWebToken.validateToken(generatedToken)
+    print(JWebToken.verifyToken(generatedToken))
 
-    embeddedServer(Netty, host = "0.0.0.0", port = 8080, module = Application::main, watchPaths = listOf("classes", "resources"))
-            .start(wait = true)
+    // embeddedServer(Netty, host = "0.0.0.0", port = 8080, module = Application::main, watchPaths = listOf("classes", "resources"))
+    //         .start(wait = true)
 }
 
 @GenerateOpenApi

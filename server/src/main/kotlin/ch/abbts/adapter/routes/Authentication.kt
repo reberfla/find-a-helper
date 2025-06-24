@@ -9,14 +9,14 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.github.nefilim.kjwt.JWT
+import model.JWebToken
 
 @Tag(["Authentication"])
 fun Application.configureAuthenticationRoutes() {
     routing {
         route("/v1"){
             @Tag(["Auth"])
-            @KtorResponds(mapping = [ResponseEntry("200", JWT::class)])
+            @KtorResponds(mapping = [ResponseEntry("200", JWebToken::class)])
             @KtorDescription(
                 tags = ["Auth"],
                 summary = "Authenticate to receive a JWT Token",
