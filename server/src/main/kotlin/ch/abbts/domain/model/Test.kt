@@ -1,4 +1,4 @@
-package model
+package domain.model
 
 import io.github.tabilzad.ktor.annotations.KtorSchema
 import kotlinx.serialization.Serializable
