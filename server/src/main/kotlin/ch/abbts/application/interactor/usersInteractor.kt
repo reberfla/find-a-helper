@@ -1,6 +1,6 @@
 
 import ch.abbts.adapter.database.repository.usersRepository
-import org.gradle.internal.impldep.com.jcraft.jsch.jbcrypt.BCrypt
+import org.mindrot.jbcrypt.BCrypt
 
 class usersInteractor(
     private val userRepository: usersRepository,
