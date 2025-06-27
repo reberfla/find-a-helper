@@ -31,6 +31,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     implementation("io.ktor:ktor-server-cors:2.3.0")
+    implementation("org.mindrot:jbcrypt:0.4")
 
 }
 
