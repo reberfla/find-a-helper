@@ -1,8 +1,8 @@
-name: Pull Request Checks
+name: Test and Build Check
 on:
-  pull_request:
+  push:
     branches:
-      - 'main'
+      - 'develop'
 
 permissions:
   contents: read
