@@ -1,4 +1,4 @@
-package ch.abbts.application.dto
+package application.dto
 
 interface DTO <T> {
 

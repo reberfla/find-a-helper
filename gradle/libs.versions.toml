@@ -9,6 +9,7 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.12.1"
 logging = { module = "ch.qos.logback:logback-classic", version = "1.5.18" }
 config = { module = "com.typesafe:config", version = "1.4.3"}
 dbDriver = { module = "com.mysql:mysql-connector-j", version = "9.3.0"}
+bcrypt = { module = "org.mindrot:jbcrypt", version = "0.4"}
 
 ktor = { module = "io.ktor:ktor-server-core", version.ref = "ktorVersion" }
 ktorNetty = { module = "io.ktor:ktor-server-netty", version.ref = "ktorVersion" }
@@ -18,6 +19,8 @@ ktorSerialization = { module = "io.ktor:ktor-serialization-kotlinx-json", versio
 ktorSwagger = { module = "io.ktor:ktor-server-swagger", version.ref = "ktorVersion" }
 ktorOpenApi = { module = "io.ktor:ktor-server-openapi", version.ref = "ktorVersion" }
 ktorSwaggerCodeGen = {module = "io.swagger.codegen.v3:swagger-codegen-generators", version = "1.0.56" }
+ktorServerCors = { module = "io.ktor:ktor-server-cors", version.ref = "ktorVersion" }
+ktorHttpClient ={ module = "io.ktor:ktor-client-core", version.ref = "ktorVersion"}
 
 exposedCore = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposedVersion"}
 exposedDao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposedVersion"}
@@ -41,7 +44,9 @@ ktor = [
     "ktorSerialization",
     "ktorOpenApi",
     "ktorSwagger",
-    "ktorSwaggerCodeGen"
+    "ktorSwaggerCodeGen",
+    "ktorServerCors",
+    "ktorHttpClient"
 ]
 
 exposed = [

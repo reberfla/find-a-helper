@@ -1,5 +1,6 @@
 package domain.model
 
+import adapter.database.repository.usersRepository
 import com.typesafe.config.ConfigFactory
 import java.time.Instant
 import java.util.Base64
@@ -8,15 +9,15 @@ import javax.crypto.spec.SecretKeySpec
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-class JWebToken(name: String, email: String) {
+class JWebToken(email: String) {
         private val validDuration = 43500L // 12h + 5min
         private val config = ConfigFactory.load()
         private val alg = config.getString("jwt.auth.alg")
         private val typ = config.getString("jwt.auth.typ")
         private val iat: Long = Instant.now().epochSecond
         private val exp: Long = iat.plus(validDuration)
-        private val header = JWebTokenHeader(alg, typ)
-        private val body = JWebTokenBody(name, email, iat, exp)
+        val header = JWebTokenHeader(alg, typ)
+        val body = JWebTokenBody(email, iat, exp)
         val token = JWebToken.generateToken(header, body)
 
         companion object {
@@ -24,8 +25,9 @@ class JWebToken(name: String, email: String) {
                 val b64Decoder = Base64.getUrlDecoder()
                 val config = ConfigFactory.load()
                 val secret = config.getString("jwt.secret")
+                val usersRepository = usersRepository()
 
-                fun generateToken(header: JWebTokenHeader, body: JWebTokenBody): String {
+                fun generateToken(header: JWebTokenHeader, body: JWebTokenBody): JWT {
                         val encodedHeader =
                                 b64Encoder.encodeToString(
                                         Json.encodeToString(header).toByteArray(Charsets.UTF_8)
@@ -35,7 +37,7 @@ class JWebToken(name: String, email: String) {
                                         Json.encodeToString(body).toByteArray(Charsets.UTF_8)
                                 )
                         val signature = generateSignature(encodedHeader, encodedBody)
-                        return "$encodedHeader.$encodedBody.$signature"
+                        return JWT("$encodedHeader.$encodedBody.$signature")
                 }
 
                 fun generateSignature(header: String, body: String): String {
@@ -62,6 +64,7 @@ class JWebToken(name: String, email: String) {
                         Json.decodeFromString<JWebTokenBody>(
                                 b64Decoder.decode(body).decodeToString()
                         )
+                        print("validation success")
                 }
 
                 fun verifyToken(token: String): Unit {
@@ -76,20 +79,28 @@ class JWebToken(name: String, email: String) {
                         if (tokenSignature != JWebToken.generateSignature(tokenHeader, tokenBody)) {
                                 println("Invalid Secret")
                         }
+                        println("Secret valid")
+                        val user = usersRepository.getUserByEmail(claims.email)
+                        if (user?.lastTokenIssued != claims.iat){
+                                println("A new token has been created.")
+                        }
                         if (claims.iat > Instant.now().epochSecond || claims.iat < 0) {
                                 println("Invalid Issued Timestamp")
                         } else if (claims.exp < Instant.now().epochSecond) {
                                 println("Token is Expired")
                         }
+                        println("verification success")
                 }
         }
         @Serializable data class JWebTokenHeader(private val alg: String, private val typ: String) {}
 
         @Serializable
         data class JWebTokenBody(
-                private val name: String,
-                private val email: String,
+                val email: String,
                 val iat: Long,
                 val exp: Long
         ) {}
 }
+
+@Serializable
+data class JWT(val JWT: String)

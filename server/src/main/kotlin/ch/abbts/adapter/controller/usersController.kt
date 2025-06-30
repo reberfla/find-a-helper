@@ -1,14 +1,14 @@
 package ch.abbts.adapter.controller
 
-import ch.abbts.utils.Log
+import utils.Log
 import ch.abbts.utils.LoggerService
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.exposedLogger
-import usersDto
-import usersInteractor
+import application.dto.usersDto
+import application.interactor.usersInteractor
 
 fun Route.userRoutes(userInteractor: usersInteractor) {
     route("/users") {
@@ -36,5 +36,4 @@ fun Route.userRoutes(userInteractor: usersInteractor) {
             }
         }
     }
-
 }
