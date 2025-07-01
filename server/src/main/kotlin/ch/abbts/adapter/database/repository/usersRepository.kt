@@ -1,15 +1,15 @@
-package adapter.database.repository
+package ch.abbts.adapter.database.repository
 
 import ch.abbts.adapter.database.table.User
 import ch.abbts.domain.model.usersModel
 import ch.abbts.utils.LoggerService
-import domain.model.AuthProvider
+import ch.abbts.domain.model.AuthProvider
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.mindrot.jbcrypt.BCrypt
-import utils.Log
+import ch.abbts.utils.Log
 
 class usersRepository {
     companion object : Log() {}
@@ -42,12 +42,10 @@ class usersRepository {
     }
 
     fun updateIssuedTime(email: String, timestamp: Long): Boolean {
-        println("updating issued time $timestamp for $email")
         try {
             transaction {
                 User.update({ User.email eq email }) { it[lastTokenIssued] = timestamp }
             }
-            println("success")
             return true
         } catch (e: Exception) {
             print(e.message)
@@ -75,7 +73,6 @@ class usersRepository {
                 match
             }
         } catch (e: Exception) {
-            println("authenticateLocalUser error: ${e.message}")
             false
         }
     }

@@ -1,6 +1,5 @@
 package ch.abbts.domain.model
 
-import domain.model.AuthProvider
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName

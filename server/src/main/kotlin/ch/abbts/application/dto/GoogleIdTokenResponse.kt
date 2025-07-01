@@ -1,4 +1,4 @@
-package application.dto
+package ch.abbts.application.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

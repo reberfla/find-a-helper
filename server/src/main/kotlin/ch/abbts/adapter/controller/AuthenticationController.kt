@@ -1,10 +1,10 @@
-package adapter.controller
+package ch.abbts.adapter.controller
 
-import application.dto.AuthenticationDto
-import application.interactor.usersInteractor
-import domain.model.AuthProvider
-import domain.model.JWebToken
-import domain.model.JWT
+import ch.abbts.application.dto.AuthenticationDto
+import ch.abbts.application.interactor.usersInteractor
+import ch.abbts.domain.model.AuthProvider
+import ch.abbts.domain.model.JWT
+import ch.abbts.domain.model.JWebToken
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
 import io.github.tabilzad.ktor.annotations.ResponseEntry
@@ -13,6 +13,7 @@ import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.*
 
 @Tag(["Authentication"])
 fun Route.authenticationRoutes(usersInteractor: usersInteractor) {
@@ -28,10 +29,12 @@ fun Route.authenticationRoutes(usersInteractor: usersInteractor) {
         )
         post("/auth") {
             val user = call.receive<AuthenticationDto>()
-            val success = when (user.authenticationProvider) {
-                AuthProvider.GOOGLE -> usersInteractor.verifyGoogleUser(user.token!!)
-                AuthProvider.LOCAL -> usersInteractor.verifyLocalUser(user.email, user.passwordHash!!)
-            }
+            val success =
+                    when (user.authenticationProvider) {
+                        AuthProvider.GOOGLE -> usersInteractor.verifyGoogleUser(user.token!!)
+                        AuthProvider.LOCAL ->
+                                usersInteractor.verifyLocalUser(user.email, user.passwordHash!!)
+                    }
             if (success) {
                 val token = JWebToken(user.email)
                 println("updating timestamp to ${token.body.iat}")
@@ -41,11 +44,11 @@ fun Route.authenticationRoutes(usersInteractor: usersInteractor) {
             call.respond(HttpStatusCode.Unauthorized, "authorization failed")
             // }
         }
-        post("/validate"){
+        post("/validate") {
             val token = call.receive<JWT>()
-            JWebToken.verifyToken(token.JWT)
             JWebToken.validateToken(token.JWT)
-            call.respond("validation Successful")
+            JWebToken.verifyToken(token.JWT)
+            call.respond(buildJsonObject { put("message", "validation successful") })
         }
     }
 }

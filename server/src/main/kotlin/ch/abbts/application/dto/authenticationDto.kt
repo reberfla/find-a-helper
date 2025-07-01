@@ -1,7 +1,7 @@
-package application.dto
+package ch.abbts.application.dto
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
-import domain.model.AuthProvider
+import ch.abbts.domain.model.AuthProvider
 
 @Serializable
 data class AuthenticationDto(

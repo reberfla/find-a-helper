@@ -1,13 +1,12 @@
-package application.dto
+package ch.abbts.application.dto
 
-import application.dto.DTO
 import ch.abbts.domain.model.usersModel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
-import domain.model.AuthProvider
+import ch.abbts.domain.model.AuthProvider
 
 @Serializable
 data class usersDto(

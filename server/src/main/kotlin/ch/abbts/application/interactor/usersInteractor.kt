@@ -1,15 +1,14 @@
-package application.interactor
+package ch.abbts.application.interactor
 
-import adapter.database.repository.usersRepository
-import application.dto.usersDto
-import org.mindrot.jbcrypt.BCrypt
+import ch.abbts.adapter.database.repository.usersRepository
+import ch.abbts.application.dto.usersDto
 import java.time.Instant
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
-import application.dto.GoogleIdTokenResponse
+import ch.abbts.application.dto.GoogleIdTokenResponse
 
 class usersInteractor(
     private val userRepository: usersRepository,
@@ -32,7 +31,6 @@ class usersInteractor(
 
     fun verifyLocalUser(email: String, passwordHash: String): Boolean {
         val user = userRepository.getUserByEmail(email)
-        println(user)
         if (user != null) {
             if (user.passwordHash == passwordHash && Instant.now().epochSecond < (user.lockedUntil ?: Long.MAX_VALUE)) {
                 return true

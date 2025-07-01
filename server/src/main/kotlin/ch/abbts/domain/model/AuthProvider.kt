@@ -1,4 +1,4 @@
-package domain.model
+package ch.abbts.domain.model
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 

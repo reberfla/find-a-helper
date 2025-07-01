@@ -1,4 +1,4 @@
-package config
+package ch.abbts.config
 
 import ch.abbts.adapter.database.table.User
 import com.typesafe.config.ConfigFactory
