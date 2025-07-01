@@ -36,9 +36,9 @@ start_backend ()
 
     cd $SCRIPT_DIR
     cd ..
-    ./gradlew -t build -x test -i &
+    ./gradlew -t build -x test -i -q &
     build_pid=$!
-    sleep 5 && { ./gradlew :server:run & run_pid=$!; }
+    sleep 5 && { ./gradlew :server:run & run_pid=$! ; }
     wait
 }
 
