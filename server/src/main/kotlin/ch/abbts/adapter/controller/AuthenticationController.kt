@@ -12,7 +12,6 @@ import io.github.tabilzad.ktor.annotations.KtorResponds
 import io.github.tabilzad.ktor.annotations.ResponseEntry
 import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.http.*
-import io.ktor.server.auth.OAuth1aException
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.*
 import io.ktor.server.response.*

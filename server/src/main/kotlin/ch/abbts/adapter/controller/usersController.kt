@@ -11,7 +11,6 @@ import ch.abbts.application.interactor.UsersInteractor
 fun Route.userRoutes(userInteractor: UsersInteractor) {
     route("/users") {
         post("/register") {
-            println("in the register api")
             val dto = call.receive<UsersDto>()
             LoggerService.debugLog(dto)
 
