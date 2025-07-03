@@ -1,20 +1,27 @@
+package ch.abbts.application.interactor
 
 import ch.abbts.adapter.database.repository.usersRepository
-import org.mindrot.jbcrypt.BCrypt
+import ch.abbts.application.dto.usersDto
+import java.time.Instant
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.runBlocking
+import ch.abbts.application.dto.GoogleIdTokenResponse
 
 class usersInteractor(
     private val userRepository: usersRepository,
+    private val googleApi: String = "https://oauth2.googleapis.com/tokeninfo?id_token="
 ) {
 
     fun createLocalUser(dto: usersDto): Boolean {
         val existing = authenticateLocalUser(dto)
-        if (existing){
+        if (existing) {
             return false
         }
 
-        val hashed = dto.password_hash?.let { BCrypt.hashpw(it, BCrypt.gensalt()) } ?: return false
-        val newUser = dto.copy(password_hash = hashed).toModel()
-        userRepository.createLocalUser(newUser)
+        userRepository.createLocalUser(dto.toModel())
         return true
     }
 
@@ -22,4 +29,35 @@ class usersInteractor(
         return userRepository.authenticateLocalUser(user.toModel())
     }
 
+    fun verifyLocalUser(email: String, passwordHash: String): Boolean {
+        val user = userRepository.getUserByEmail(email)
+        if (user != null) {
+            if (user.passwordHash == passwordHash && Instant.now().epochSecond < (user.lockedUntil ?: Long.MAX_VALUE)) {
+                return true
+            }
+        }
+        return false
+    }
+    fun updateIssuedTime(email: String, timestamp: Long): Boolean {
+        return userRepository.updateIssuedTime(email, timestamp)
+    }
+
+    fun verifyGoogleUser(token: String): Boolean {
+        val client = HttpClient()
+        val email: String? = runBlocking {
+            val googleResponse = client.get("$googleApi$token")
+            if (googleResponse.status == HttpStatusCode.OK) {
+                googleResponse.body<GoogleIdTokenResponse>().email
+            } else {
+                null
+            }
+        }
+        if (email != null) {
+            val user = userRepository.getUserByEmail(email)
+            if (Instant.now().epochSecond < (user?.lockedUntil ?: Long.MAX_VALUE)) {
+                return true
+            }
+        }
+        return false
+    }
 }
