@@ -1,4 +1,4 @@
-package ch.abbts.models
+package ch.abbts.domain.model
 
 import io.github.tabilzad.ktor.annotations.KtorSchema
 import kotlinx.serialization.Serializable

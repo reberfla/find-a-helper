@@ -1,9 +1,9 @@
 package ch.abbts
 
 import ch.abbts.adapter.database.repository.usersRepository
-import ch.abbts.adapter.*
 import ch.abbts.config.DatabaseConfig
 import ch.abbts.adapter.routes.configureRouting
+import ch.abbts.adapter.routes.configureOpenApi
 import io.github.tabilzad.ktor.annotations.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -12,7 +12,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
-import usersInteractor
+import ch.abbts.application.interactor.usersInteractor
 
 
 fun main() {
