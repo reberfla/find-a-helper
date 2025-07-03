@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.update
 import org.mindrot.jbcrypt.BCrypt
 import ch.abbts.utils.Log
 
-class usersRepository {
+class UsersRepository {
     companion object : Log() {}
     fun createLocalUser(user: usersModel): Boolean {
         return try {
@@ -21,7 +21,7 @@ class usersRepository {
                 LoggerService.debugLog(User)
                 User.insert {
                     it[email] = user.email
-                    it[password_hash] = user.passwordHash
+                    it[password_hash] = BCrypt.hashpw(user.passwordHash, BCrypt.gensalt())
                     it[authProvider] = AuthProvider.LOCAL
                     it[birthdate] = user.birthdate
                     it[active] = user.active ?: true

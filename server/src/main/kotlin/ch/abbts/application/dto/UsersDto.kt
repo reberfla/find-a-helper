@@ -9,7 +9,7 @@ import java.util.*
 import ch.abbts.domain.model.AuthProvider
 
 @Serializable
-data class usersDto(
+data class UsersDto(
     val id: Int? = null,
     val name: String? = null,
     val email: String,
@@ -22,13 +22,13 @@ data class usersDto(
     val imgBase64: String? = null,
     val active: Boolean? = true,
     @SerialName("last_token_issued")
-    val lastTokenIssued: Long?,
+    val lastTokenIssued: Long? = 0L,
     @SerialName("locked_until")
     val lockedUntil: Long? = null,
     @SerialName("auth_provider")
     val authProvider: AuthProvider? = null,
     val birthdate: String,             // format: "yyyy-MM-dd"
-    val idToken: String? = null,
+    val idToken: String? = null
 ) : DTO<usersModel> {
 
     override fun toModel(): usersModel {
@@ -51,8 +51,8 @@ data class usersDto(
     companion object {
         private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-        fun imageUrl(user: usersModel): usersDto {
-            return usersDto(
+        fun imageUrl(user: usersModel): UsersDto {
+            return UsersDto(
                 id = user.id,
                 email = user.email,
                 name = user.name,

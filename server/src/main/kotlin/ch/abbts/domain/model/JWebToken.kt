@@ -1,6 +1,6 @@
 package ch.abbts.domain.model
 
-import ch.abbts.adapter.database.repository.usersRepository
+import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.error.InvalidIssuedTime
 import ch.abbts.error.InvalidSecret
 import ch.abbts.error.InvalidTokenFormat
@@ -14,6 +14,7 @@ import javax.crypto.spec.SecretKeySpec
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import ch.abbts.utils.Log
+import kotlinx.serialization.SerialName
 
 class JWebToken(email: String) {
     private val validDuration = 43500L // 12h + 5min
@@ -24,16 +25,16 @@ class JWebToken(email: String) {
     private val exp: Long = iat.plus(validDuration)
     val header = JWebTokenHeader(alg, typ)
     val body = JWebTokenBody(email, iat, exp)
-    val token = JWebToken.generateToken(header, body)
 
     companion object: Log() {
         val b64Encoder = Base64.getUrlEncoder().withoutPadding()
         val b64Decoder = Base64.getUrlDecoder()
         val config = ConfigFactory.load()
         val secret = config.getString("jwt.secret")
-        val usersRepository = usersRepository()
+        val usersRepository = UsersRepository()
 
         fun generateToken(header: JWebTokenHeader, body: JWebTokenBody): JWT {
+            log.debug("issuing jwt token for ${body.email}")
             val encodedHeader =
                 b64Encoder.encodeToString(
                     Json.encodeToString(header).toByteArray(Charsets.UTF_8)
@@ -66,7 +67,7 @@ class JWebToken(email: String) {
 
                 )
             } catch (_: Exception) {
-                log.error("Invalid Header Format")
+                log.debug("Invalid Header Format")
                 throw InvalidTokenFormat("header")
             }
             try {
@@ -74,7 +75,7 @@ class JWebToken(email: String) {
                     b64Decoder.decode(body).decodeToString()
                 )
             } catch (_: Exception){
-                log.error("Invalid Body Format")
+                log.debug("Invalid Body Format")
                 throw InvalidTokenFormat("body")
             }
         }
@@ -88,7 +89,7 @@ class JWebToken(email: String) {
                     b64Decoder.decode(tokenBody).decodeToString()
                 )
             val tokenSignature = tokenSections[2]
-            if (tokenSignature != JWebToken.generateSignature(tokenHeader, tokenBody)) {
+            if (tokenSignature != generateSignature(tokenHeader, tokenBody)) {
                 throw InvalidSecret()
             }
             val user = usersRepository.getUserByEmail(claims.email)
@@ -111,8 +112,11 @@ class JWebToken(email: String) {
         val email: String,
         val iat: Long,
         val exp: Long
-    ) {}
+    )
 }
 
 @Serializable
-data class JWT(val JWT: String)
+data class JWT(
+    @SerialName("JWT")
+    val jwt: String
+)
