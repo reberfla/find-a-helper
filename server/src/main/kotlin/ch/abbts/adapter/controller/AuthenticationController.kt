@@ -10,7 +10,6 @@ import io.github.tabilzad.ktor.annotations.KtorResponds
 import io.github.tabilzad.ktor.annotations.ResponseEntry
 import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.http.*
-import io.ktor.server.auth.authenticate
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -45,10 +44,11 @@ fun Route.authenticationRoutes(usersInteractor: usersInteractor) {
             call.respond(HttpStatusCode.Unauthorized, "authorization failed")
             // }
         }
-        authenticate ("jwt-auth"){
-            get("/validate") {
-                call.respond(buildJsonObject { put("message", "validation successful") })
-            }
+        post("/validate") {
+            val token = call.receive<JWT>()
+            JWebToken.validateToken(token.JWT)
+            JWebToken.verifyToken(token.JWT)
+            call.respond(buildJsonObject { put("message", "validation successful") })
         }
     }
 }
