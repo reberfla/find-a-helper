@@ -1,4 +1,4 @@
-package ch.abbts.adapter.routes
+package ch.abbts.routes
 
 import io.ktor.server.application.*
 import io.ktor.server.plugins.openapi.*

@@ -20,7 +20,6 @@ dependencies {
     implementation(libs.bundles.ktor)
     implementation(libs.bundles.exposed)
     implementation(libs.dbDriver)
-    implementation(libs.bcrypt)
 
     // utility dependencies
     implementation(libs.config)

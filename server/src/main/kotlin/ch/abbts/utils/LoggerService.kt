@@ -1,5 +1,6 @@
 package ch.abbts.utils
 
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.time.LocalDateTime

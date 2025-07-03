@@ -1,32 +1,22 @@
-package ch.abbts.application.dto
-
+import ch.abbts.application.dto.DTO
 import ch.abbts.domain.model.usersModel
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerialName
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
-import ch.abbts.domain.model.AuthProvider
 
 @Serializable
 data class usersDto(
     val id: Int? = null,
     val name: String? = null,
     val email: String,
-    @SerialName("password_hash")
-    val passwordHash: String? = null,
-    @SerialName("zip_code")
-    val zipCode: Int,
-    @SerialName("image_url")
-    val imageUrl: String? = null,
+    val password_hash: String? = null,
+    val zip_code: Int,
+    val image_url: String? = null,
     val imgBase64: String? = null,
     val active: Boolean? = true,
-    @SerialName("last_token_issued")
-    val lastTokenIssued: Long?,
-    @SerialName("locked_until")
-    val lockedUntil: Long? = null,
-    @SerialName("auth_provider")
-    val authProvider: AuthProvider? = null,
+    val locked_until: String? = null,  // format: "yyyy-MM-dd"
+    val authProvider: String? = null,
     val birthdate: String,             // format: "yyyy-MM-dd"
     val idToken: String? = null,
 ) : DTO<usersModel> {
@@ -36,35 +26,33 @@ data class usersDto(
             id = id,
             email = email,
             name = name ?: "",
-            passwordHash = passwordHash ?: "",
-            zipCode = zipCode,
-            imageUrl = imageUrl ?: "",
+            password_hash = password_hash ?: "",
+            zip_code = zip_code,
+            image_url = image_url ?: "",
             image = imgBase64?.let { Base64.getDecoder().decode(it) },
             active = active,
-            authProvider = authProvider ?: AuthProvider.LOCAL,
-            lastTokenIssued = lastTokenIssued,
-            lockedUntil = lockedUntil?: 0L,
-            birthdate = LocalDate.parse(birthdate, dateFormatter),
+            authProvider = authProvider ?: "ENUM_LOCAL",
+            locked_until = locked_until?.let { LocalDate.parse(it, dateFormatter) },
+            birthdate = LocalDate.parse(birthdate, dateFormatter)
         )
     }
 
     companion object {
         private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-        fun imageUrl(user: usersModel): usersDto {
+        fun fromModel(user: usersModel): usersDto {
             return usersDto(
                 id = user.id,
                 email = user.email,
                 name = user.name,
                 authProvider = user.authProvider,
-                imageUrl = user.imageUrl,
+                image_url = user.image_url,
                 imgBase64 = user.image?.takeIf { it.isNotEmpty() }
                     ?.let { Base64.getEncoder().encodeToString(it) },
-                zipCode = user.zipCode,
+                zip_code = user.zip_code,
                 active = user.active,
-                lockedUntil = user.lockedUntil,
-                birthdate = user.birthdate.format(dateFormatter),
-                lastTokenIssued = user.lastTokenIssued
+                locked_until = user.locked_until?.format(dateFormatter),
+                birthdate = user.birthdate.format(dateFormatter)
             )
         }
     }

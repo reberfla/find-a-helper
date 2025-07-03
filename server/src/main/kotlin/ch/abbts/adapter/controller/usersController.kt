@@ -5,8 +5,8 @@ import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import ch.abbts.application.dto.usersDto
-import ch.abbts.application.interactor.usersInteractor
+import usersDto
+import usersInteractor
 
 fun Route.userRoutes(userInteractor: usersInteractor) {
     route("/users") {
@@ -34,4 +34,5 @@ fun Route.userRoutes(userInteractor: usersInteractor) {
             }
         }
     }
+
 }
