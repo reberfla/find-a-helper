@@ -33,7 +33,7 @@ class UsersInteractor(
     fun verifyLocalUser(email: String, passwordHash: String): Boolean {
         val user = userRepository.getUserByEmail(email)
         if (user != null) {
-            if (BCrypt.checkpw(passwordHash, user.passwordHash) && Instant.now().epochSecond < (user.lockedUntil ?: Long.MAX_VALUE)) {
+            if (BCrypt.checkpw(passwordHash, user.passwordHash) && Instant.now().epochSecond > (user.lockedUntil ?: 0L)) {
                 return true
             }
         }
