@@ -2,7 +2,6 @@ package ch.abbts.domain.model
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerialName
 import java.time.LocalDate
 
 @Serializable
@@ -16,7 +15,7 @@ data class usersModel(
     val image: ByteArray? = null,
     val active: Boolean? = true,
     val authProvider: AuthProvider,
-    val lastTokenIssued: Long?,
+    val lastTokenIssued: Long? = null,
     @Contextual val birthdate: LocalDate,
     @Contextual val lockedUntil: Long? = null
 )

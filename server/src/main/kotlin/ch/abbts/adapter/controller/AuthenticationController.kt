@@ -16,7 +16,9 @@ import io.ktor.server.auth.authenticate
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.JsonObject
 
 @Tag(["Authentication"])
 fun Route.authenticationRoutes(usersInteractor: UsersInteractor) {
@@ -40,8 +42,8 @@ fun Route.authenticationRoutes(usersInteractor: UsersInteractor) {
                         throw MissingGoogleToken()
                     }
 
-                    AuthProvider.LOCAL -> if (user.passwordHash != null) {
-                        usersInteractor.verifyLocalUser(user.email, user.passwordHash)
+                    AuthProvider.LOCAL -> if (user.password != null) {
+                        usersInteractor.verifyLocalUser(user.email, user.password)
                     } else {
                         throw MissingPassword()
                     }
@@ -52,7 +54,9 @@ fun Route.authenticationRoutes(usersInteractor: UsersInteractor) {
                 usersInteractor.updateIssuedTime(user.email, token.body.iat)
                 call.respond(JWebToken.generateToken(token.header, token.body))
             }
-            call.respond(HttpStatusCode.Unauthorized, "authorization failed")
+            call.respond(HttpStatusCode.Unauthorized, buildJsonObject {
+                put("message", "authorization failed")
+            })
         }
         authenticate("jwt-auth") {
             @Tag(["Auth"])

@@ -93,7 +93,8 @@ class UsersRepository {
                             imageUrl = it[User.imageUrl],
                             image = it[User.image]?.bytes,
                             zipCode = it[User.zipCode],
-                            lastTokenIssued = it[User.lastTokenIssued]
+                            lastTokenIssued = it[User.lastTokenIssued],
+                            lockedUntil = it[User.lockedUntil]
                     )
                 }
             }
