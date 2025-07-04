@@ -29,6 +29,7 @@ dependencies {
 
     // Use JUnit Jupiter for testing.
     testImplementation(libs.junit.jupiter)
+    testImplementation(kotlin("test"))
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     implementation("io.ktor:ktor-server-cors:2.3.0")
@@ -66,6 +67,7 @@ swagger {
 
 application {
     mainClass = "ch.abbts.MainKt"
+    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=true")
 }
 
 ktor {

@@ -1,6 +1,6 @@
 package ch.abbts
 
-import ch.abbts.adapter.database.repository.usersRepository
+import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.config.DatabaseConfig
 import ch.abbts.adapter.routes.configureRouting
 import ch.abbts.adapter.routes.configureOpenApi
@@ -11,8 +11,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
-import io.ktor.server.routing.*
-import ch.abbts.application.interactor.usersInteractor
+import ch.abbts.application.interactor.UsersInteractor
 
 
 fun main() {
@@ -45,7 +44,7 @@ fun Application.main() {
     }
     DatabaseConfig.init()
 
-    val userInteractor = usersInteractor(usersRepository())
+    val userInteractor = UsersInteractor(UsersRepository())
 
     configureRouting(userInteractor)
     configureOpenApi()

@@ -5,19 +5,22 @@ import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import ch.abbts.application.dto.usersDto
-import ch.abbts.application.interactor.usersInteractor
+import ch.abbts.application.dto.UsersDto
+import ch.abbts.application.interactor.UsersInteractor
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
-fun Route.userRoutes(userInteractor: usersInteractor) {
+fun Route.userRoutes(userInteractor: UsersInteractor) {
     route("/users") {
         post("/register") {
-            println("here")
-            val dto = call.receive<usersDto>()
+            val dto = call.receive<UsersDto>()
             LoggerService.debugLog(dto)
 
             val success = userInteractor.createLocalUser(dto)
             if (success) {
-                call.respond(HttpStatusCode.OK, "yea")
+                call.respond(HttpStatusCode.OK, buildJsonObject {
+                    put("message", "success")
+                })
             } else {
                 call.respond(HttpStatusCode.Conflict, "User already exists")
             }
@@ -25,7 +28,7 @@ fun Route.userRoutes(userInteractor: usersInteractor) {
 
         route("/auth") {
             post("/local") {
-                val success = userInteractor.authenticateLocalUser(call.receive<usersDto>())
+                val success = userInteractor.authenticateLocalUser(call.receive<UsersDto>())
                 if (success) {
                     call.respond(HttpStatusCode.OK)
                 } else {

@@ -14,7 +14,7 @@ object User : Table("users") {
     val imageUrl = varchar("image_url", 255).nullable()
     val image = blob("image").nullable()
     val active = bool("active").nullable()
-    val lokedUntil = date("locked_until").nullable()
+    val lockedUntil = long("locked_until").nullable()
     val lastTokenIssued = long("last_token_issued").nullable()
     val authProvider = enumerationByName("auth_provider", 255, AuthProvider::class)
     val birthdate = date("birthdate")

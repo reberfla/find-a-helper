@@ -1,7 +1,7 @@
 package ch.abbts.application.interactor
 
-import ch.abbts.adapter.database.repository.usersRepository
-import ch.abbts.application.dto.usersDto
+import ch.abbts.adapter.database.repository.UsersRepository
+import ch.abbts.application.dto.UsersDto
 import java.time.Instant
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -9,13 +9,14 @@ import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import ch.abbts.application.dto.GoogleIdTokenResponse
+import org.mindrot.jbcrypt.BCrypt
 
-class usersInteractor(
-    private val userRepository: usersRepository,
+class UsersInteractor(
+    private val userRepository: UsersRepository,
     private val googleApi: String = "https://oauth2.googleapis.com/tokeninfo?id_token="
 ) {
 
-    fun createLocalUser(dto: usersDto): Boolean {
+    fun createLocalUser(dto: UsersDto): Boolean {
         val existing = authenticateLocalUser(dto)
         if (existing) {
             return false
@@ -25,14 +26,14 @@ class usersInteractor(
         return true
     }
 
-    fun authenticateLocalUser(user: usersDto): Boolean {
+    fun authenticateLocalUser(user: UsersDto): Boolean {
         return userRepository.authenticateLocalUser(user.toModel())
     }
 
     fun verifyLocalUser(email: String, passwordHash: String): Boolean {
         val user = userRepository.getUserByEmail(email)
         if (user != null) {
-            if (user.passwordHash == passwordHash && Instant.now().epochSecond < (user.lockedUntil ?: Long.MAX_VALUE)) {
+            if (BCrypt.checkpw(passwordHash, user.passwordHash) && Instant.now().epochSecond > (user.lockedUntil ?: 0L)) {
                 return true
             }
         }
