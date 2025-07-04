@@ -1,0 +1,19 @@
+@startuml
+autonumber
+
+Client -> "Google Auth Server": Authenticate with Google account
+"Google Auth Server" --> Client: Authentication token
+
+Client -> "Server": POST /v1/auth (email, token, auth_provider=GOOGLE)
+"Server" -> "Google Auth Server": Verify Google token
+"Google Auth Server" --> "Server": Token verification result
+
+alt email claim correct and token not older than 5 min
+    "Server" -> "Server": Generate JWT token
+    "Server" -> Database: Update issued_at for user
+    Database --> "Server": Update success
+    "Server" --> Client: JWT token
+else Invalid token or email/timestamp incorrect
+    "Server" --> Client: Error response
+end
+@enduml

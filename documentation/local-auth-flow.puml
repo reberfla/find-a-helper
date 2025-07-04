@@ -1,0 +1,15 @@
+@startuml
+autonumber
+
+Client -> Server: POST /v1/auth (email, password_hash, auth_provider=LOCAL)
+Server -> Database: Verify email, password_hash, locked_until
+Database --> Server: User record (validinvalid, locked_until)
+alt Credentials valid and not locked
+    Server -> Server: Generate JWT token
+    Server -> Database: Update issued_at for user
+    Database --> Server: Update success
+    Server --> Client: JWT token
+else Invalid credentials or locked
+    Server --> Client: Error response
+end
+@enduml

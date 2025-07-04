@@ -10,6 +10,10 @@ frontend=false
 
 clean_up () {
     echo
+    echo "stopping build and run task"
+    echo "run task pid: $run_pid"
+    echo "build task pid: $build_pid"
+    kill -9 $build_pid $run_pid
     echo "shutting down docker containers"
     docker compose -f ${SCRIPT_DIR}/${DOCKER_COMPOSE_FILE} down
 }
@@ -32,7 +36,10 @@ start_backend ()
 
     cd $SCRIPT_DIR
     cd ..
-    ./gradlew -t build -x test -i
+    ./gradlew -t build -x test -i -q &
+    build_pid=$!
+    sleep 5 && { ./gradlew :server:run & run_pid=$! ; }
+    wait
 }
 
 start_frontend ()

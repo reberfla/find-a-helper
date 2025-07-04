@@ -1,10 +1,9 @@
 package ch.abbts.config
 
+import ch.abbts.adapter.database.table.User
 import com.typesafe.config.ConfigFactory
-// import adapter.persistence.database.table.User
 import org.jetbrains.exposed.sql.Database
-import io.ktor.server.application.*
-// import org.jetbrains.exposed.sql.SchemaUtils
+ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object DatabaseConfig {
@@ -22,8 +21,8 @@ object DatabaseConfig {
             password = password
         )
 
-    //     transaction {
-    //         SchemaUtils.create(User)
-    //     }
+        transaction {
+            SchemaUtils.create(User)
+         }
     }
 }
