@@ -12,20 +12,18 @@ import io.github.tabilzad.ktor.annotations.KtorResponds
 import io.github.tabilzad.ktor.annotations.ResponseEntry
 import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.http.*
+import io.ktor.server.auth.authenticate
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import kotlinx.serialization.json.JsonObject
 
 @Tag(["Authentication"])
 fun Route.authenticationRoutes(usersInteractor: UsersInteractor) {
     route("/v1") {
-        @Tag(["Auth"])
         @KtorResponds(mapping = [ResponseEntry("200", JWT::class)])
         @KtorDescription(
-            tags = ["Auth"],
             summary = "Authenticate to receive a JWT Token",
             description =
                 """ This api verifies a users credential or token from google and returns
@@ -58,10 +56,7 @@ fun Route.authenticationRoutes(usersInteractor: UsersInteractor) {
             })
         }
         authenticate("jwt-auth") {
-            @Tag(["Auth"])
-            @KtorResponds(mapping = [ResponseEntry("200", JsonObject::class)])
             @KtorDescription(
-                tags = ["Auth"],
                 summary = "API to verify if a JWT token is valid",
                 description = "This is a debug route to verify if a token is valid"
             )

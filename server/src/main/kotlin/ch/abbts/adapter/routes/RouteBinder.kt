@@ -36,6 +36,15 @@ fun Application.configureRouting(
             }
         }
     }
+    authentication {
+        bearer("jwt-auth") {
+            realm = "Access to protected routes"
+            authenticate { jwt ->
+                JWebToken.validateToken(jwt.token)
+                JWebToken.verifyToken(jwt.token)
+            }
+        }
+    }
     routing { userRoutes(usersInteractor) }
     routing { authenticationRoutes(usersInteractor) }
 }

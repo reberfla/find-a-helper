@@ -67,7 +67,6 @@ swagger {
 
 application {
     mainClass = "ch.abbts.MainKt"
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=true")
 }
 
 ktor {
