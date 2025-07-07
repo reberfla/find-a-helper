@@ -1,14 +1,10 @@
 package ch.abbts.error
 import kotlinx.serialization.Serializable
 
-
-@Serializable
-sealed class AuthenticationException(override val message: String):Throwable() {}
-
-class InvalidTokenFormat(tokenSection: String): AuthenticationException("invalid token $tokenSection format")
-class InvalidSecret : AuthenticationException("invalid signature")
-class TokenNotRecent: AuthenticationException("there has been a more recent token issued")
-class InvalidIssuedTime: AuthenticationException("the token's issued at timestamp is invalid")
-class TokenExpired: AuthenticationException("token is expired")
-class MissingPassword(): AuthenticationException("authentication method is 'LOCAL' but no password was provided")
-class MissingGoogleToken(): AuthenticationException("authentication method is 'GOOGLE' but no token was provided")
+class InvalidTokenFormat(tokenSection: String): WebserverError("invalid token $tokenSection format", 401)
+class InvalidSecret : WebserverError("invalid signature", 401)
+class TokenNotRecent: WebserverError("there has been a more recent token issued", 401)
+class InvalidIssuedTime: WebserverError("the token's issued at timestamp is invalid", 401)
+class TokenExpired: WebserverError("token is expired", 401)
+class MissingPassword(): WebserverError("authentication method is 'LOCAL' but no password was provided", 400)
+class MissingGoogleToken(): WebserverError("authentication method is 'GOOGLE' but no token was provided", 400)
