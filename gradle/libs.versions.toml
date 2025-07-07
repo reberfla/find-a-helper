@@ -24,6 +24,7 @@ ktorServerHostCommon = { module = "io.ktor:ktor-server-host-common", version.ref
 ktorStatusPage = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktorVersion" }
 ktorServerCors = { module = "io.ktor:ktor-server-cors", version.ref = "ktorVersion" }
 ktorHttpClient = { module = "io.ktor:ktor-client-core", version.ref = "ktorVersion" }
+ktorHttpClientEngine = { module = "io.ktor:ktor-client-cio", version.ref = "ktorVersion" }
 
 exposedCore = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposedVersion" }
 exposedDao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposedVersion" }
@@ -52,7 +53,8 @@ ktor = [
     "ktorSwaggerCodeGen",
     "ktorServerCors",
     "ktorServerHostCommon",
-    "ktorHttpClient"
+    "ktorHttpClient",
+    "ktorHttpClientEngine"
 ]
 
 exposed = [

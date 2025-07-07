@@ -10,14 +10,14 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.mindrot.jbcrypt.BCrypt
 import ch.abbts.utils.Log
+import ch.abbts.error.UserCreationFailed
+import ch.abbts.error.UpdatingIssuedTimeFailed
 
 class UsersRepository {
     companion object : Log() {}
-    fun createLocalUser(user: usersModel): Boolean {
-        return try {
+    fun createLocalUser(user: usersModel){
+        try {
             transaction {
-                if (User.select { User.email eq user.email }.count() > 0) return@transaction false
-
                 LoggerService.debugLog(User)
                 User.insert {
                     it[email] = user.email
@@ -33,47 +33,19 @@ class UsersRepository {
                             }
                     it[zipCode] = user.zipCode
                 }
-                true
             }
         } catch (e: Exception) {
-
-            false
+            throw UserCreationFailed(e)
         }
     }
 
-    fun updateIssuedTime(email: String, timestamp: Long): Boolean {
+    fun updateIssuedTime(email: String, timestamp: Long){
         try {
             transaction {
                 User.update({ User.email eq email }) { it[lastTokenIssued] = timestamp }
             }
-            return true
         } catch (e: Exception) {
-            print(e.message)
-            return false
-        }
-    }
-
-    fun authenticateLocalUser(user: usersModel): Boolean {
-        return try {
-            transaction {
-                val userRow =
-                        User.select { User.email eq user.email }.singleOrNull()
-                                ?: return@transaction false
-
-                if (userRow[User.authProvider] != AuthProvider.LOCAL) return@transaction false
-
-                val rawPassword = user.passwordHash
-                val storedHash = userRow[User.password_hash]
-
-                LoggerService.debugLog("Entered password: $rawPassword")
-                LoggerService.debugLog("Stored hash: $storedHash")
-                val match = BCrypt.checkpw(rawPassword, storedHash)
-                LoggerService.debugLog("Password match: $match")
-
-                match
-            }
-        } catch (e: Exception) {
-            false
+            throw UpdatingIssuedTimeFailed()
         }
     }
 

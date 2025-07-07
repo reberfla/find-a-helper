@@ -7,6 +7,7 @@ import ch.abbts.domain.model.JWT
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.MissingGoogleToken
 import ch.abbts.error.MissingPassword
+import ch.abbts.error.WebserverError
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
 import io.github.tabilzad.ktor.annotations.ResponseEntry
@@ -22,7 +23,12 @@ import kotlinx.serialization.json.put
 @Tag(["Authentication"])
 fun Route.authenticationRoutes(usersInteractor: UsersInteractor) {
     route("/v1") {
-        @KtorResponds(mapping = [ResponseEntry("200", JWT::class)])
+        @KtorResponds(mapping = [
+        ResponseEntry("200", JWT::class),
+        ResponseEntry("401", WebserverError::class),
+        ResponseEntry("400", WebserverError::class),
+        ResponseEntry("500", WebserverError::class)
+        ])
         @KtorDescription(
             summary = "Authenticate to receive a JWT Token",
             description =
@@ -31,26 +37,23 @@ fun Route.authenticationRoutes(usersInteractor: UsersInteractor) {
         )
         post("/auth") {
             val user = call.receive<AuthenticationDto>()
-            val success =
-                when (user.authenticationProvider) {
-                    AuthProvider.GOOGLE -> if (user.token != null) {
-                        usersInteractor.verifyGoogleUser(user.token)
-                    } else {
-                        throw MissingGoogleToken()
-                    }
-
-                    AuthProvider.LOCAL -> if (user.password != null) {
-                        usersInteractor.verifyLocalUser(user.email, user.password)
-                    } else {
-                        throw MissingPassword()
-                    }
+            when (user.authenticationProvider) {
+                AuthProvider.GOOGLE -> if (user.token != null) {
+                    usersInteractor.verifyGoogleUser(user.token)
+                } else {
+                    throw MissingGoogleToken()
                 }
-            if (success) {
-                val token = JWebToken(user.email)
-                println("updating timestamp to ${token.body.iat}")
-                usersInteractor.updateIssuedTime(user.email, token.body.iat)
-                call.respond(JWebToken.generateToken(token.header, token.body))
+
+                AuthProvider.LOCAL -> if (user.password != null) {
+                    usersInteractor.verifyLocalUser(user.email, user.password)
+                } else {
+                    throw MissingPassword()
+                }
             }
+            val token = JWebToken(user.email)
+            usersInteractor.updateIssuedTime(user.email, token.body.iat)
+            call.respond(JWebToken.generateToken(token.header, token.body))
+
             call.respond(HttpStatusCode.Unauthorized, buildJsonObject {
                 put("message", "authorization failed")
             })

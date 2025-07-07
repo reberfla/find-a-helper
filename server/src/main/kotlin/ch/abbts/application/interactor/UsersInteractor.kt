@@ -1,64 +1,75 @@
 package ch.abbts.application.interactor
 
 import ch.abbts.adapter.database.repository.UsersRepository
+import ch.abbts.application.dto.GoogleIdTokenResponse
 import ch.abbts.application.dto.UsersDto
-import java.time.Instant
+import ch.abbts.error.InvalidCredentials
+import ch.abbts.error.NoEmailProvidedByGoogle
+import ch.abbts.error.UserAlreadyExists
+import ch.abbts.error.UserNotFound
+import ch.abbts.error.UserIsLocked
+import ch.abbts.error.BadResponseFromGoogle
+import ch.abbts.utils.Log
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.*
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
+import java.time.Instant
 import kotlinx.coroutines.runBlocking
-import ch.abbts.application.dto.GoogleIdTokenResponse
 import org.mindrot.jbcrypt.BCrypt
 
 class UsersInteractor(
-    private val userRepository: UsersRepository,
-    private val googleApi: String = "https://oauth2.googleapis.com/tokeninfo?id_token="
+        private val userRepository: UsersRepository,
+        private val googleApi: String = "https://oauth2.googleapis.com/tokeninfo?id_token="
 ) {
 
-    fun createLocalUser(dto: UsersDto): Boolean {
-        val existing = authenticateLocalUser(dto)
-        if (existing) {
-            return false
+    companion object: Log() {}
+
+    fun createLocalUser(dto: UsersDto) {
+        val existing = userRepository.getUserByEmail(dto.email)
+        if (existing != null) {
+            throw UserAlreadyExists()
         }
-
         userRepository.createLocalUser(dto.toModel())
-        return true
     }
 
-    fun authenticateLocalUser(user: UsersDto): Boolean {
-        return userRepository.authenticateLocalUser(user.toModel())
-    }
-
-    fun verifyLocalUser(email: String, passwordHash: String): Boolean {
+    fun verifyLocalUser(email: String, passwordHash: String) {
         val user = userRepository.getUserByEmail(email)
         if (user != null) {
-            if (BCrypt.checkpw(passwordHash, user.passwordHash) && Instant.now().epochSecond > (user.lockedUntil ?: 0L)) {
-                return true
+            if (!(Instant.now().epochSecond > (user.lockedUntil ?: 0L))) {
+                throw UserIsLocked()
+            } else if (!BCrypt.checkpw(passwordHash, user.passwordHash)) {
+                throw InvalidCredentials()
             }
+        } else {
+            throw UserNotFound()
         }
-        return false
     }
-    fun updateIssuedTime(email: String, timestamp: Long): Boolean {
+
+    fun updateIssuedTime(email: String, timestamp: Long) {
         return userRepository.updateIssuedTime(email, timestamp)
     }
 
-    fun verifyGoogleUser(token: String): Boolean {
-        val client = HttpClient()
+    fun verifyGoogleUser(token: String) {
+        log.debug("verifying user with token: $token")
         val email: String? = runBlocking {
+            val client = HttpClient(CIO)
             val googleResponse = client.get("$googleApi$token")
+            log.debug(googleResponse.body())
             if (googleResponse.status == HttpStatusCode.OK) {
                 googleResponse.body<GoogleIdTokenResponse>().email
             } else {
-                null
+                throw BadResponseFromGoogle()
             }
         }
         if (email != null) {
             val user = userRepository.getUserByEmail(email)
-            if (Instant.now().epochSecond < (user?.lockedUntil ?: Long.MAX_VALUE)) {
-                return true
+            if (Instant.now().epochSecond < (user?.lockedUntil ?: 0L)) {
+                UserIsLocked()
             }
+        } else {
+            throw NoEmailProvidedByGoogle()
         }
-        return false
     }
 }

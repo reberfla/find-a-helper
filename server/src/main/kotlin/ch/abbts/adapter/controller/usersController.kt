@@ -11,30 +11,15 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 fun Route.userRoutes(userInteractor: UsersInteractor) {
-    route("/users") {
+    route("/v1/user") {
         post("/register") {
             val dto = call.receive<UsersDto>()
             LoggerService.debugLog(dto)
 
-            val success = userInteractor.createLocalUser(dto)
-            if (success) {
-                call.respond(HttpStatusCode.OK, buildJsonObject {
-                    put("message", "success")
-                })
-            } else {
-                call.respond(HttpStatusCode.Conflict, "User already exists")
-            }
-        }
-
-        route("/auth") {
-            post("/local") {
-                val success = userInteractor.authenticateLocalUser(call.receive<UsersDto>())
-                if (success) {
-                    call.respond(HttpStatusCode.OK)
-                } else {
-                    call.respond(HttpStatusCode.Unauthorized, "Invalid credentials")
-                }
-            }
+            userInteractor.createLocalUser(dto)
+            call.respond(HttpStatusCode.OK, buildJsonObject {
+                put("message", "success")
+            })
         }
     }
 }
