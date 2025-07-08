@@ -1,13 +1,14 @@
 package ch.abbts.adapter.controller
 
 import ch.abbts.application.dto.AuthenticationDto
+import ch.abbts.application.dto.SuccessMessage
 import ch.abbts.application.interactor.UsersInteractor
 import ch.abbts.domain.model.AuthProvider
 import ch.abbts.domain.model.JWT
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.MissingGoogleToken
 import ch.abbts.error.MissingPassword
-import ch.abbts.error.WebserverError
+import ch.abbts.error.WebserverErrorMessage
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
 import io.github.tabilzad.ktor.annotations.ResponseEntry
@@ -25,9 +26,9 @@ fun Route.authenticationRoutes(usersInteractor: UsersInteractor) {
     route("/v1") {
         @KtorResponds(mapping = [
         ResponseEntry("200", JWT::class),
-        ResponseEntry("401", WebserverError::class),
-        ResponseEntry("400", WebserverError::class),
-        ResponseEntry("500", WebserverError::class)
+        ResponseEntry("401", WebserverErrorMessage::class),
+        ResponseEntry("400", WebserverErrorMessage::class),
+        ResponseEntry("500", WebserverErrorMessage::class)
         ])
         @KtorDescription(
             summary = "Authenticate to receive a JWT Token",
@@ -59,12 +60,18 @@ fun Route.authenticationRoutes(usersInteractor: UsersInteractor) {
             })
         }
         authenticate("jwt-auth") {
+            @KtorResponds(mapping = [
+            ResponseEntry("200", SuccessMessage::class),
+            ResponseEntry("401", WebserverErrorMessage::class),
+            ResponseEntry("400", WebserverErrorMessage::class),
+            ResponseEntry("500", WebserverErrorMessage::class)
+            ])
             @KtorDescription(
                 summary = "API to verify if a JWT token is valid",
                 description = "This is a debug route to verify if a token is valid"
             )
             get("/validate") {
-                call.respond(buildJsonObject { put("message", "validation successful") })
+                call.respond(SuccessMessage())
             }
         }
     }

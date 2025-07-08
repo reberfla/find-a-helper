@@ -25,16 +25,11 @@ dependencies {
     // utility dependencies
     implementation(libs.config)
     implementation(libs.logging)
-    implementation("io.ktor:ktor-server-cors:3.1.3")
 
     // Use JUnit Jupiter for testing.
     testImplementation(libs.junit.jupiter)
     testImplementation(kotlin("test"))
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-    implementation("io.ktor:ktor-server-cors:2.3.0")
-    implementation("org.mindrot:jbcrypt:0.4")
-
 }
 
 java {
