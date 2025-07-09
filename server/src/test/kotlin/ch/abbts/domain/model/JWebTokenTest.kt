@@ -1,9 +1,8 @@
 package ch.abbts.domain.model
 
 import ch.abbts.error.InvalidTokenFormat
-import ch.abbts.error.InvalidSecret
 import org.junit.jupiter.api.Test
-import java.util.Base64
+import java.util.*
 import kotlin.test.assertFailsWith
 
 class JWebTokenTest {

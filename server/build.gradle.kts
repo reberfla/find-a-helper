@@ -29,6 +29,8 @@ dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation(libs.junit.jupiter)
     testImplementation(kotlin("test"))
+    testImplementation(libs.ktorTest)
+    testImplementation(libs.mockito)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

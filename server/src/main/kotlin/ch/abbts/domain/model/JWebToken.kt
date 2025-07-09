@@ -1,20 +1,16 @@
 package ch.abbts.domain.model
 
 import ch.abbts.adapter.database.repository.UsersRepository
-import ch.abbts.error.InvalidIssuedTime
-import ch.abbts.error.InvalidSecret
-import ch.abbts.error.InvalidTokenFormat
-import ch.abbts.error.TokenExpired
-import ch.abbts.error.TokenNotRecent
+import ch.abbts.error.*
+import ch.abbts.utils.Log
 import com.typesafe.config.ConfigFactory
-import java.time.Instant
-import java.util.Base64
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import ch.abbts.utils.Log
-import kotlinx.serialization.SerialName
+import java.time.Instant
+import java.util.*
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
 class JWebToken(email: String) {
     private val validDuration = 43500L // 12h + 5min
@@ -26,7 +22,7 @@ class JWebToken(email: String) {
     val header = JWebTokenHeader(alg, typ)
     val body = JWebTokenBody(email, iat, exp)
 
-    companion object: Log() {
+    companion object : Log() {
         val b64Encoder = Base64.getUrlEncoder().withoutPadding()
         val b64Decoder = Base64.getUrlDecoder()
         val config = ConfigFactory.load()
@@ -74,7 +70,7 @@ class JWebToken(email: String) {
                 Json.decodeFromString<JWebTokenBody>(
                     b64Decoder.decode(body).decodeToString()
                 )
-            } catch (_: Exception){
+            } catch (_: Exception) {
                 log.debug("Invalid Body Format")
                 throw InvalidTokenFormat("body")
             }

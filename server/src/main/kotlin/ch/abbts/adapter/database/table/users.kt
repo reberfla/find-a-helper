@@ -1,8 +1,8 @@
 package ch.abbts.adapter.database.table
 
+import ch.abbts.domain.model.AuthProvider
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.date
-import ch.abbts.domain.model.AuthProvider
 
 
 object User : Table("users") {

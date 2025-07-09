@@ -12,7 +12,11 @@ object LoggerService {
     fun debugLog(data: Any) {
         val timestamp = LocalDateTime.now().format(formatter)
         val traceElement = Thread.currentThread().stackTrace
-            .firstOrNull { it.className.contains("usecase") || it.className.contains("service") || it.className.contains("controller") }
+            .firstOrNull {
+                it.className.contains("usecase") || it.className.contains("service") || it.className.contains(
+                    "controller"
+                )
+            }
 
         val location = if (traceElement != null) {
             "${traceElement.fileName}:${traceElement.lineNumber} -> ${traceElement.methodName}()"

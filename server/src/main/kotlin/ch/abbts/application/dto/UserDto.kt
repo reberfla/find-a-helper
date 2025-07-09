@@ -1,15 +1,15 @@
 package ch.abbts.application.dto
 
-import ch.abbts.domain.model.usersModel
-import kotlinx.serialization.Serializable
+import ch.abbts.domain.model.AuthProvider
+import ch.abbts.domain.model.UserModel
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
-import ch.abbts.domain.model.AuthProvider
 
 @Serializable
-data class UsersDto(
+data class UserDto(
     val id: Int? = null,
     val name: String? = null,
     val email: String,
@@ -24,10 +24,10 @@ data class UsersDto(
     val authProvider: AuthProvider? = null,
     val birthdate: String,             // format: "yyyy-MM-dd"
     val idToken: String? = null
-) : DTO<usersModel> {
+) : DTO<UserModel> {
 
-    override fun toModel(): usersModel {
-        return usersModel(
+    override fun toModel(): UserModel {
+        return UserModel(
             id = id,
             email = email,
             name = name ?: "",
@@ -44,8 +44,8 @@ data class UsersDto(
     companion object {
         private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-        fun imageUrl(user: usersModel): UsersDto {
-            return UsersDto(
+        fun imageUrl(user: UserModel): UserDto {
+            return UserDto(
                 id = user.id,
                 email = user.email,
                 name = user.name,

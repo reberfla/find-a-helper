@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
 @Serializable
-data class usersModel(
+data class UserModel(
     val id: Int? = null,
     val name: String,
     val email: String,

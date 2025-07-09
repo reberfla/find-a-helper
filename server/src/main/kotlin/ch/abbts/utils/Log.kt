@@ -1,7 +1,7 @@
 package ch.abbts.utils
 
-import org.slf4j.LoggerFactory
 import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 // see 2. approach here: https://gist.github.com/maxixcom/cd454e4b75730c17a515e8db15a4ae78
 
