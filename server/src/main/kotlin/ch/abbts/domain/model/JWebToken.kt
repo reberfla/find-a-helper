@@ -4,13 +4,13 @@ import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.error.*
 import ch.abbts.utils.Log
 import com.typesafe.config.ConfigFactory
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import java.time.Instant
 import java.util.*
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 class JWebToken(email: String) {
     private val validDuration = 43500L // 12h + 5min
@@ -48,7 +48,8 @@ class JWebToken(email: String) {
             val secretKey =
                 SecretKeySpec(secret.toByteArray(Charsets.UTF_8), "HmacSHA256")
             hmac.init(secretKey)
-            val signature = hmac.doFinal("$header.$body".toByteArray(Charsets.UTF_8))
+            val signature =
+                hmac.doFinal("$header.$body".toByteArray(Charsets.UTF_8))
             hmac.reset()
             return b64Encoder.encodeToString(signature)
         }
@@ -60,7 +61,6 @@ class JWebToken(email: String) {
             try {
                 Json.decodeFromString<JWebTokenHeader>(
                     b64Decoder.decode(header).decodeToString()
-
                 )
             } catch (_: Exception) {
                 log.debug("Invalid Header Format")
@@ -101,18 +101,13 @@ class JWebToken(email: String) {
     }
 
     @Serializable
-    data class JWebTokenHeader(private val alg: String, private val typ: String) {}
+    data class JWebTokenHeader(
+        private val alg: String,
+        private val typ: String,
+    ) {}
 
     @Serializable
-    data class JWebTokenBody(
-        val email: String,
-        val iat: Long,
-        val exp: Long
-    )
+    data class JWebTokenBody(val email: String, val iat: Long, val exp: Long)
 }
 
-@Serializable
-data class JWT(
-    @SerialName("JWT")
-    val jwt: String
-)
+@Serializable data class JWT(@SerialName("JWT") val jwt: String)

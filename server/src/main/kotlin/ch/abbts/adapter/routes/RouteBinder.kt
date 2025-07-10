@@ -16,17 +16,19 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-fun Application.configureRouting(
-    userInteractor: UserInteractor,
-) {
+fun Application.configureRouting(userInteractor: UserInteractor) {
     install(StatusPages) {
         exception<Throwable> { call, error ->
             when (error) {
-                is WebserverError -> call.respond(status = error.getStatus(), error.getMessage())
+                is WebserverError ->
+                    call.respond(status = error.getStatus(), error.getMessage())
                 else ->
                     call.respond(
                         status = HttpStatusCode.InternalServerError,
-                        message = buildJsonObject { put("message", "something went wrong") }
+                        message =
+                            buildJsonObject {
+                                put("message", "something went wrong")
+                            },
                     )
             }
         }

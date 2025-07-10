@@ -2,11 +2,11 @@ package ch.abbts.application.dto
 
 import ch.abbts.domain.model.AuthProvider
 import ch.abbts.domain.model.UserModel
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserDto(
@@ -14,16 +14,13 @@ data class UserDto(
     val name: String? = null,
     val email: String,
     val password: String? = null,
-    @SerialName("zip_code")
-    val zipCode: Int,
-    @SerialName("image_url")
-    val imageUrl: String? = null,
+    @SerialName("zip_code") val zipCode: Int,
+    @SerialName("image_url") val imageUrl: String? = null,
     val imgBase64: String? = null,
     val active: Boolean? = true,
-    @SerialName("auth_provider")
-    val authProvider: AuthProvider? = null,
-    val birthdate: String,             // format: "yyyy-MM-dd"
-    val idToken: String? = null
+    @SerialName("auth_provider") val authProvider: AuthProvider? = null,
+    val birthdate: String, // format: "yyyy-MM-dd"
+    val idToken: String? = null,
 ) : DTO<UserModel> {
 
     override fun toModel(): UserModel {
@@ -51,8 +48,10 @@ data class UserDto(
                 name = user.name,
                 authProvider = user.authProvider,
                 imageUrl = user.imageUrl,
-                imgBase64 = user.image?.takeIf { it.isNotEmpty() }
-                    ?.let { Base64.getEncoder().encodeToString(it) },
+                imgBase64 =
+                    user.image
+                        ?.takeIf { it.isNotEmpty() }
+                        ?.let { Base64.getEncoder().encodeToString(it) },
                 zipCode = user.zipCode,
                 active = user.active,
                 birthdate = user.birthdate.format(dateFormatter),

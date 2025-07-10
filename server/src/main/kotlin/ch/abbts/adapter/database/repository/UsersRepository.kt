@@ -22,7 +22,8 @@ class UsersRepository {
                 LoggerService.debugLog(User)
                 User.insert {
                     it[email] = user.email
-                    it[password_hash] = BCrypt.hashpw(user.passwordHash, BCrypt.gensalt())
+                    it[password_hash] =
+                        BCrypt.hashpw(user.passwordHash, BCrypt.gensalt())
                     it[authProvider] = AuthProvider.LOCAL
                     it[birthdate] = user.birthdate
                     it[active] = user.active ?: true
@@ -30,7 +31,8 @@ class UsersRepository {
                     it[imageUrl] = user.imageUrl
                     it[image] =
                         user.image?.let { bytes ->
-                            org.jetbrains.exposed.sql.statements.api.ExposedBlob(bytes)
+                            org.jetbrains.exposed.sql.statements.api
+                                .ExposedBlob(bytes)
                         }
                     it[zipCode] = user.zipCode
                 }
@@ -43,7 +45,9 @@ class UsersRepository {
     fun updateIssuedTime(email: String, timestamp: Long): Unit {
         try {
             transaction {
-                User.update({ User.email eq email }) { it[lastTokenIssued] = timestamp }
+                User.update({ User.email eq email }) {
+                    it[lastTokenIssued] = timestamp
+                }
             }
         } catch (e: Exception) {
             throw UpdatingIssuedTimeFailed()
@@ -54,22 +58,24 @@ class UsersRepository {
         log.debug("fetching user for $email")
         return try {
             transaction {
-                User.select { User.email eq email }.singleOrNull()?.let {
-                    UserModel(
-                        id = it[User.id],
-                        email = it[User.email],
-                        passwordHash = it[User.password_hash],
-                        authProvider = it[User.authProvider],
-                        birthdate = it[User.birthdate],
-                        active = it[User.active],
-                        name = it[User.name],
-                        imageUrl = it[User.imageUrl],
-                        image = it[User.image]?.bytes,
-                        zipCode = it[User.zipCode],
-                        lastTokenIssued = it[User.lastTokenIssued],
-                        lockedUntil = it[User.lockedUntil]
-                    )
-                }
+                User.select { User.email eq email }
+                    .singleOrNull()
+                    ?.let {
+                        UserModel(
+                            id = it[User.id],
+                            email = it[User.email],
+                            passwordHash = it[User.password_hash],
+                            authProvider = it[User.authProvider],
+                            birthdate = it[User.birthdate],
+                            active = it[User.active],
+                            name = it[User.name],
+                            imageUrl = it[User.imageUrl],
+                            image = it[User.image]?.bytes,
+                            zipCode = it[User.zipCode],
+                            lastTokenIssued = it[User.lastTokenIssued],
+                            lockedUntil = it[User.lockedUntil],
+                        )
+                    }
             }
         } catch (e: Exception) {
             log.error("Error fetching user by email: ${e.message}")

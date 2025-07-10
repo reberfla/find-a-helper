@@ -24,34 +24,40 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
     routing {
         route("/v1") {
             @KtorResponds(
-                mapping = [
-                    ResponseEntry("200", JWT::class),
-                    ResponseEntry("401", WebserverErrorMessage::class),
-                    ResponseEntry("400", WebserverErrorMessage::class),
-                    ResponseEntry("500", WebserverErrorMessage::class)
-                ]
+                mapping =
+                    [
+                        ResponseEntry("200", JWT::class),
+                        ResponseEntry("401", WebserverErrorMessage::class),
+                        ResponseEntry("400", WebserverErrorMessage::class),
+                        ResponseEntry("500", WebserverErrorMessage::class),
+                    ]
             )
             @KtorDescription(
                 summary = "Authenticate to receive a JWT Token",
                 description =
                     """ This api verifies a users credential or token from google and returns
-                a JWT from the server for subsequent api calls.""""
+                a JWT from the server for subsequent api calls."""",
             )
             post("/auth") {
                 val user = call.receive<AuthenticationDto>()
                 log.debug("verifying local user with email: ${user.email}")
                 when (user.authenticationProvider) {
-                    AuthProvider.GOOGLE -> if (user.token != null) {
-                        userInteractor.verifyGoogleUser(user.token)
-                    } else {
-                        throw MissingGoogleToken()
-                    }
+                    AuthProvider.GOOGLE ->
+                        if (user.token != null) {
+                            userInteractor.verifyGoogleUser(user.token)
+                        } else {
+                            throw MissingGoogleToken()
+                        }
 
-                    AuthProvider.LOCAL -> if (user.password != null) {
-                        userInteractor.verifyLocalUser(user.email, user.password)
-                    } else {
-                        throw MissingPassword()
-                    }
+                    AuthProvider.LOCAL ->
+                        if (user.password != null) {
+                            userInteractor.verifyLocalUser(
+                                user.email,
+                                user.password,
+                            )
+                        } else {
+                            throw MissingPassword()
+                        }
                 }
                 val token = JWebToken(user.email)
                 userInteractor.updateIssuedTime(user.email, token.body.iat)
@@ -59,22 +65,21 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
             }
             authenticate("jwt-auth") {
                 @KtorResponds(
-                    mapping = [
-                        ResponseEntry("200", SuccessMessage::class),
-                        ResponseEntry("401", WebserverErrorMessage::class),
-                        ResponseEntry("400", WebserverErrorMessage::class),
-                        ResponseEntry("500", WebserverErrorMessage::class)
-                    ]
+                    mapping =
+                        [
+                            ResponseEntry("200", SuccessMessage::class),
+                            ResponseEntry("401", WebserverErrorMessage::class),
+                            ResponseEntry("400", WebserverErrorMessage::class),
+                            ResponseEntry("500", WebserverErrorMessage::class),
+                        ]
                 )
                 @KtorDescription(
                     summary = "API to verify if a JWT token is valid",
-                    description = "This is a debug route to verify if a token is valid"
+                    description =
+                        "This is a debug route to verify if a token is valid",
                 )
-                get("/validate") {
-                    call.respond(SuccessMessage())
-                }
+                get("/validate") { call.respond(SuccessMessage()) }
             }
         }
-
     }
 }

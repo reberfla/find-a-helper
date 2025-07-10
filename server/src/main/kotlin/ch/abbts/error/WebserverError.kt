@@ -3,7 +3,10 @@ package ch.abbts.error
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 
-abstract class WebserverError(override val message: String, val statusCode: Int) : Throwable() {
+abstract class WebserverError(
+    override val message: String,
+    val statusCode: Int,
+) : Throwable() {
 
     fun getStatus(): HttpStatusCode {
         return HttpStatusCode.fromValue(statusCode)
@@ -14,5 +17,4 @@ abstract class WebserverError(override val message: String, val statusCode: Int)
     }
 }
 
-@Serializable
-data class WebserverErrorMessage(val message: String)
+@Serializable data class WebserverErrorMessage(val message: String)

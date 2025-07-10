@@ -4,7 +4,6 @@ import ch.abbts.domain.model.AuthProvider
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.date
 
-
 object User : Table("users") {
     val id = integer("id").autoIncrement()
     val name = varchar("name", 255)
@@ -16,7 +15,8 @@ object User : Table("users") {
     val active = bool("active").nullable()
     val lockedUntil = long("locked_until").nullable()
     val lastTokenIssued = long("last_token_issued").nullable()
-    val authProvider = enumerationByName("auth_provider", 255, AuthProvider::class)
+    val authProvider =
+        enumerationByName("auth_provider", 255, AuthProvider::class)
     val birthdate = date("birthdate")
     override val primaryKey = PrimaryKey(id)
 }

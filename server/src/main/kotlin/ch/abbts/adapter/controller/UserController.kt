@@ -19,17 +19,18 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
     routing {
         route("/v1/user") {
             @KtorResponds(
-                mapping = [
-                    ResponseEntry("200", SuccessMessage::class),
-                    ResponseEntry("400", WebserverErrorMessage::class),
-                    ResponseEntry("500", WebserverErrorMessage::class)
-                ]
+                mapping =
+                    [
+                        ResponseEntry("200", SuccessMessage::class),
+                        ResponseEntry("400", WebserverErrorMessage::class),
+                        ResponseEntry("500", WebserverErrorMessage::class),
+                    ]
             )
             @KtorDescription(
                 summary = "Creates a new user in the database.",
                 description =
                     """ This API creates a new user if it doesn't already exists.
-                When creating, a new user id is given by an integer counter of the db""""
+                When creating, a new user id is given by an integer counter of the db"""",
             )
             post("/register") {
                 val dto = call.receive<UserDto>()
@@ -39,6 +40,5 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                 call.respond(SuccessMessage())
             }
         }
-
     }
 }

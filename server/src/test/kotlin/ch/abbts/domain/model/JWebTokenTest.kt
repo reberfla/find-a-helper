@@ -1,9 +1,9 @@
 package ch.abbts.domain.model
 
 import ch.abbts.error.InvalidTokenFormat
-import org.junit.jupiter.api.Test
 import java.util.*
 import kotlin.test.assertFailsWith
+import org.junit.jupiter.api.Test
 
 class JWebTokenTest {
 
@@ -18,18 +18,25 @@ class JWebTokenTest {
 
     @Test
     fun testInvalidTokenFormat() {
-        val randomHeader = Base64.getUrlEncoder().encodeToString("header".toByteArray())
-        val randomBody = Base64.getUrlEncoder().encodeToString("body".toByteArray())
-        val randomSignature = Base64.getUrlEncoder().encodeToString("signature".toByteArray())
+        val randomHeader =
+            Base64.getUrlEncoder().encodeToString("header".toByteArray())
+        val randomBody =
+            Base64.getUrlEncoder().encodeToString("body".toByteArray())
+        val randomSignature =
+            Base64.getUrlEncoder().encodeToString("signature".toByteArray())
         val randomToken = "$randomHeader.$randomBody.$randomSignature"
         assertFailsWith<InvalidTokenFormat>(
             message = "invalid token header format",
-            block = { JWebToken.validateToken(randomToken) })
+            block = { JWebToken.validateToken(randomToken) },
+        )
         val jwtBuilder = JWebToken("email@email.com")
-        val realToken = JWebToken.generateToken(jwtBuilder.header, jwtBuilder.body)
-        val tokenWithRealHeader = "${realToken.jwt.split(".")[0]}.$randomBody.$randomSignature"
+        val realToken =
+            JWebToken.generateToken(jwtBuilder.header, jwtBuilder.body)
+        val tokenWithRealHeader =
+            "${realToken.jwt.split(".")[0]}.$randomBody.$randomSignature"
         assertFailsWith<InvalidTokenFormat>(
             message = "invalid token body format",
-            block = { JWebToken.validateToken(tokenWithRealHeader) })
+            block = { JWebToken.validateToken(tokenWithRealHeader) },
+        )
     }
 }

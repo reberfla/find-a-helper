@@ -10,13 +10,14 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import java.time.Instant
 import kotlinx.coroutines.runBlocking
 import org.mindrot.jbcrypt.BCrypt
-import java.time.Instant
 
 class UserInteractor(
     private val userRepository: UsersRepository,
-    private val googleApi: String = "https://oauth2.googleapis.com/tokeninfo?id_token="
+    private val googleApi: String =
+        "https://oauth2.googleapis.com/tokeninfo?id_token=",
 ) {
 
     companion object : Log() {}

@@ -40,6 +40,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinVersion" }
 api-doc = { id = "io.github.tabilzad.inspektor", version = "0.8.2-alpha" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktorVersion" }
+ktfmt = { id = "com.ncorti.ktfmt.gradle", version = "0.23.0" }
 
 
 [bundles]

@@ -18,11 +18,9 @@ object DatabaseConfig {
             url = dbUrl,
             driver = driver,
             user = user,
-            password = password
+            password = password,
         )
 
-        transaction {
-            SchemaUtils.create(User)
-        }
+        transaction { SchemaUtils.create(User) }
     }
 }

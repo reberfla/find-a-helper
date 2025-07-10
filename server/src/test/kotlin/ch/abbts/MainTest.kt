@@ -6,7 +6,5 @@ package ch.abbts
 import org.junit.jupiter.api.Test
 
 class MainTest {
-    @Test
-    fun appHasAGreeting() {
-    }
+    @Test fun appHasAGreeting() {}
 }
