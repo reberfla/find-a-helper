@@ -14,13 +14,10 @@ data class UserDto(
     val name: String? = null,
     val email: String,
     val password: String? = null,
-    @SerialName("zip_code")
     val zipCode: Int,
-    @SerialName("image_url")
     val imageUrl: String? = null,
     val imgBase64: String? = null,
     val active: Boolean? = true,
-    @SerialName("auth_provider")
     val authProvider: AuthProvider? = null,
     val birthdate: String,             // format: "yyyy-MM-dd"
     val idToken: String? = null
@@ -44,7 +41,7 @@ data class UserDto(
     companion object {
         private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-        fun imageUrl(user: UserModel): UserDto {
+        fun toDTO(user: UserModel): UserDto {
             return UserDto(
                 id = user.id,
                 email = user.email,

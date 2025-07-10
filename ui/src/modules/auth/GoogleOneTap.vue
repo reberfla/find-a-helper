@@ -1,0 +1,118 @@
+<script setup lang="ts">
+declare global {
+  interface Window {
+    google: any;
+  }
+}
+
+import apiService from "@/service/apiService.js";
+import {onMounted} from "vue";
+import {translate} from "@/service/translationService.js";
+
+const props = defineProps({
+  onLogin: Function
+});
+
+const clientId = '1030506683349-q6dlqpqbpt54qhsr4v96r1npo02v9k6l.apps.googleusercontent.com';
+const t = translate;
+
+defineExpose({
+  triggerPrompt
+});
+
+function triggerPrompt() {
+  if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+
+    script.onload = () => {
+      setTimeout(() => {
+        if (window.google?.accounts?.id) {
+          initializeGoogleSignIn();
+        } else {
+          console.error("Google API still not available after script load.");
+        }
+      }, 200);
+    };
+
+    document.head.appendChild(script);
+  } else {
+    initializeGoogleSignIn();
+  }
+}
+
+function initializeGoogleSignIn() {
+  window.google.accounts.id.initialize({
+    client_id: clientId,
+    callback: handleGoogleLogin
+  });
+
+  window.google.accounts.id.renderButton(
+    document.querySelector('.g_id_signin'),
+    {
+      theme: 'outline',
+      size: 'large',
+      type: 'standard',
+      text: 'continue_with'
+    }
+  );
+
+  window.google.accounts.id.prompt();
+}
+
+function handleGoogleLogin(response:any) {
+  const idToken = response.credential;
+  console.log(idToken)
+  const email = parseJwtEmail(idToken);
+  console.log(email)
+  const user= {
+    idToken:idToken,
+    email:email,
+    birthdate: '1990-01-01',
+    zipCode: 1234,
+    authProvider:'GOOGLE'
+  }
+  apiService.authUser(user)
+    .then(res => {
+      console.log(res)
+      if (props.onLogin) {
+        props.onLogin(res);
+      }
+    })
+    .catch(() => {
+      alert(t('ERROR_AUTHENTIFICATION'));
+    });
+}
+
+function parseJwtEmail(token: string): string {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.email || '';
+  } catch {
+    return '';
+  }
+}
+
+
+onMounted(() => {
+  triggerPrompt();
+});
+</script>
+
+<template>
+  <div>
+    <div id="g_id_onload"
+         :data-client_id="clientId"
+         data-auto_prompt="true">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard">
+    </div>
+  </div>
+</template>
+
+<style scoped>
+
+</style>

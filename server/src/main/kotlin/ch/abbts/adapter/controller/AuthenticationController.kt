@@ -1,7 +1,6 @@
 package ch.abbts.adapter.controller
 
-import ch.abbts.application.dto.AuthenticationDto
-import ch.abbts.application.dto.SuccessMessage
+import ch.abbts.application.dto.*
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.AuthProvider
 import ch.abbts.domain.model.JWT
@@ -9,10 +8,12 @@ import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.MissingGoogleToken
 import ch.abbts.error.MissingPassword
 import ch.abbts.error.WebserverErrorMessage
+import ch.abbts.utils.LoggerService
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
 import io.github.tabilzad.ktor.annotations.ResponseEntry
 import io.github.tabilzad.ktor.annotations.Tag
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -38,24 +39,29 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                 a JWT from the server for subsequent api calls.""""
             )
             post("/auth") {
-                val user = call.receive<AuthenticationDto>()
-                log.debug("verifying local user with email: ${user.email}")
-                when (user.authenticationProvider) {
-                    AuthProvider.GOOGLE -> if (user.token != null) {
-                        userInteractor.verifyGoogleUser(user.token)
-                    } else {
-                        throw MissingGoogleToken()
-                    }
+                try{
+                    val user = call.receive<AuthenticationDto>()
+                    log.debug("verifying local user with email: ${user.email}")
+                    when (user.authenticationProvider) {
+                        AuthProvider.GOOGLE -> if (user.token != null) {
+                            userInteractor.verifyGoogleUser(user.token)
+                        } else {
+                            throw MissingGoogleToken()
+                        }
 
-                    AuthProvider.LOCAL -> if (user.password != null) {
-                        userInteractor.verifyLocalUser(user.email, user.password)
-                    } else {
-                        throw MissingPassword()
+                        AuthProvider.LOCAL -> if (user.password != null) {
+                            userInteractor.verifyLocalUser(user.email, user.password)
+                        } else {
+                            throw MissingPassword()
+                        }
                     }
+                    val token = JWebToken(user.email)
+                    userInteractor.updateIssuedTime(user.email, token.body.iat)
+                    ApiResponse.from(ApiResponseMessage.LOGIN_SUCCESS, JWebToken.generateToken(token.header, token.body))
+
+                }catch (e:Exception){
+                    LoggerService.debugLog("❌: ${e.message}")
                 }
-                val token = JWebToken(user.email)
-                userInteractor.updateIssuedTime(user.email, token.body.iat)
-                call.respond(JWebToken.generateToken(token.header, token.body))
             }
             authenticate("jwt-auth") {
                 @KtorResponds(
@@ -71,7 +77,19 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                     description = "This is a debug route to verify if a token is valid"
                 )
                 get("/validate") {
-                    call.respond(SuccessMessage())
+                    try {
+                        val dto = call.receive<UserDto>()
+                        LoggerService.debugLog(dto)
+                        dto.password?.let { userInteractor.verifyLocalUser(dto.email, it) }
+
+                        call.respond(
+                            HttpStatusCode.fromValue(ApiResponseMessage.LOGIN_SUCCESS.status),
+                            ApiResponse.from(ApiResponseMessage.LOGIN_SUCCESS, null)
+                        )
+                    } catch (e: Exception) {
+                        LoggerService.debugLog("❌: ${e.message}")
+                    }
+
                 }
             }
         }
