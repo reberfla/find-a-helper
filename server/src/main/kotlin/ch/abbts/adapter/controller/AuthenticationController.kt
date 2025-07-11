@@ -5,9 +5,7 @@ import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.AuthProvider
 import ch.abbts.domain.model.JWT
 import ch.abbts.domain.model.JWebToken
-import ch.abbts.error.MissingGoogleToken
-import ch.abbts.error.MissingPassword
-import ch.abbts.error.WebserverErrorMessage
+import ch.abbts.error.*
 import ch.abbts.utils.LoggerService
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
@@ -57,11 +55,26 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                     }
                     val token = JWebToken(user.email)
                     userInteractor.updateIssuedTime(user.email, token.body.iat)
-                    ApiResponse.from(ApiResponseMessage.LOGIN_SUCCESS, JWebToken.generateToken(token.header, token.body))
+                    call.respond(
+                        HttpStatusCode.OK,
+                        ApiResponse.from(ApiResponseMessage.LOGIN_SUCCESS, JWebToken.generateToken(token.header, token.body))
+                    )
 
-                }catch (e:Exception){
+                }catch (e: Throwable) {
                     LoggerService.debugLog("❌: ${e.message}")
+
+                    val (status, response) = when (e) {
+                        is InvalidCredentials -> HttpStatusCode.BadRequest to ApiResponse.from(ApiResponseMessage.INVALID_CREDENTIALS, null, listOf(e.message ?: "Ungültig"))
+                        is UserNotFound -> HttpStatusCode.NotFound to ApiResponse.from(ApiResponseMessage.NOT_FOUND, null, listOf(e.message ?: "Benutzer nicht gefunden"))
+                        is UserIsLocked -> HttpStatusCode.Unauthorized to ApiResponse.from(ApiResponseMessage.AUTH_FAILED, null, listOf("Benutzer ist gesperrt"))
+                        is MissingPassword, is MissingGoogleToken -> HttpStatusCode.BadRequest to ApiResponse.from(ApiResponseMessage.INVALID_CREDENTIALS, null, listOf("Fehlende Zugangsdaten"))
+                        else -> HttpStatusCode.InternalServerError to ApiResponse.from(ApiResponseMessage.INTERNAL_ERROR, null, listOf(e.message ?: "Unbekannter Fehler"))
+                    }
+
+                    call.respond(status, response)
                 }
+
+
             }
             authenticate("jwt-auth") {
                 @KtorResponds(
