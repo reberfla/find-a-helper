@@ -16,7 +16,8 @@
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
-    "test" : "vitest run"
+    "test" : "vitest run",
+    "check" : "prettier -c src/"
   },
   "dependencies": {
     "sass": "^1.89.1",
