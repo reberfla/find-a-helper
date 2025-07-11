@@ -21,7 +21,7 @@ async function getJSON<T>(url: string): Promise<T> {
     headers: buildHeaders(),
   });
   if (!response.ok) {
-    throw new Error(`GET ${url} failed with status ${response.status}`);
+    throw response
   }
   return await response.json();
 }
@@ -33,10 +33,11 @@ async function postJSON<T>(url: string, data: any): Promise<T> {
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    throw new Error(`POST ${url} failed with status ${response.status}`);
+    throw response;
   }
   return await response.json();
 }
+
 
 export default {
   // Public API

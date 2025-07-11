@@ -3,13 +3,15 @@ import {ref} from "vue";
 import {translate} from "@/service/translationService.js";
 import apiService from '@/service/apiService.js';
 import GoogleOneTap from "@/modules/auth/GoogleOneTap.vue";
+import ErrorSnackbar from '@/components/ErrorSnackbar.vue'
 
-defineProps<{
-  mode: 'login' | 'register'
-}>()
+const errorSnackbar = ref<InstanceType<typeof ErrorSnackbar> | null>(null)
 
+const props = defineProps<{ mode: 'login' | 'register' }>()
+const mode = ref(props.mode)
 const email = ref('')
 const password = ref('')
+const confirmRegisterDialog = ref(false);
 
 const t = translate
 const dialogVisible = ref(true);
@@ -18,23 +20,56 @@ const emit = defineEmits(['logged-in', 'google_user', 'close'])
 async function login() {
   try {
     const user = {
-      birthdate: '1990-01-01',
-      zipCode: 1234,
-      email:email.value,
-      password:password.value,
-      authProvider:'LOCAL'
-    }
+      email: email.value,
+      password: password.value,
+      authenticationProvider: 'LOCAL'
+    };
     const response = await apiService.authUser(user);
     const token = (response as any)?.data.token;
     localStorage.setItem('token', token);
     localStorage.setItem('userEmail', email.value);
     emit('logged-in', email.value);
-  } catch (err) {
-    alert(t('ERROR_AUTHENTIFICATION_ERROR'));
+    dialogVisible.value = false;
+    emit("close")
+  } catch (err: any) {
+    console.log(err)
+    if (err?.status === 404) {
+      mode.value="register"
+      confirmRegisterDialog.value = true;
+    } else {
+      errorSnackbar.value?.show(t('ERROR_AUTHENTIFICATION_ERROR'));
+    }
   }
 }
 
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/;
+
+function isPasswordStrong(password: string): boolean {
+  return passwordRegex.test(password);
+}
+
+const passwordRules = [
+  (v: string) => isPasswordStrong(v) || t('ERROR_PASSWORD_WEAK')
+];
+
+
+
+
+function confirmRegistration() {
+  confirmRegisterDialog.value = false;
+  register();
+}
+
+function cancelRegistration() {
+  confirmRegisterDialog.value = false;
+}
+
 async function register() {
+  if (!isPasswordStrong(password.value)) {
+    errorSnackbar.value?.show(t('ERROR_PASSWORD_WEAK'));
+    return;
+  }
+
   try {
     const user = {
       birthdate: '1990-01-01',
@@ -71,7 +106,7 @@ function handleGoogleLoginSuccess(res:any) {
       <v-card-title class="d-flex justify-space-between align-center">
         <span>{{ mode === 'register' ? t('LABEL_REGISTRATION') : t('LABEL_LOGIN') }}</span>
         <v-btn icon @click="dialogVisible = false; emit('close')">
-          <v-icon>mdi-close</v-icon>
+          <v-icon>close</v-icon>
         </v-btn>
       </v-card-title>
 
@@ -82,7 +117,7 @@ function handleGoogleLoginSuccess(res:any) {
             :label="t('LABEL_EMAIL')"
             type="email"
             required
-            prepend-inner-icon="mdi-email"
+            prepend-inner-icon="email"
           ></v-text-field>
 
           <v-text-field
@@ -90,7 +125,8 @@ function handleGoogleLoginSuccess(res:any) {
             :label="t('LABEL_PASSWORD')"
             type="password"
             required
-            prepend-inner-icon="mdi-lock"
+            :rules="mode === 'register' ? passwordRules : []"
+            prepend-inner-icon="lock"
           ></v-text-field>
 
           <v-btn
@@ -109,8 +145,23 @@ function handleGoogleLoginSuccess(res:any) {
       </v-card-text>
     </v-card>
   </v-dialog>
-</template>
+  <ErrorSnackbar ref="errorSnackbar" />
 
+  <v-dialog v-model="confirmRegisterDialog" max-width="400">
+    <v-card>
+      <v-card-title>{{ t('CONFIRM_REGISTER_TITLE') }}</v-card-title>
+      <v-card-text>{{ t('CONFIRM_REGISTER_MESSAGE') }}</v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="grey" @click="cancelRegistration">{{ t('LABEL_CANCEL') }}</v-btn>
+        <v-btn color="primary" @click="confirmRegistration">{{ t('LABEL_YES_REGISTER') }}</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <ErrorSnackbar ref="errorSnackbar" />
+
+</template>
 
 
 <style scoped lang="scss" >
