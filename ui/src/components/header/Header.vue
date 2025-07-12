@@ -3,6 +3,9 @@
 import AuthView from "@/modules/auth/AuthView.vue";
 import { ref, computed, onMounted } from 'vue';
 import { translate, getLanguage, setLanguage } from '@/service/translationService.js';
+import {useAuth} from "@/modules/auth/authStore.ts";
+
+const { isLoggedIn, logout, userEmail, userAvatar,userName } = useAuth()
 
 const authDialogVisible = ref(false);
 const authMode = ref<'login' | 'register'>('login');
@@ -16,37 +19,22 @@ const dropdownOpen = ref(false);
 const languageDropdownOpen = ref(false);
 const currentLanguage = ref(getLanguage());
 
-const userEmail = ref(localStorage.getItem('userEmail') || null);
-const userName = ref(localStorage.getItem('userName') || 'User');
-const userAvatar = ref(localStorage.getItem('userAvatar') || 'https://www.gravatar.com/avatar?d=mp');
-
 const t = translate;
 
 const emit = defineEmits(['onAuthChange'])
 
-const isLoggedIn = computed(() => {
-  return !!localStorage.getItem('token');
-});
-
-function onLogin(data:any) {
-  console.log(data)
-  userEmail.value = data.email;
-  userName.value = data.name
-  userAvatar.value = data.imgUrl || data.img || 'https://www.gravatar.com/avatar?d=mp';
-  //emit('onLogin')
+function onLogin() {
+  dropdownOpen.value = false;
+  emit('onAuthChange')
 }
 
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value;
 }
 
-function logout() {
-  localStorage.clear();
-  userEmail.value = null;
-  userName.value = '';
-  userAvatar.value = '';
+function handleLogout() {
+  logout()
   dropdownOpen.value = false;
-  location.reload();
   emit('onAuthChange')
 }
 
@@ -125,7 +113,7 @@ onMounted(() => {
             <v-list-item-subtitle>{{ userEmail }}</v-list-item-subtitle>
           </v-list-item>
           <v-divider />
-          <v-list-item @click="logout">
+          <v-list-item @click="handleLogout">
             <v-list-item-title>{{ t('LABEL_LOGOUT') }}</v-list-item-title>
           </v-list-item>
         </template>

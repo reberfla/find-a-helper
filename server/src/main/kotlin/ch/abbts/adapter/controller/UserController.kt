@@ -5,6 +5,7 @@ import ch.abbts.application.dto.ApiResponseMessage
 import ch.abbts.application.dto.SuccessMessage
 import ch.abbts.application.dto.UserDto
 import ch.abbts.application.interactor.UserInteractor
+import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.WebserverErrorMessage
 import ch.abbts.utils.LoggerService
 import io.github.tabilzad.ktor.annotations.KtorDescription
@@ -40,10 +41,24 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                     val dto = call.receive<UserDto>()
                     LoggerService.debugLog("DTO OK: $dto")
                     val user = userInteractor.createLocalUser(dto)
-                    call.respond(
-                        HttpStatusCode.fromValue(ApiResponseMessage.REGISTER_SUCCESS.status),
-                        ApiResponse.from(ApiResponseMessage.REGISTER_SUCCESS, user)
-                    )
+                    if(user != null){
+                        val token = JWebToken(user.email)
+                        userInteractor.updateIssuedTime(user.email, token.body.iat)
+                        val jwt = JWebToken.generateToken(token.header, token.body)
+                        LoggerService.debugLog(jwt)
+
+                        call.respond(
+                            HttpStatusCode.OK,
+                            ApiResponse.from(
+                                ApiResponseMessage.REGISTER_SUCCESS,jwt)
+                        )
+                    } else {
+                            call.respond(
+                                HttpStatusCode.BadRequest,
+                                ApiResponse.from(ApiResponseMessage.INTERNAL_ERROR, null, listOf("Could not create user"))
+                            )
+                    }
+
                 } catch (e: Exception) {
                     LoggerService.debugLog("❌: ${e.message}")
                 }

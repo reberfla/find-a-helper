@@ -7,19 +7,22 @@ import ch.abbts.domain.model.AuthProvider
 import ch.abbts.domain.model.UserModel
 import ch.abbts.error.*
 import ch.abbts.utils.Log
+import ch.abbts.utils.LoggerService
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.coroutines.runBlocking
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
+import com.google.api.client.http.javanet.NetHttpTransport
+import com.google.api.client.json.gson.GsonFactory
 import org.mindrot.jbcrypt.BCrypt
 import java.time.Instant
 import java.time.LocalDate
 
 class UserInteractor(
     private val userRepository: UsersRepository,
-    private val googleApi: String = "https://oauth2.googleapis.com/tokeninfo?id_token="
 ) {
 
     companion object : Log() {}
@@ -51,48 +54,52 @@ class UserInteractor(
         return userRepository.updateIssuedTime(email, timestamp)
     }
 
-    fun verifyGoogleUser(token: String): UserDto {
-        log.debug("Verifying user with token: $token")
+     fun verifyGoogleUser(token: String): UserDto {
+        val idToken = verifyGoogleIdToken(token)
+            ?: throw BadResponseFromGoogle()
 
-        return runBlocking {
-            val client = HttpClient(CIO)
-            val googleResponse = client.get("$googleApi$token")
+        val payload = idToken.payload
+        val email = payload["email"] as? String ?: throw NoEmailProvidedByGoogle()
+        val name = payload["name"] as? String ?: ""
+        val picture = payload["picture"] as? String
 
-            if (googleResponse.status != HttpStatusCode.OK) {
-                throw BadResponseFromGoogle()
-            }
+        val user: UserModel = userRepository.getUserByEmail(email) ?: run {
 
-            val googleData = googleResponse.body<GoogleIdTokenResponse>()
-            val email = googleData.email ?: throw NoEmailProvidedByGoogle()
-            val name = googleData.name ?: ""
-            val picture = googleData.picture
+            val newUser = UserModel(
+                email = email,
+                authProvider = AuthProvider.GOOGLE,
+                birthdate = LocalDate.parse("1991-01-01"),
+                active = true,
+                name = name,
+                imageUrl = picture,
+                image = null,
+                zipCode = -1,
+                lockedUntil = null
+            )
 
-            val user: UserModel = userRepository.getUserByEmail(email) ?: run {
-                log.debug("User not found, creating new Google user: $email")
-
-                val newUser = UserModel(
-                    email = email,
-                    authProvider = AuthProvider.GOOGLE,
-                    birthdate = LocalDate.parse("1991-01-01"),
-                    active = true,
-                    name = name,
-                    imageUrl = picture,
-                    image = null,
-                    zipCode = -1,
-                    lockedUntil = null
-                )
-
-                userRepository.createUser(newUser)
-                    ?: throw Exception("User creation failed for $email")
-            }
-
-            if (Instant.now().epochSecond < (user.lockedUntil ?: 0L)) {
-                throw UserIsLocked()
-            }
-
-            return@runBlocking UserDto.toDTO(user)
+            userRepository.createUser(newUser)
+                ?: throw Exception("User creation failed for $email")
         }
+
+        if (Instant.now().epochSecond < (user.lockedUntil ?: 0L)) {
+            throw UserIsLocked()
+        }
+
+        return UserDto.toDTO(user)
     }
+
+
+    fun verifyGoogleIdToken(idTokenString: String): GoogleIdToken? {
+        val transport = NetHttpTransport()
+        val jsonFactory = GsonFactory.getDefaultInstance()
+        val verifier = GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+            .setAudience(
+                listOf("1030506683349-po5p0i1593ap5vlur6ffivpcfefka4d7.apps.googleusercontent.com")
+            )
+            .build()
+        return verifier.verify(idTokenString)
+    }
+
 
 
 }

@@ -14,7 +14,7 @@ export function getLanguage(): Language {
 }
 
 export async function loadTranslations(): Promise<void> {
-  const response = await fetch('/assets/translations.csv'); 
+  const response = await fetch('/assets/translations.csv');
   if (!response.ok) throw new Error('CSV not found');
 
   const csvText = await response.text();

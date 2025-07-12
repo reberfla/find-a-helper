@@ -4,6 +4,9 @@ import {translate} from "@/service/translationService.js";
 import apiService from '@/service/apiService.js';
 import GoogleOneTap from "@/modules/auth/GoogleOneTap.vue";
 import ErrorSnackbar from '@/components/ErrorSnackbar.vue'
+import {useAuth} from "@/modules/auth/authStore.ts";
+
+const { login,logout, isLoggedIn,userEmail } = useAuth()
 
 const errorSnackbar = ref<InstanceType<typeof ErrorSnackbar> | null>(null)
 
@@ -17,7 +20,7 @@ const t = translate
 const dialogVisible = ref(true);
 const emit = defineEmits(['logged-in', 'google_user', 'close'])
 
-async function login() {
+async function handleLogin() {
   try {
     const user = {
       email: email.value,
@@ -25,11 +28,10 @@ async function login() {
       authenticationProvider: 'LOCAL'
     };
     const response = await apiService.authUser(user);
-    const token = (response as any)?.data.token;
-    localStorage.setItem('token', token);
-    localStorage.setItem('userEmail', email.value);
-    emit('logged-in', email.value);
+    const token = (response as any)?.data.JWT;
+    login(token, email.value)
     dialogVisible.value = false;
+    emit('logged-in', true);
     emit("close")
   } catch (err: any) {
     console.log(err)
@@ -52,19 +54,16 @@ const passwordRules = [
   (v: string) => isPasswordStrong(v) || t('ERROR_PASSWORD_WEAK')
 ];
 
-
-
-
 function confirmRegistration() {
   confirmRegisterDialog.value = false;
-  register();
+  handleRegister();
 }
 
 function cancelRegistration() {
   confirmRegisterDialog.value = false;
 }
 
-async function register() {
+async function handleRegister() {
   if (!isPasswordStrong(password.value)) {
     errorSnackbar.value?.show(t('ERROR_PASSWORD_WEAK'));
     return;
@@ -76,14 +75,15 @@ async function register() {
       zipCode: 1234,
       email:email.value,
       password:password.value,
-      authProvider:'LOCAL'
+      authenticationProvider:'LOCAL'
     }
     const res:any = await apiService.registerLokalUser(user);
 
     if (res.status === 200) {
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('userEmail', res.data.value);
-      emit('logged-in', res.data);
+      const token = res.data.JWT;
+      login(token, email.value)
+      dialogVisible.value = false;
+      emit('logged-in', true);
       emit('close');
     }
   } catch (err) {
@@ -92,8 +92,7 @@ async function register() {
 }
 
 function handleGoogleLoginSuccess(res:any) {
-  localStorage.setItem('token', res.data.token);
-  localStorage.setItem('userEmail', res.data.email);
+  login(res.data.token, res.data.email)
   emit('logged-in', res.data);
   emit('close');
 }
@@ -111,7 +110,7 @@ function handleGoogleLoginSuccess(res:any) {
       </v-card-title>
 
       <v-card-text>
-        <v-form @submit.prevent="mode === 'register' ? register() : login()">
+        <v-form @submit.prevent="mode === 'register' ? handleRegister() : handleLogin()">
           <v-text-field
             v-model="email"
             :label="t('LABEL_EMAIL')"
@@ -162,7 +161,6 @@ function handleGoogleLoginSuccess(res:any) {
   <ErrorSnackbar ref="errorSnackbar" />
 
 </template>
-
 
 <style scoped lang="scss" >
 </style>

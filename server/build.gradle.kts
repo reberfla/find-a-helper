@@ -22,6 +22,9 @@ dependencies {
     implementation(libs.dbDriver)
     implementation(libs.bcrypt)
 
+    implementation("com.google.api-client:google-api-client:2.5.0")
+
+
     // utility dependencies
     implementation(libs.config)
     implementation(libs.logging)

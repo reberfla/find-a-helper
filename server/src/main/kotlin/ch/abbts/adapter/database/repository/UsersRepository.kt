@@ -52,10 +52,12 @@ class UsersRepository {
 
 
     fun getUserByEmail(email: String): UserModel? {
-        LoggerService.debugLog("fetching user for $email")
+        LoggerService.debugLog("fetching user for in UserRespo $email")
         return try {
             transaction {
-                User.select { User.email eq email }.singleOrNull()?.toUserModel()
+               val user= User.select { User.email eq email }.singleOrNull()
+                LoggerService.debugLog(user.toString())
+                user?.toUserModel()
             }
         } catch (e: Exception) {
             log.error("Error fetching user by email: ${e.message}")

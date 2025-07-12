@@ -13,7 +13,7 @@ const props = defineProps({
   onLogin: Function
 });
 
-const clientId = '1030506683349-q6dlqpqbpt54qhsr4v96r1npo02v9k6l.apps.googleusercontent.com';
+const clientId = '1030506683349-po5p0i1593ap5vlur6ffivpcfefka4d7.apps.googleusercontent.com';
 const t = translate;
 
 defineExpose({
@@ -63,16 +63,14 @@ function initializeGoogleSignIn() {
 }
 
 function handleGoogleLogin(response:any) {
-  const idToken = response.credential;
-  console.log(idToken)
-  const email = parseJwtEmail(idToken);
+  const token = response.credential;
+  console.log(token)
+  const email = parseJwtEmail(token);
   console.log(email)
   const user= {
-    idToken:idToken,
+    token:token,
     email:email,
-    birthdate: '1990-01-01',
-    zipCode: 1234,
-    authProvider:'GOOGLE'
+    authenticationProvider:'GOOGLE'
   }
   apiService.authUser(user)
     .then(res => {

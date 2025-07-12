@@ -38,8 +38,9 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
             )
             post("/auth") {
                 try{
+                    LoggerService.debugLog("hallo")
                     val user = call.receive<AuthenticationDto>()
-                    log.debug("verifying local user with email: ${user.email}")
+                    LoggerService.debugLog(user)
                     when (user.authenticationProvider) {
                         AuthProvider.GOOGLE -> if (user.token != null) {
                             userInteractor.verifyGoogleUser(user.token)
@@ -61,8 +62,6 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                     )
 
                 }catch (e: Throwable) {
-                    LoggerService.debugLog("❌: ${e.message}")
-
                     val (status, response) = when (e) {
                         is InvalidCredentials -> HttpStatusCode.BadRequest to ApiResponse.from(ApiResponseMessage.INVALID_CREDENTIALS, null, listOf(e.message ?: "Ungültig"))
                         is UserNotFound -> HttpStatusCode.NotFound to ApiResponse.from(ApiResponseMessage.NOT_FOUND, null, listOf(e.message ?: "Benutzer nicht gefunden"))
@@ -70,7 +69,6 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                         is MissingPassword, is MissingGoogleToken -> HttpStatusCode.BadRequest to ApiResponse.from(ApiResponseMessage.INVALID_CREDENTIALS, null, listOf("Fehlende Zugangsdaten"))
                         else -> HttpStatusCode.InternalServerError to ApiResponse.from(ApiResponseMessage.INTERNAL_ERROR, null, listOf(e.message ?: "Unbekannter Fehler"))
                     }
-
                     call.respond(status, response)
                 }
 
