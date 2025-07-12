@@ -25,6 +25,7 @@ const emit = defineEmits(['onAuthChange'])
 
 function onLogin() {
   dropdownOpen.value = false;
+  console.log(userAvatar)
   emit('onAuthChange')
 }
 
@@ -61,6 +62,8 @@ function changeLanguage(lang:any) {
 }
 
 onMounted(() => {
+  console.log(userAvatar)
+  console.log("New Avatar URL:", userAvatar.value)
   console.log('component Header rendered...');
 });
 
@@ -94,7 +97,7 @@ onMounted(() => {
     <v-menu offset-y>
       <template #activator="{ props }">
         <v-avatar v-bind="props" size="36">
-          <img :src="userAvatar" alt="Avatar" />
+          <img :src="userAvatar" referrerpolicy="no-referrer" alt="Avatar" width="36" height="36" />
         </v-avatar>
       </template>
 

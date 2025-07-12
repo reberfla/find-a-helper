@@ -41,24 +41,33 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                     LoggerService.debugLog("hallo")
                     val user = call.receive<AuthenticationDto>()
                     LoggerService.debugLog(user)
-                    when (user.authenticationProvider) {
-                        AuthProvider.GOOGLE -> if (user.token != null) {
-                            userInteractor.verifyGoogleUser(user.token)
-                        } else {
-                            throw MissingGoogleToken()
+                    val verifiedUser = when (user.authenticationProvider) {
+                        AuthProvider.GOOGLE -> {
+                            user.token?.let { userInteractor.verifyGoogleUser(it) } ?: throw MissingGoogleToken()
                         }
 
-                        AuthProvider.LOCAL -> if (user.password != null) {
-                            userInteractor.verifyLocalUser(user.email, user.password)
-                        } else {
-                            throw MissingPassword()
+                        AuthProvider.LOCAL -> {
+                            user.password?.let { userInteractor.verifyLocalUser(user.email, it) } ?: throw MissingPassword()
                         }
                     }
+
                     val token = JWebToken(user.email)
                     userInteractor.updateIssuedTime(user.email, token.body.iat)
+                        LoggerService.debugLog(user)
+                    LoggerService.debugLog(verifiedUser)
+
+                    val response = AuthResponseDto(
+                        token = JWebToken.generateToken(token.header, token.body),
+                        email = verifiedUser.email,
+                        name = verifiedUser.name,
+                        imgUrl =verifiedUser.imageUrl
+                    )
+                    LoggerService.debugLog(response)
                     call.respond(
                         HttpStatusCode.OK,
-                        ApiResponse.from(ApiResponseMessage.LOGIN_SUCCESS, JWebToken.generateToken(token.header, token.body))
+                        ApiResponse.from(
+                            ApiResponseMessage.LOGIN_SUCCESS,response
+                        )
                     )
 
                 }catch (e: Throwable) {

@@ -34,7 +34,7 @@ async function handleLogin() {
     emit('logged-in', true);
     emit("close")
   } catch (err: any) {
-    console.log(err)
+    console.error(err)
     if (err?.status === 404) {
       mode.value="register"
       confirmRegisterDialog.value = true;
@@ -87,13 +87,14 @@ async function handleRegister() {
       emit('close');
     }
   } catch (err) {
-    alert(t('ERROR_DUPLICATE_EMAIL'));
+    console.error(err)
   }
 }
 
 function handleGoogleLoginSuccess(res:any) {
-  login(res.data.token, res.data.email)
-  emit('logged-in', res.data);
+  login(res.data.token.JWT, res.data.email,res.data.imgUrl,res.data.name)
+  dialogVisible.value = false;
+  emit('logged-in', true);
   emit('close');
 }
 

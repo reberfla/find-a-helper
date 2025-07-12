@@ -1,7 +1,6 @@
 package ch.abbts.application.dto
 
 import ch.abbts.domain.model.AuthProvider
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable

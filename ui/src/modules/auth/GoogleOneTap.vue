@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {useAuth} from "@/modules/auth/authStore.ts";
+
 declare global {
   interface Window {
     google: any;
@@ -8,6 +10,9 @@ declare global {
 import apiService from "@/service/apiService.js";
 import {onMounted} from "vue";
 import {translate} from "@/service/translationService.js";
+
+
+const { login,logout, isLoggedIn,userEmail } = useAuth()
 
 const props = defineProps({
   onLogin: Function
@@ -64,23 +69,20 @@ function initializeGoogleSignIn() {
 
 function handleGoogleLogin(response:any) {
   const token = response.credential;
-  console.log(token)
   const email = parseJwtEmail(token);
-  console.log(email)
   const user= {
     token:token,
     email:email,
     authenticationProvider:'GOOGLE'
   }
   apiService.authUser(user)
-    .then(res => {
-      console.log(res)
+    .then((res:any) => {
       if (props.onLogin) {
         props.onLogin(res);
       }
     })
-    .catch(() => {
-      alert(t('ERROR_AUTHENTIFICATION'));
+    .catch((e:any) => {
+      console.error(e)
     });
 }
 
