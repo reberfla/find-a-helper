@@ -15,23 +15,26 @@ export function getLanguage(): Language {
 
 export async function loadTranslations(): Promise<void> {
   const response = await fetch('/assets/translations.csv');
+  console.log(response)
   if (!response.ok) throw new Error('CSV not found');
 
   const csvText = await response.text();
   const lines = csvText.trim().split('\n');
   const [headerLine, ...dataLines] = lines;
 
-  const headers = headerLine.split(',').map(h => h.trim());
+  const headers = headerLine.split(';').map(h => h.trim());
 
   for (const line of dataLines) {
-    const values = line.split(',').map(v => v.trim());
+    const values = line.split(';').map(v => v.trim());
     const row: Record<string, string> = {};
 
     headers.forEach((header, i) => {
       row[header] = values[i] || '';
     });
+    console.log('row:', row);
 
     if (row.key) {
+      console.log('row:', row.key);
       translations.set(row.key, {
         de: row.de || '',
         en: row.en || '',
