@@ -25,10 +25,10 @@ class TaskInteractor(val taskRepository: TaskRepository) {
     }
 
     fun getTasksByCreator(userId: Int): List<TaskModel> {
-        TODO()
+        return taskRepository.getTaskByCreator(userId) ?: listOf<TaskModel>()
     }
 
-    fun getTasksById(taskId: Int): TaskModel {
+    fun getTaskById(taskId: Int): TaskModel {
         val task = taskRepository.getTaskById(taskId)
         if (task != null) {
             return task

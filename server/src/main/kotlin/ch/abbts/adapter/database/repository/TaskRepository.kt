@@ -152,6 +152,37 @@ class TaskRepository {
         }
     }
 
+    fun getTaskByCreator(userId: Int): List<TaskModel>? {
+        return try {
+            transaction {
+                TasksTable.select { TasksTable.userId eq userId }
+                    .map {
+                        TaskModel(
+                            it[TasksTable.id],
+                            it[TasksTable.userId],
+                            it[TasksTable.zipCode],
+                            it[TasksTable.coordinates],
+                            it[TasksTable.title],
+                            it[TasksTable.description],
+                            it[TasksTable.category],
+                            it[TasksTable.status],
+                            it[TasksTable.active],
+                            it[TasksTable.deadline],
+                            it[TasksTable.taskInterval],
+                            it[TasksTable.weekdays]?.let {
+                                Json.decodeFromString(it)
+                            },
+                            it[TasksTable.createdAt],
+                        )
+                    }
+                    .toList()
+            }
+        } catch (e: Exception) {
+            log.error("Error fetching task by user_id: ${e.message}")
+            null
+        }
+    }
+
     fun deleteTask(taskId: Int): Unit {
         try {
             transaction { TasksTable.deleteWhere { id eq taskId } }
