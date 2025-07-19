@@ -58,10 +58,10 @@ CREATE TABLE tasks (
   category enum('SHOPPING','TRANSPORT','CLEANING','PETCARE','GARDENING','TUTORING','TECHHELP','CHILDCARE','LANGUAGETANDEM','HOMEWORK','REPAIRS','OTHERS') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'OTHERS',
   status enum('OPEN','ASSIGNED','COMPLETED') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'OPEN',
   active tinyint(1) NOT NULL DEFAULT 1,
-  deadline datetime DEFAULT NULL,
+  deadline bigint DEFAULT NULL,
   task_interval enum('CONTINUOUS','RECURRING','ONE_TIME') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'ONE_TIME',
-  weekdays blob DEFAULT NULL,
-  created_at datetime NOT NULL DEFAULT current_timestamp(),
+  weekdays text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  created_at bigint DEFAULT NULL,
   CONSTRAINT task_pk PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

@@ -1,7 +1,10 @@
 package ch.abbts.adapter.routes
 
 import ch.abbts.adapter.controller.authenticationRoutes
+import ch.abbts.adapter.controller.taskRoutes
 import ch.abbts.adapter.controller.userRoutes
+import ch.abbts.adapter.database.repository.TaskRepository
+import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.WebserverError
@@ -43,6 +46,8 @@ fun Application.configureRouting(userInteractor: UserInteractor) {
             }
         }
     }
+    val taskInteractor = TaskInteractor(TaskRepository())
     routing { userRoutes(userInteractor) }
     routing { authenticationRoutes(userInteractor) }
+    routing { taskRoutes(taskInteractor) }
 }
