@@ -4,6 +4,7 @@ import ch.abbts.adapter.routes.configureRouting
 import ch.abbts.application.dto.AuthenticationDto
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.AuthProvider
+import ch.abbts.domain.model.UserModel
 import ch.abbts.error.UserNotFound
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -11,6 +12,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
+import java.time.LocalDate
 import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -25,9 +27,17 @@ class AuthenticationTest() {
                 mock<UserInteractor> {
                     given(mock.verifyLocalUser(eq("mailb@example.ch"), any()))
                         .willAnswer { throw UserNotFound() }
-                    doNothing()
-                        .whenever(mock)
-                        .verifyLocalUser(eq("mail@example.ch"), any())
+                    on {
+                        verifyLocalUser(eq("mail@example.ch"), any())
+                    } doReturn
+                        UserModel(
+                            1,
+                            "Peter Meier",
+                            "mail@example.com",
+                            zipCode = 1234,
+                            authProvider = AuthProvider.LOCAL,
+                            birthdate = LocalDate.now(),
+                        )
                     doNothing()
                         .whenever(mock)
                         .updateIssuedTime(eq("mail@example.ch"), any())

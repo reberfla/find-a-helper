@@ -10,7 +10,8 @@ class JWebTokenTest {
     @Test
     fun testTokenFormat() {
         val header = JWebToken.JWebTokenHeader(alg = "HS256", typ = "JWT")
-        val body = JWebToken.JWebTokenBody("mail@mail.com", iat = 0L, exp = 3L)
+        val body =
+            JWebToken.JWebTokenBody("mail@mail.com", 1, iat = 0L, exp = 3L)
 
         val token = JWebToken.generateToken(header, body)
         JWebToken.validateToken(token.jwt)
@@ -29,7 +30,7 @@ class JWebTokenTest {
             message = "invalid token header format",
             block = { JWebToken.validateToken(randomToken) },
         )
-        val jwtBuilder = JWebToken("email@email.com")
+        val jwtBuilder = JWebToken("email@email.com", 1)
         val realToken =
             JWebToken.generateToken(jwtBuilder.header, jwtBuilder.body)
         val tokenWithRealHeader =

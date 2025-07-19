@@ -41,25 +41,26 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
             post("/auth") {
                 val user = call.receive<AuthenticationDto>()
                 log.debug("verifying local user with email: ${user.email}")
-                when (user.authenticationProvider) {
-                    AuthProvider.GOOGLE ->
-                        if (user.token != null) {
-                            userInteractor.verifyGoogleUser(user.token)
-                        } else {
-                            throw MissingGoogleToken()
-                        }
+                val dbUser =
+                    when (user.authenticationProvider) {
+                        AuthProvider.GOOGLE ->
+                            if (user.token != null) {
+                                userInteractor.verifyGoogleUser(user.token)
+                            } else {
+                                throw MissingGoogleToken()
+                            }
 
-                    AuthProvider.LOCAL ->
-                        if (user.password != null) {
-                            userInteractor.verifyLocalUser(
-                                user.email,
-                                user.password,
-                            )
-                        } else {
-                            throw MissingPassword()
-                        }
-                }
-                val token = JWebToken(user.email)
+                        AuthProvider.LOCAL ->
+                            if (user.password != null) {
+                                userInteractor.verifyLocalUser(
+                                    user.email,
+                                    user.password,
+                                )
+                            } else {
+                                throw MissingPassword()
+                            }
+                    }
+                val token = JWebToken(user.email, dbUser.id!!)
                 userInteractor.updateIssuedTime(user.email, token.body.iat)
                 call.respond(JWebToken.generateToken(token.header, token.body))
             }

@@ -3,6 +3,7 @@ package ch.abbts.application.interactor
 import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.application.dto.GoogleIdTokenResponse
 import ch.abbts.application.dto.UserDto
+import ch.abbts.domain.model.UserModel
 import ch.abbts.error.*
 import ch.abbts.utils.Log
 import io.ktor.client.*
@@ -30,7 +31,7 @@ class UserInteractor(
         userRepository.createLocalUser(dto.toModel())
     }
 
-    fun verifyLocalUser(email: String, password: String) {
+    fun verifyLocalUser(email: String, password: String): UserModel {
         val user = userRepository.getUserByEmail(email)
         if (user != null) {
             if (!(Instant.now().epochSecond > (user.lockedUntil ?: 0L))) {
@@ -38,6 +39,7 @@ class UserInteractor(
             } else if (!BCrypt.checkpw(password, user.passwordHash)) {
                 throw InvalidCredentials()
             }
+            return user
         } else {
             throw UserNotFound()
         }
@@ -47,7 +49,7 @@ class UserInteractor(
         return userRepository.updateIssuedTime(email, timestamp)
     }
 
-    fun verifyGoogleUser(token: String) {
+    fun verifyGoogleUser(token: String): UserModel {
         log.debug("verifying user with token: $token")
         val email: String? = runBlocking {
             val client = HttpClient(CIO)
@@ -64,6 +66,7 @@ class UserInteractor(
             if (Instant.now().epochSecond < (user?.lockedUntil ?: 0L)) {
                 UserIsLocked()
             }
+            return user!!
         } else {
             throw NoEmailProvidedByGoogle()
         }

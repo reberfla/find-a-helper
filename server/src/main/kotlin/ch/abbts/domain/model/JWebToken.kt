@@ -12,7 +12,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-class JWebToken(email: String) {
+class JWebToken(email: String, id: Int) {
     private val validDuration = 43500L // 12h + 5min
     private val config = ConfigFactory.load()
     private val alg = config.getString("jwt.auth.alg")
@@ -20,7 +20,7 @@ class JWebToken(email: String) {
     private val iat: Long = Instant.now().epochSecond
     private val exp: Long = iat.plus(validDuration)
     val header = JWebTokenHeader(alg, typ)
-    val body = JWebTokenBody(email, iat, exp)
+    val body = JWebTokenBody(email, id, iat, exp)
 
     companion object : Log() {
         val b64Encoder = Base64.getUrlEncoder().withoutPadding()
@@ -98,6 +98,14 @@ class JWebToken(email: String) {
                 throw TokenExpired()
             }
         }
+
+        fun getUserIdFromToken(token: String): Int {
+            val tokenBody = token.split(".")[1]
+            return Json.decodeFromString<JWebTokenBody>(
+                    b64Decoder.decode(tokenBody).decodeToString()
+                )
+                .id
+        }
     }
 
     @Serializable
@@ -107,7 +115,12 @@ class JWebToken(email: String) {
     ) {}
 
     @Serializable
-    data class JWebTokenBody(val email: String, val iat: Long, val exp: Long)
+    data class JWebTokenBody(
+        val email: String,
+        val id: Int,
+        val iat: Long,
+        val exp: Long,
+    )
 }
 
 @Serializable data class JWT(@SerialName("JWT") val jwt: String)
