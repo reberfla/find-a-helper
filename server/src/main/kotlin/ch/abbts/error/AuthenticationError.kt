@@ -5,6 +5,11 @@ class InvalidTokenFormat(tokenSection: String) :
 
 class InvalidSecret : WebserverError("invalid signature", 401)
 
+class InvalidToken : WebserverError("Token is invalid", 401)
+
+class TokenGenerationFailed(e: Exception) :
+    WebserverError("Failed to generate JWT token: ${e.message}", 500)
+
 class TokenNotRecent :
     WebserverError("there has been a more recent token issued", 401)
 

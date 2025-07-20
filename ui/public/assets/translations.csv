@@ -1,0 +1,13 @@
+key;de;en
+LABEL_LOGIN;Anmelden;Login
+LABEL_REGISTRATION;Registrieren;Register
+LABEL_LOGOUT;Abmelden;Logout
+CONFIRM_LOGIN_TITLE;Benutzer bereits vorhanden;User already exists
+CONFIRM_LOGIN_MESSAGE;Ein Benutzer mit dieser E-Mail existiert bereits. Möchten Sie sich stattdessen einloggen?;A user with this email already exists. Would you like to log in instead?
+YES;Ja;Yes
+CANCEL;Abbrechen;Cancel
+ERROR_REGISTRATION_FAILED;Registrierung fehlgeschlagen;Registration failed
+ERROR_PASSWORD_WEAK;Passwort ist zu schwach;Password is too weak
+ERROR_AUTHENTIFICATION_ERROR;Authentifizierungsfehler;Authentication error
+CONFIRM_REGISTER_TITLE;Benutzer nicht gefunden;User not found
+CONFIRM_REGISTER_MESSAGE;Es wurde kein Benutzer mit dieser E-Mail gefunden. Möchten Sie sich registrieren?;No user was found with this email. Would you like to register?

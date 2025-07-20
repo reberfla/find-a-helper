@@ -13,8 +13,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { onBeforeMount, onBeforeUnmount, onMounted, onUnmounted } from 'vue'
+<script lang="ts" setup>
+import {onBeforeMount, onBeforeUnmount, onMounted, onUnmounted} from 'vue'
 
 onBeforeMount(() => console.log('component will be mounted..'))
 onMounted(() => console.log('component mounted... '))

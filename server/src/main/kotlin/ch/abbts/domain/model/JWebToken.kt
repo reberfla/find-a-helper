@@ -98,6 +98,17 @@ class JWebToken(email: String) {
                 throw TokenExpired()
             }
         }
+        fun decodeEmailFromToken(token: String): String {
+            val parts = token.split(".")
+            if (parts.size != 3) throw IllegalArgumentException("Invalid token structure")
+
+            val bodyBase64 = parts[1]
+            val decodedBody = String(Base64.getUrlDecoder().decode(bodyBase64))
+            val json = Json { ignoreUnknownKeys = true }
+
+            val body = json.decodeFromString<JWebToken.JWebTokenBody>(decodedBody)
+            return body.email
+        }
     }
 
     @Serializable
