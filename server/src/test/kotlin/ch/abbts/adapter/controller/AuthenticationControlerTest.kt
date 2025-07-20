@@ -58,7 +58,7 @@ class AuthenticationTest() {
             AuthenticationDto(
                 email = "mailb@example.ch",
                 password = "1234",
-                name="BobBuilder",
+                name = "BobBuilder",
                 authenticationProvider = AuthProvider.LOCAL,
             )
         val responseNotExisting =
