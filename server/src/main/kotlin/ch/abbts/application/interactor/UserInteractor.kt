@@ -20,9 +20,9 @@ class UserInteractor(
     private val userRepository: UsersRepository,
 ) {
 
-    companion object : Log() {}
+    companion object : Log()
 
-    fun createLocalUser(dto: AuthenticationDto):UserDto? {
+    fun createLocalUser(dto: AuthenticationDto): UserDto? {
         val existing = userRepository.getUserByEmail(dto.email)
         if (existing != null) {
             throw UserAlreadyExists()
@@ -43,7 +43,7 @@ class UserInteractor(
         return newUserModel?.let { UserDto.toDTO(it) }
     }
 
-    fun verifyLocalUser(email: String, password: String):UserDto {
+    fun verifyLocalUser(email: String, password: String): UserDto {
         val user = userRepository.getUserByEmail(email)
         if (user != null) {
             if (!(Instant.now().epochSecond > (user.lockedUntil ?: 0L))) {
@@ -61,9 +61,8 @@ class UserInteractor(
         return userRepository.updateIssuedTime(email, timestamp)
     }
 
-     fun verifyGoogleUser(token: String): UserDto {
-        val idToken = verifyGoogleIdToken(token)
-            ?: throw BadResponseFromGoogle()
+    fun verifyGoogleUser(token: String): UserDto {
+        val idToken = verifyGoogleIdToken(token) ?: throw BadResponseFromGoogle()
 
         val payload = idToken.payload
         val email = payload["email"] as? String ?: throw NoEmailProvidedByGoogle()
@@ -80,8 +79,7 @@ class UserInteractor(
                 imageUrl = picture,
             )
 
-            userRepository.createUser(newUser)
-                ?: throw Exception("User creation failed for $email")
+            userRepository.createUser(newUser) ?: throw Exception("User creation failed for $email")
         }
 
         if (Instant.now().epochSecond < (user.lockedUntil ?: 0L)) {
@@ -95,11 +93,9 @@ class UserInteractor(
     fun verifyGoogleIdToken(idTokenString: String): GoogleIdToken? {
         val transport = NetHttpTransport()
         val jsonFactory = GsonFactory.getDefaultInstance()
-        val verifier = GoogleIdTokenVerifier.Builder(transport, jsonFactory)
-            .setAudience(
+        val verifier = GoogleIdTokenVerifier.Builder(transport, jsonFactory).setAudience(
                 listOf("1030506683349-po5p0i1593ap5vlur6ffivpcfefka4d7.apps.googleusercontent.com")
-            )
-            .build()
+            ).build()
         return verifier.verify(idTokenString)
     }
 

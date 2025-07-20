@@ -4,8 +4,8 @@ import ch.abbts.domain.model.JWT
 import kotlinx.serialization.Serializable
 
 @Serializable
-class AuthResponseDto (
-    val id:Int?,
+class AuthResponseDto(
+    val id: Int?,
     val token: JWT,
     val email: String,
     val name: String? = null,

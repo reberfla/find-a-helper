@@ -5,7 +5,9 @@ import ch.abbts.application.dto.AuthenticationDto
 import ch.abbts.application.dto.SuccessMessage
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.JWebToken
-import ch.abbts.error.*
+import ch.abbts.error.UserAlreadyExists
+import ch.abbts.error.WebserverError
+import ch.abbts.error.WebserverErrorMessage
 import ch.abbts.utils.LoggerService
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds

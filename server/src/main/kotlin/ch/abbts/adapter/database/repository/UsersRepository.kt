@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.update
 import org.mindrot.jbcrypt.BCrypt
 
 class UsersRepository {
-    companion object : Log() {}
+    companion object : Log()
 
     fun createUser(user: UserModel): UserModel? {
         try {
@@ -54,7 +54,7 @@ class UsersRepository {
         LoggerService.debugLog("fetching user for in UserRespo $email")
         return try {
             transaction {
-               val user= User.select { User.email eq email }.singleOrNull()
+                val user = User.select { User.email eq email }.singleOrNull()
                 LoggerService.debugLog(user.toString())
                 user?.toUserModel()
             }

@@ -2,7 +2,6 @@ package ch.abbts.application.dto
 
 import ch.abbts.domain.model.AuthProvider
 import ch.abbts.domain.model.UserModel
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -48,8 +47,7 @@ data class UserDto(
                 name = user.name,
                 authProvider = user.authProvider,
                 imageUrl = user.imageUrl,
-                imgBase64 = user.image?.takeIf { it.isNotEmpty() }
-                    ?.let { Base64.getEncoder().encodeToString(it) },
+                imgBase64 = user.image?.takeIf { it.isNotEmpty() }?.let { Base64.getEncoder().encodeToString(it) },
                 zipCode = user.zipCode,
                 active = user.active,
                 birthdate = user.birthdate.format(dateFormatter),

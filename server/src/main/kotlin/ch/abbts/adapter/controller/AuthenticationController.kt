@@ -30,11 +30,9 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
         route("/v1") {
             @KtorResponds(
                 mapping = [ResponseEntry("200", JWT::class), ResponseEntry(
-                    "401",
-                    WebserverErrorMessage::class
+                    "401", WebserverErrorMessage::class
                 ), ResponseEntry("400", WebserverErrorMessage::class), ResponseEntry(
-                    "500",
-                    WebserverErrorMessage::class
+                    "500", WebserverErrorMessage::class
                 )]
             ) @KtorDescription(
                 summary = "Authenticate to receive a JWT Token",
@@ -82,11 +80,9 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
             authenticate("jwt-auth") {
                 @KtorResponds(
                     mapping = [ResponseEntry("200", SuccessMessage::class), ResponseEntry(
-                        "401",
-                        WebserverErrorMessage::class
+                        "401", WebserverErrorMessage::class
                     ), ResponseEntry("400", WebserverErrorMessage::class), ResponseEntry(
-                        "500",
-                        WebserverErrorMessage::class
+                        "500", WebserverErrorMessage::class
                     )]
                 ) @KtorDescription(
                     summary = "API to verify if a JWT token is valid",
