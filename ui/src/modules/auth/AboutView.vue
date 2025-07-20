@@ -1,6 +1,5 @@
 <template>
   <v-container>
-    <!-- Hero Section -->
     <v-row class="mb-8">
       <v-col cols="12" class="text-center">
         <h1 class="text-h2 mb-4">Über Find A Helper</h1>
@@ -10,7 +9,6 @@
       </v-col>
     </v-row>
 
-    <!-- Mission Section -->
     <v-row class="mb-12">
       <v-col cols="12" md="6">
         <v-img
@@ -36,7 +34,6 @@
       </v-col>
     </v-row>
 
-    <!-- Values Section -->
     <v-row class="mb-12">
       <v-col cols="12">
         <h2 class="text-h4 mb-6 text-center">Unsere Werte</h2>
@@ -62,7 +59,6 @@
       </v-col>
     </v-row>
 
-    <!-- Team Section -->
     <v-row class="mb-12">
       <v-col cols="12">
         <h2 class="text-h4 mb-6 text-center">Unser Team</h2>
@@ -81,28 +77,7 @@
       </v-col>
     </v-row>
 
-    <!-- Statistics Section -->
-    <v-row class="mb-12 bg-grey-lighten-4 rounded-lg pa-4">
-      <v-col v-for="stat in statistics" :key="stat.value" cols="12" md="4" class="text-center">
-        <h3 class="text-h3 mb-2" style="color: #2a403D">{{ stat.value }}</h3>
-        <p class="text-subtitle-1">{{ stat.label }}</p>
-      </v-col>
-    </v-row>
 
-    <!-- Call to Action -->
-    <v-row>
-      <v-col cols="12" class="text-center">
-        <h2 class="text-h4 mb-4">Werden Sie Teil unserer Community</h2>
-        <v-btn
-          color="primary"
-          size="x-large"
-          to="/contact"
-          class="mx-2"
-        >
-          Jetzt Kontakt aufnehmen
-        </v-btn>
-      </v-col>
-    </v-row>
   </v-container>
 </template>
 
@@ -130,41 +105,28 @@ const values = [
 
 const team = [
   {
-    name: 'Max Mustermann',
-    position: 'Geschäftsführer',
-    image: '/src/assets/team/person1.jpg'
+    name: 'Flavio Reber',
+    position: 'Teamleiter/ Backend-Genie',
+    image: '/src/assets/team/fre.jpg'
   },
   {
-    name: 'Anna Schmidt',
-    position: 'Kundenbetreuung',
-    image: '/src/assets/team/person2.jpg'
+    name: 'Renata Irinyi',
+    position: 'Entwicklung/ Die Akrybische',
+    image: '/src/assets/team/rir.jpg'
   },
   {
-    name: 'Tom Weber',
-    position: 'Entwicklung',
-    image: '/src/assets/team/person3.jpg'
+    name: 'Michael Wenger',
+    position: 'Entwicklung/ Kreative Birne',
+    image: '/src/assets/team/mwe.jpg'
   },
   {
-    name: 'Lisa Meyer',
-    position: 'Marketing',
-    image: '/src/assets/team/person4.jpg'
+    name: 'Hannes Morgenthaler',
+    position: 'Leerer für WebApp',
+    image: '/src/assets/team/hmo.jpg'
   }
 ]
 
-const statistics = [
-  {
-    value: '5000+',
-    label: 'Zufriedene Kunden'
-  },
-  {
-    value: '1000+',
-    label: 'Aktive Helfer'
-  },
-  {
-    value: '15+',
-    label: 'Städte'
-  }
-]
+
 </script>
 
 <style scoped>
@@ -172,12 +134,5 @@ const statistics = [
   max-width: 1200px;
 }
 
-/* Animationen für Statistiken */
-.text-h3 {
-  transition: all 0.3s ease;
-}
 
-.text-h3:hover {
-  transform: scale(1.1);
-}
 </style>
