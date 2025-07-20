@@ -6,6 +6,7 @@ import {getLanguage, setLanguage, translate} from '@/service/translationService.
 import {useAuth} from "@/service/userAuthService.ts";
 import SnackBar from "@/components/Snackbar.vue";
 const { isLoggedIn, logout, getCurrentUser, getCurrentUserAvatar } = useAuth()
+import { useRouter } from 'vue-router'
 
 const authDialogVisible = ref(false);
 const authMode = ref<'login' | 'register'>('login');
@@ -16,6 +17,8 @@ function openAuth(mode: 'login' | 'register') {
   authMode.value = mode;
   authDialogVisible.value = true;
 }
+
+const router = useRouter()
 
 const dropdownOpen = ref(false);
 const languageDropdownOpen = ref(false);
@@ -123,6 +126,13 @@ const menuItems = [
             <v-list-item-title>{{ getCurrentUser()?.name }}</v-list-item-title>
             <v-list-item-subtitle>{{ getCurrentUser()?.email }}</v-list-item-subtitle>
           </v-list-item>
+
+          <template v-if="isLoggedIn">
+            <v-list-item @click="router.push('/profil')">
+              <v-list-item-title>Benutzerprofil verwalten</v-list-item-title>
+            </v-list-item>
+          </template>
+
           <v-divider />
           <v-list-item @click="handleLogout">
             <v-list-item-title>{{ t('LABEL_LOGOUT') }}</v-list-item-title>
