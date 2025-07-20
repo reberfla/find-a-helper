@@ -8,10 +8,10 @@ import ch.abbts.domain.model.UserModel
 import ch.abbts.error.*
 import ch.abbts.utils.Log
 import ch.abbts.utils.LoggerService
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
-import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.api.client.json.gson.GsonFactory
+import org.gradle.internal.impldep.com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
+import org.gradle.internal.impldep.com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
+import org.gradle.internal.impldep.com.google.api.client.http.javanet.NetHttpTransport
+import org.gradle.internal.impldep.com.google.api.client.json.gson.GsonFactory
 import java.time.Instant
 import java.time.LocalDate
 import org.mindrot.jbcrypt.BCrypt
