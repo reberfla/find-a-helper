@@ -9,6 +9,7 @@ import { createVuetify } from 'vuetify'
 
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import '@mdi/font/css/materialdesignicons.css'
 
 import {loadTranslations, setLanguage} from "@/service/translationService";
 import translationPlugin from "@/plugins/translationPlugin.ts";
