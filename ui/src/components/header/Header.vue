@@ -63,13 +63,26 @@ function changeLanguage(lang: any) {
 onMounted(() => {
 });
 
+const drawer = ref(false)
+
+const menuItems = [
+  { title: 'Startseite', icon: 'home', path: '/' },
+  { title: 'Über uns', icon: 'info', path: '/about' },
+  { title: 'Dienstleistungen', icon: 'work', path: '/services' },
+  { title: 'Kontakt', icon: 'email', path: '/contact' }
+]
+
 </script>
 
 <template>
-  <v-app-bar app>
-    <v-toolbar-title>Find A Helper</v-toolbar-title>
+  <!-- Top Navigation Bar -->
+  <v-app-bar app color="#2a403D" dark>
+    <v-btn icon @click="drawer = !drawer">
+      <v-icon>{{ drawer ? 'close' : 'menu' }}</v-icon>
+    </v-btn>
 
-    <v-spacer/>
+    <v-toolbar-title>Find A Helper</v-toolbar-title>
+    <v-spacer />
 
     <!-- Language Switch -->
     <v-menu offset-y>
@@ -93,10 +106,9 @@ onMounted(() => {
     <v-menu offset-y>
       <template #activator="{ props }">
         <v-avatar size="36" v-bind="props">
-          <img :src="getCurrentUserAvatar()" alt="Avatar" height="36" referrerpolicy="no-referrer" width="36"/>
+          <img :src="getCurrentUserAvatar()" alt="Avatar" height="36" width="36" referrerpolicy="no-referrer" />
         </v-avatar>
       </template>
-
       <v-list>
         <template v-if="!isLoggedIn">
           <v-list-item @click="openAuth('login')">
@@ -111,22 +123,39 @@ onMounted(() => {
             <v-list-item-title>{{ getCurrentUser()?.name }}</v-list-item-title>
             <v-list-item-subtitle>{{ getCurrentUser()?.email }}</v-list-item-subtitle>
           </v-list-item>
-          <v-divider/>
+          <v-divider />
           <v-list-item @click="handleLogout">
             <v-list-item-title>{{ t('LABEL_LOGOUT') }}</v-list-item-title>
           </v-list-item>
         </template>
       </v-list>
     </v-menu>
-
-    <!-- Auth Dialog -->
-    <v-dialog v-model="authDialogVisible" max-width="500">
-      <AuthView :mode="authMode" @close="authDialogVisible = false" @logged-in="onLogin"/>
-    </v-dialog>
   </v-app-bar>
 
-  <snackBar ref="snackBar"/>
+  <!-- Sidebar Navigation -->
+  <v-navigation-drawer v-model="drawer" app>
+    <v-list>
+      <v-list-item
+          v-for="item in menuItems"
+          :key="item.title"
+          :to="item.path"
+          link
+      >
+        <template #prepend>
+          <v-icon>{{ item.icon }}</v-icon>
+        </template>
+        <v-list-item-title>{{ item.title }}</v-list-item-title>
+      </v-list-item>
+    </v-list>
+  </v-navigation-drawer>
 
+  <!-- Auth Dialog -->
+  <v-dialog v-model="authDialogVisible" max-width="500">
+    <AuthView :mode="authMode" @close="authDialogVisible = false" @logged-in="onLogin" />
+  </v-dialog>
+
+  <!-- Snackbar -->
+  <SnackBar ref="snackBar" />
 </template>
 
 <style scoped>

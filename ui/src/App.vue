@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <Header v-if="!isLoginPage" />
+    <Header />
 
     <v-main>
       <v-container fluid>
@@ -8,7 +8,7 @@
       </v-container>
     </v-main>
 
-    <Footer v-if="!isLoginPage" />
+    <Footer />
   </v-app>
 </template>
 
@@ -17,7 +17,4 @@ import { useRoute } from 'vue-router'
 import Header from "@/components/header/Header.vue";
 import Footer from "@/components/footer/Footer.vue";
 const route = useRoute()
-console.log(route)
-const isLoginPage = route.name === 'login'
-
 </script>
