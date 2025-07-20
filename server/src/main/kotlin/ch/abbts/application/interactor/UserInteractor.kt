@@ -12,13 +12,11 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
-import org.mindrot.jbcrypt.BCrypt
 import java.time.Instant
 import java.time.LocalDate
+import org.mindrot.jbcrypt.BCrypt
 
-class UserInteractor(
-    private val userRepository: UsersRepository,
-) {
+class UserInteractor(private val userRepository: UsersRepository) {
 
     companion object : Log()
 
@@ -27,15 +25,16 @@ class UserInteractor(
         if (existing != null) {
             throw UserAlreadyExists()
         }
-        val newUserDto = UserDto(
-            null,
-            dto.name,
-            dto.email,
-            dto.password,
-            dto.zipCode,
-            authProvider = dto.authenticationProvider,
-            birthdate = dto.birthdate,
-        )
+        val newUserDto =
+            UserDto(
+                null,
+                dto.name,
+                dto.email,
+                dto.password,
+                dto.zipCode,
+                authProvider = dto.authenticationProvider,
+                birthdate = dto.birthdate,
+            )
         LoggerService.debugLog(newUserDto)
         LoggerService.debugLog(newUserDto.toModel())
         val newUserModel = userRepository.createUser(newUserDto.toModel())
@@ -62,25 +61,30 @@ class UserInteractor(
     }
 
     fun verifyGoogleUser(token: String): UserDto {
-        val idToken = verifyGoogleIdToken(token) ?: throw BadResponseFromGoogle()
+        val idToken =
+            verifyGoogleIdToken(token) ?: throw BadResponseFromGoogle()
 
         val payload = idToken.payload
-        val email = payload["email"] as? String ?: throw NoEmailProvidedByGoogle()
+        val email =
+            payload["email"] as? String ?: throw NoEmailProvidedByGoogle()
         val name = payload["name"] as? String ?: ""
         val picture = payload["picture"] as? String
 
-        val user: UserModel = userRepository.getUserByEmail(email) ?: run {
+        val user: UserModel =
+            userRepository.getUserByEmail(email)
+                ?: run {
+                    val newUser =
+                        UserModel(
+                            email = email,
+                            authProvider = AuthProvider.GOOGLE,
+                            birthdate = LocalDate.parse("1991-01-01"),
+                            name = name,
+                            imageUrl = picture,
+                        )
 
-            val newUser = UserModel(
-                email = email,
-                authProvider = AuthProvider.GOOGLE,
-                birthdate = LocalDate.parse("1991-01-01"),
-                name = name,
-                imageUrl = picture,
-            )
-
-            userRepository.createUser(newUser) ?: throw Exception("User creation failed for $email")
-        }
+                    userRepository.createUser(newUser)
+                        ?: throw Exception("User creation failed for $email")
+                }
 
         if (Instant.now().epochSecond < (user.lockedUntil ?: 0L)) {
             throw UserIsLocked()
@@ -89,18 +93,21 @@ class UserInteractor(
         return UserDto.toDTO(user)
     }
 
-
     fun verifyGoogleIdToken(idTokenString: String): GoogleIdToken? {
         val transport = NetHttpTransport()
         val jsonFactory = GsonFactory.getDefaultInstance()
-        val verifier = GoogleIdTokenVerifier.Builder(transport, jsonFactory).setAudience(
-                listOf("1030506683349-po5p0i1593ap5vlur6ffivpcfefka4d7.apps.googleusercontent.com")
-            ).build()
+        val verifier =
+            GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+                .setAudience(
+                    listOf(
+                        "1030506683349-po5p0i1593ap5vlur6ffivpcfefka4d7.apps.googleusercontent.com"
+                    )
+                )
+                .build()
         return verifier.verify(idTokenString)
     }
 
     fun getUserByEmail(email: String): UserModel? {
         return userRepository.getUserByEmail(email)
     }
-
 }

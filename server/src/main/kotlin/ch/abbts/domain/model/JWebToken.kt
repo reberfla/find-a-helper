@@ -4,13 +4,13 @@ import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.error.*
 import ch.abbts.utils.Log
 import com.typesafe.config.ConfigFactory
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import java.time.Instant
 import java.util.*
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 class JWebToken(email: String) {
     private val validDuration = 43500L // 12h + 5min
@@ -31,21 +31,25 @@ class JWebToken(email: String) {
 
         fun generateToken(header: JWebTokenHeader, body: JWebTokenBody): JWT {
             log.debug("issuing jwt token for ${body.email}")
-            val encodedHeader = b64Encoder.encodeToString(
-                Json.encodeToString(header).toByteArray(Charsets.UTF_8)
-            )
-            val encodedBody = b64Encoder.encodeToString(
-                Json.encodeToString(body).toByteArray(Charsets.UTF_8)
-            )
+            val encodedHeader =
+                b64Encoder.encodeToString(
+                    Json.encodeToString(header).toByteArray(Charsets.UTF_8)
+                )
+            val encodedBody =
+                b64Encoder.encodeToString(
+                    Json.encodeToString(body).toByteArray(Charsets.UTF_8)
+                )
             val signature = generateSignature(encodedHeader, encodedBody)
             return JWT("$encodedHeader.$encodedBody.$signature")
         }
 
         fun generateSignature(header: String, body: String): String {
             val hmac = Mac.getInstance("HmacSHA256")
-            val secretKey = SecretKeySpec(secret.toByteArray(Charsets.UTF_8), "HmacSHA256")
+            val secretKey =
+                SecretKeySpec(secret.toByteArray(Charsets.UTF_8), "HmacSHA256")
             hmac.init(secretKey)
-            val signature = hmac.doFinal("$header.$body".toByteArray(Charsets.UTF_8))
+            val signature =
+                hmac.doFinal("$header.$body".toByteArray(Charsets.UTF_8))
             hmac.reset()
             return b64Encoder.encodeToString(signature)
         }
@@ -76,9 +80,10 @@ class JWebToken(email: String) {
             val tokenSections = token.split(".")
             val tokenHeader = tokenSections[0]
             val tokenBody = tokenSections[1]
-            val claims = Json.decodeFromString<JWebTokenBody>(
-                b64Decoder.decode(tokenBody).decodeToString()
-            )
+            val claims =
+                Json.decodeFromString<JWebTokenBody>(
+                    b64Decoder.decode(tokenBody).decodeToString()
+                )
             val tokenSignature = tokenSections[2]
             if (tokenSignature != generateSignature(tokenHeader, tokenBody)) {
                 throw InvalidSecret()
@@ -96,7 +101,8 @@ class JWebToken(email: String) {
 
         fun decodeEmailFromToken(token: String): String {
             val parts = token.split(".")
-            if (parts.size != 3) throw IllegalArgumentException("Invalid token structure")
+            if (parts.size != 3)
+                throw IllegalArgumentException("Invalid token structure")
 
             val bodyBase64 = parts[1]
             val decodedBody = String(Base64.getUrlDecoder().decode(bodyBase64))
@@ -117,5 +123,4 @@ class JWebToken(email: String) {
     data class JWebTokenBody(val email: String, val iat: Long, val exp: Long)
 }
 
-@Serializable
-data class JWT(@SerialName("JWT") val jwt: String)
+@Serializable data class JWT(@SerialName("JWT") val jwt: String)

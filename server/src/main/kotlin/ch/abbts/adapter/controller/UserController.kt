@@ -24,16 +24,20 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
     routing {
         route("/v1/user") {
             @KtorResponds(
-                mapping = [
-                    ResponseEntry("200", SuccessMessage::class),
-                    ResponseEntry("400", WebserverErrorMessage::class),
-                    ResponseEntry("500", WebserverErrorMessage::class),
-                ]
-            ) @KtorDescription(
+                mapping =
+                    [
+                        ResponseEntry("200", SuccessMessage::class),
+                        ResponseEntry("400", WebserverErrorMessage::class),
+                        ResponseEntry("500", WebserverErrorMessage::class),
+                    ]
+            )
+            @KtorDescription(
                 summary = "Creates a new user in the database.",
-                description = """ This API creates a new user if it doesn't already exists.
+                description =
+                    """ This API creates a new user if it doesn't already exists.
                 When creating, a new user id is given by an integer counter of the db"""",
-            ) post("/register") {
+            )
+            post("/register") {
                 LoggerService.debugLog("here")
                 try {
                     val dto = call.receive<AuthenticationDto>()
@@ -42,28 +46,33 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                     LoggerService.debugLog(newUser.toString())
                     if (newUser?.id != null) {
                         val token = JWebToken(newUser.email)
-                        userInteractor.updateIssuedTime(newUser.email, token.body.iat)
-                        val jwt = JWebToken.generateToken(token.header, token.body)
-                        val response = AuthResponseDto(
-                            id = newUser.id,
-                            token = jwt,
-                            email = newUser.email,
-                            name = newUser.name,
-                            imgUrl = newUser.imageUrl,
-                            imgBlob = newUser.imgBase64
+                        userInteractor.updateIssuedTime(
+                            newUser.email,
+                            token.body.iat,
                         )
+                        val jwt =
+                            JWebToken.generateToken(token.header, token.body)
+                        val response =
+                            AuthResponseDto(
+                                id = newUser.id,
+                                token = jwt,
+                                email = newUser.email,
+                                name = newUser.name,
+                                imgUrl = newUser.imageUrl,
+                                imgBlob = newUser.imgBase64,
+                            )
                         call.respond(HttpStatusCode.OK, response)
                     }
                 } catch (e: WebserverError) {
-                    val (status, response) = when (e) {
-                        is UserAlreadyExists -> HttpStatusCode.Conflict to e.getMessage()
-                        else -> e.getStatus() to e.getMessage()
-                    }
+                    val (status, response) =
+                        when (e) {
+                            is UserAlreadyExists ->
+                                HttpStatusCode.Conflict to e.getMessage()
+                            else -> e.getStatus() to e.getMessage()
+                        }
                     call.respond(status, response)
                 }
-
             }
-
         }
     }
 }

@@ -11,5 +11,5 @@ data class AuthenticationDto(
     val token: String? = null,
     val zipCode: Int? = null,
     val birthdate: String? = null,
-    val authenticationProvider: AuthProvider
+    val authenticationProvider: AuthProvider,
 )

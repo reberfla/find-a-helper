@@ -20,18 +20,24 @@ class UsersRepository {
         try {
             val userModel = transaction {
                 User.insert {
-                    it[email] = user.email
-                    it[password_hash] = BCrypt.hashpw(user.passwordHash, BCrypt.gensalt())
-                    it[authProvider] = user.authProvider
-                    it[birthdate] = user.birthdate
-                    it[active] = user.active ?: true
-                    it[name] = user.name
-                    it[imageUrl] = user.imageUrl
-                    it[image] = user.image?.let { bytes ->
-                        org.jetbrains.exposed.sql.statements.api.ExposedBlob(bytes)
+                        it[email] = user.email
+                        it[password_hash] =
+                            BCrypt.hashpw(user.passwordHash, BCrypt.gensalt())
+                        it[authProvider] = user.authProvider
+                        it[birthdate] = user.birthdate
+                        it[active] = user.active ?: true
+                        it[name] = user.name
+                        it[imageUrl] = user.imageUrl
+                        it[image] =
+                            user.image?.let { bytes ->
+                                org.jetbrains.exposed.sql.statements.api
+                                    .ExposedBlob(bytes)
+                            }
+                        it[zipCode] = user.zipCode
                     }
-                    it[zipCode] = user.zipCode
-                }.resultedValues?.firstOrNull()?.toUserModel()
+                    .resultedValues
+                    ?.firstOrNull()
+                    ?.toUserModel()
             }
             return userModel
         } catch (e: Exception) {
@@ -42,13 +48,14 @@ class UsersRepository {
     fun updateIssuedTime(email: String, timestamp: Long): Unit {
         try {
             transaction {
-                User.update({ User.email eq email }) { it[lastTokenIssued] = timestamp }
+                User.update({ User.email eq email }) {
+                    it[lastTokenIssued] = timestamp
+                }
             }
         } catch (e: Exception) {
             throw UpdatingIssuedTimeFailed()
         }
     }
-
 
     fun getUserByEmail(email: String): UserModel? {
         LoggerService.debugLog("fetching user for in UserRespo $email")
@@ -77,9 +84,7 @@ class UsersRepository {
             authProvider = this[User.authProvider],
             birthdate = this[User.birthdate],
             lastTokenIssued = this[User.lastTokenIssued],
-            lockedUntil = this[User.lockedUntil]
+            lockedUntil = this[User.lockedUntil],
         )
     }
-
 }
-
