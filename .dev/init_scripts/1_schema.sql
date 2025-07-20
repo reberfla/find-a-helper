@@ -51,8 +51,8 @@ CREATE TABLE ratings (
 CREATE TABLE tasks (
   id int(11) NOT NULL AUTO_INCREMENT,
   user_id int(11) NOT NULL,
-  zip_code varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  coordinates text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  zip_code varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  coordinates text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   title varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   description text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   category enum('SHOPPING','TRANSPORT','CLEANING','PETCARE','GARDENING','TUTORING','TECHHELP','CHILDCARE','LANGUAGETANDEM','HOMEWORK','REPAIRS','OTHERS') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'OTHERS',

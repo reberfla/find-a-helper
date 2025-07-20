@@ -10,17 +10,16 @@ import org.jetbrains.exposed.sql.Table
 object TasksTable : Table("tasks") {
     val id = integer("id").autoIncrement()
     val userId = integer("user_id")
-    val zipCode = integer("zip_code").nullable()
-    val coordinates = varchar("coordinates", 255).nullable()
+    val zipCode = varchar("zip_code", 10)
+    val coordinates = varchar("coordinates", 255)
     val title = varchar("title", 255)
     val description = text("description")
-    val category =
-        enumerationByName("category", 255, TaskCategory::class).nullable()
-    val status = enumerationByName("status", 255, TaskStatus::class).nullable()
-    val active = bool("active").nullable()
+    val category = enumerationByName("category", 255, TaskCategory::class)
+    val status = enumerationByName("status", 255, TaskStatus::class)
+    val active = bool("active")
     val deadline = long("deadline").nullable()
     val taskInterval =
-        enumerationByName("task_interval", 255, TaskInterval::class).nullable()
+        enumerationByName("task_interval", 255, TaskInterval::class)
     val weekdays = text("weekdays").nullable()
     val createdAt =
         long("created_at")

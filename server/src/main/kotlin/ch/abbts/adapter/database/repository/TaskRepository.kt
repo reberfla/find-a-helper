@@ -1,8 +1,8 @@
 package ch.abbts.adapter.database.repository
 
 import ch.abbts.adapter.database.table.TasksTable
+import ch.abbts.application.dto.TaskDto
 import ch.abbts.application.dto.TaskQueryParams
-import ch.abbts.domain.model.TaskInterval
 import ch.abbts.domain.model.TaskModel
 import ch.abbts.utils.Log
 import java.time.Instant
@@ -15,13 +15,15 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 class TaskRepository {
     companion object : Log() {}
 
-    fun createTask(task: TaskModel) {
-        try {
-            transaction {
+    fun createTask(task: TaskModel): TaskModel {
+        return try {
+            val timeStamp = Instant.now().epochSecond
+            val id = transaction {
                 TasksTable.insert {
                     it[TasksTable.userId] = task.userId
                     it[TasksTable.zipCode] = task.zipCode
@@ -32,13 +34,14 @@ class TaskRepository {
                     it[TasksTable.status] = task.status
                     it[TasksTable.active] = task.active
                     it[TasksTable.deadline] = task.deadline
-                    it[TasksTable.taskInterval] =
-                        task.taskInterval ?: TaskInterval.ONE_TIME
-                    it[TasksTable.createdAt] = Instant.now().epochSecond
-                }
+                    it[TasksTable.taskInterval] = task.taskInterval
+                    it[TasksTable.createdAt] = timeStamp
+                } get TasksTable.id
             }
+            task.copy(id = id, createdAt = timeStamp)
         } catch (e: Exception) {
             log.debug("database error: ${e.message}")
+            throw e
         }
     }
 
@@ -180,6 +183,26 @@ class TaskRepository {
         } catch (e: Exception) {
             log.error("Error fetching task by user_id: ${e.message}")
             null
+        }
+    }
+
+    fun updateTask(task: TaskDto, id: Int): Int {
+        return try {
+            transaction {
+                TasksTable.update({ TasksTable.id eq id }) {
+                    it[TasksTable.zipCode] = task.zipCode
+                    it[TasksTable.coordinates] = task.coordinates
+                    it[TasksTable.title] = task.title
+                    it[TasksTable.description] = task.description
+                    it[TasksTable.category] = task.category!!
+                    it[TasksTable.status] = task.status!!
+                    it[TasksTable.active] = task.active!!
+                    it[TasksTable.deadline] = task.deadline
+                    it[TasksTable.taskInterval] = task.taskInterval!!
+                }
+            }
+        } catch (e: Exception) {
+            throw e
         }
     }
 
