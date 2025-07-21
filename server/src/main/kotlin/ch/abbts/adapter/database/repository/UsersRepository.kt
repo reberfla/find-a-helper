@@ -87,4 +87,27 @@ class UsersRepository {
             lockedUntil = this[User.lockedUntil],
         )
     }
+
+    fun updateUser(user: UserModel): UserModel? {
+        return try {
+            transaction {
+                User.update({ User.id eq user.id!! }) {
+                    it[email] = user.email
+                    it[password_hash] = BCrypt.hashpw(user.passwordHash, BCrypt.gensalt())
+                    it[authProvider] = user.authProvider
+                    it[birthdate] = user.birthdate
+                    it[active] = user.active ?: true
+                    it[name] = user.name
+                    it[imageUrl] = user.imageUrl
+                    it[image] = user.image?.let { bytes -> org.jetbrains.exposed.sql.statements.api.ExposedBlob(bytes) }
+                    it[zipCode] = user.zipCode
+                }
+            }
+             getUserByEmail(user.email)
+        } catch (e: Exception) {
+            log.error("❌ Error updating user: ${e.message}")
+            null
+        }
+    }
+
 }

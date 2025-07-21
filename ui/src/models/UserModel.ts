@@ -4,21 +4,12 @@ export class UserModel {
 
     static toFormDataFromPartial(data: Partial<UserModel>): FormData {
         const formData = new FormData();
-
-        if (data.id !== undefined) formData.append('id', String(data.id));
-        if (data.name !== undefined) formData.append('name', data.name);
-        if (data.email !== undefined) formData.append('email', data.email);
-        if (data.password !== undefined) formData.append('password', data.password);
-        if (data.zipCode !== undefined) formData.append('zipCode', String(data.zipCode));
-        if (data.birthdate !== undefined) formData.append('birthdate', data.birthdate);
-        if (data.authenticationProvider !== undefined) formData.append('authenticationProvider', data.authenticationProvider);
-        if (data.image !== undefined) formData.append('image', data.image);
-
+        for (const [key, value] of Object.entries(data)) {
+            if (value !== undefined && value !== null) {
+                formData.append(key, value instanceof File ? value : String(value));
+            }
+        }
         return formData;
-    }
-
-    toFormData(): FormData {
-        return UserModel.toFormDataFromPartial(this);
     }
 
     toAuthenticationDto(): {

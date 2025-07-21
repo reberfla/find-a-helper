@@ -64,7 +64,7 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                             }
                         }
 
-                    LoggerService.debugLog(user)
+                    LoggerService.debugLog(verifiedUser)
 
                     if (verifiedUser.id != null) {
                         val token = JWebToken(verifiedUser.email)
@@ -91,6 +91,30 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                     call.respond(e.getStatus(), e.getMessage())
                 }
             }
+
+            get("auth/{token}") {
+                try {
+                    val token = call.parameters["token"]
+                    if (token == null) {
+
+                        call.respond(HttpStatusCode.BadRequest)
+                        return@get
+                    }
+
+                    val email = JWebToken.decodeEmailFromToken(token)
+                    val user = userInteractor.getUserByEmail(email)
+                    if (user == null) {
+                        call.respond(HttpStatusCode.NotFound)
+                        return@get
+                    }
+
+                    call.respond(HttpStatusCode.OK, UserDto.toDTO(user))
+                } catch (e: WebserverError) {
+                    LoggerService.debugLog("❌ GET /user/{id} error: ${e}")
+                    call.respond(e.getStatus(), e.getMessage())
+                }
+            }
+
             authenticate("jwt-auth") {
                 @KtorResponds(
                     mapping =
@@ -106,6 +130,7 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                     description =
                         "This is a debug route to verify if a token is valid",
                 )
+
                 get("/validate") {
                     try {
                         val dto = call.receive<UserDto>()
@@ -120,28 +145,6 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                     }
                 }
 
-                get("/{token}") {
-                    try {
-                        val token = call.parameters["token"]
-                        if (token == null) {
-
-                            call.respond(HttpStatusCode.BadRequest)
-                            return@get
-                        }
-
-                        val email = JWebToken.decodeEmailFromToken(token)
-                        val user = userInteractor.getUserByEmail(email)
-                        if (user == null) {
-                            call.respond(HttpStatusCode.NotFound)
-                            return@get
-                        }
-
-                        call.respond(HttpStatusCode.OK, UserDto.toDTO(user))
-                    } catch (e: WebserverError) {
-                        LoggerService.debugLog("❌ GET /user/{id} error: ${e}")
-                        call.respond(e.getStatus(), e.getMessage())
-                    }
-                }
             }
         }
     }

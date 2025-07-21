@@ -5,7 +5,6 @@ import {translate} from "@/service/translationService.js";
 import UserProfilView from "@/modules/user/UserProfilView.vue";
 import BackHeader from "@/components/header/BackHeader.vue";
 
-
 const t = translate
 const tab = ref('data')
 const hasNewMessages = ref(false)
@@ -31,6 +30,7 @@ onMounted(async () => {
   const response = await fetch('/api/chat/has-new')
   hasNewMessages.value = await response.json()
 })
+
 </script>
 
 <template>

@@ -1,3 +1,4 @@
+
 const BASE_URL = 'http://localhost:8080';
 
 function getToken(): string | null {
@@ -57,20 +58,20 @@ export default {
         return postJSON(`${BASE_URL}/v1/auth`, data);
     },
 
+    async authUserByToken(token: string) {
+      return getJSON(`${BASE_URL}/v1/auth/${token}`)
+    },
+
+    // User-Profile
     async validateToken() {
         return getJSON(`${BASE_URL}/v1/auth/validate`);
     },
 
-    // User-Profile
     async registerLokalUser(data: any) {
         return postJSON(`${BASE_URL}/v1/user/register`, data);
     },
 
     async updateUser(data: any) {
-        return putJSON(`${BASE_URL}/v1/user/${data.id}`, data);
-    },
-
-    async getUser(token: string) {
-        return getJSON(`${BASE_URL}/v1/user/${token}`)
+        return putJSON(`${BASE_URL}/v1/user/${data.token}`, data);
     }
 }

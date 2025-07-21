@@ -1,51 +1,70 @@
-import {computed, ref} from 'vue'
+import { ref, computed } from 'vue';
+
+const user = ref<{
+    id: number,
+    email: string,
+    name: string,
+    token: string,
+    avatar: string
+} | null>(null);
 
 const storedUser = localStorage.getItem('user');
-const token = ref<string | null>(storedUser ? JSON.parse(storedUser).token : null);
-const isLoggedIn = computed(() => !!token.value);
-
-function login(payload: any) {
-    console.log(payload)
-    token.value = payload.token.JWT
-    const avatar = payload.imgBlob ? `data:image/png;base64,${payload.imgBlob}` : payload.imgUrl || 'https://www.gravatar.com/avatar?d=mp';
-    const user = {
-        token: payload.token.JWT, id: payload.userId, avatar: avatar, name: payload.name, email: payload.email
+if (storedUser) {
+    try {
+        user.value = JSON.parse(storedUser);
+    } catch (e) {
+        console.error('User JSON parse error:', e);
     }
-    localStorage.setItem('user', JSON.stringify(user))
+}
+
+const isLoggedIn = computed(() => !!user.value?.token);
+
+function login(payload: { token: any, imgBlob: any, userId: any, imgUrl: any, email: any, name: any }) {
+    const avatar = payload.imgBlob
+        ? `data:image/png;base64,${payload.imgBlob}`
+        : payload.imgUrl || 'https://www.gravatar.com/avatar?d=mp';
+
+    user.value = {
+        token: payload.token.JWT,
+        id: payload.userId,
+        avatar,
+        name: payload.name,
+        email: payload.email
+    };
+
+    localStorage.setItem('user', JSON.stringify(user.value));
 }
 
 function logout() {
-    token.value = null
-    localStorage.removeItem('user')
+    user.value = null;
+    localStorage.removeItem('user');
 }
 
-function getCurrentUser(): { id: number, email: string, name: string, token: string, avatar: string } | null {
-    const raw = localStorage.getItem('user')
-    if (!raw) return null
-
-    try {
-        console.log(JSON.parse(raw))
-        return JSON.parse(raw)
-    } catch (e) {
-        console.error('User JSON parse error:', e)
-        return null
-    }
+function getCurrentUser() {
+    return user.value;
 }
 
-function getCurrentUserId(): number | null {
-    return getCurrentUser()?.id || null
+function getCurrentUserAvatar() {
+    return user.value?.avatar || 'https://www.gravatar.com/avatar?d=mp';
 }
 
-function getCurrentUserEmail(): string | null {
-    return getCurrentUser()?.email || null
+function getCurrentUserEmail() {
+    return user.value?.email || null;
 }
 
-function getCurrentUserAvatar(): string {
-    return getCurrentUser()?.avatar || 'https://www.gravatar.com/avatar?d=mp'
+function getCurrentUserId() {
+    return user.value?.id || null;
 }
 
 export function useAuth() {
     return {
-        token, isLoggedIn, login, logout, getCurrentUserId, getCurrentUserEmail, getCurrentUserAvatar, getCurrentUser
-    }
+        user,
+        isLoggedIn,
+        login,
+        logout,
+        getCurrentUser,
+        getCurrentUserAvatar,
+        getCurrentUserEmail,
+        getCurrentUserId
+    };
 }

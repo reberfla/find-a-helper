@@ -1,29 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import {onMounted, ref, toRaw, watch} from 'vue';
 import apiService from '@/service/apiService.js';
 import {useAuth} from "@/service/userAuthService.ts";
 import {UserModel} from "@/models/UserModel.ts";
+import SnackBar from "@/components/Snackbar.vue";
+import {translate} from "@/service/translationService.ts";
 
 
-const { getCurrentUser, login } = useAuth();
+const { getCurrentUser,getCurrentUserAvatar, login } = useAuth();
 const token = getCurrentUser()?.token;
 
 const user = ref<UserModel>(new UserModel('', ''));
 const originalUser = ref<Partial<UserModel>>({});
 const changedFields = ref<Partial<UserModel>>({});
 const newAvatar = ref<File | null>(null);
-const avatarPreview = ref('https://www.gravatar.com/avatar?d=mp');
 const editMode = ref(false);
+const snackBar = ref<InstanceType<typeof SnackBar> | null>(null)
+const t = translate
+
 
 async function loadUserData() {
   if (!token) return;
-  try {
-    const response:any = await apiService.getUser(token);
-    const userData = response.data;
-    console.log(userData)
-    const avatar = userData.imgBase64
-      ? `data:image/png;base64,${userData.imgBase64}`
-      : userData.imageUrl || 'https://www.gravatar.com/avatar?d=mp';
+  await apiService.authUserByToken(token).then((res:any)=>{
+    const userData = res;
 
     const loadedUser = new UserModel(
       userData.email,
@@ -34,31 +33,36 @@ async function loadUserData() {
       userData.authenticationProvider,
       userData.zipCode,
       userData.birthdate,
-      undefined,
+      userData.imgBase64,
       userData.imageUrl,
-      userData.imgBase64
+      userData.imgBase64,
     );
 
     user.value = loadedUser;
     originalUser.value = { ...loadedUser };
-    avatarPreview.value = avatar;
-  } catch (err) {
-    console.error("Fehler beim Laden des Benutzers:", err);
-  }
+
+    const payload= {token: {JWT:token}, imgBlob:userData.imgBase64, userId:userData.id,imgUrl:userData.imgUrl,email:userData.email,name:userData.name}
+    login(payload)
+}).
+    catch ((e:any)=> {
+    console.error("Fehler beim Laden des Benutzers:", e);
+  })
 }
 
 watch(user, (newVal) => {
   if (!newVal || !originalUser.value) return;
 
-  (Object.keys(newVal) as (keyof UserModel)[]).forEach((key) => {
+  const updatedFields: Partial<UserModel> = {};
+  for (const key of Object.keys(newVal) as (keyof UserModel)[]) {
     const newValue = newVal[key];
     const originalValue = originalUser.value[key];
-
     if (newValue !== originalValue) {
-      changedFields.value[key] = newValue as any;
+      updatedFields[key] = newValue as any;
     }
-  });
-}, { deep: true });
+  }
+
+  changedFields.value = updatedFields;
+}, { deep: true, immediate: true });
 
 
 
@@ -66,37 +70,40 @@ function onImageSelected(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0];
   if (file) {
     newAvatar.value = file;
-    avatarPreview.value = URL.createObjectURL(file);
-    changedFields.value.image = file;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const result = reader.result?.toString();
+      if (result) {
+        changedFields.value.imgBase64 = result.split(',')[1];
+        await saveChanges()
+      }
+    };
+    reader.readAsDataURL(file);
   }
 }
 
 async function saveChanges() {
-  try {
-    changedFields.value.id = user.value.id;
-    changedFields.value.authenticationProvider = 'LOCAL';
+  changedFields.value.id = user.value.id;
+  const currentToken = getCurrentUser()?.token;
+  const payload = {
+    token: currentToken,
+    ...toRaw(changedFields.value),
+  };
+  console.log("🔄 Payload being sent:", payload);
 
-    const formData = UserModel.toFormDataFromPartial(changedFields.value);
-    const updatedUser = await apiService.updateUser(formData);
-
-    login(updatedUser);
+  apiService.updateUser(payload).then(async (res: any) => {
     editMode.value = false;
-    alert('Profil erfolgreich aktualisiert!');
+    snackBar.value?.show(t('SAVE_SUCESS'), "info");
     changedFields.value = {};
     await loadUserData();
-  } catch (err) {
-    console.error("Fehler beim Speichern:", err);
-    alert("Fehler beim Speichern!");
-  }
-}
-
-function openAvatarPreview() {
-  if (avatarPreview.value) {
-    window.open(avatarPreview.value, '_blank');
-  }
+  }).catch((e: any) => {
+    snackBar.value?.show(t('ERROR_SAVE_FAILED'), "error");
+    console.error("Fehler beim Speichern:", e);
+  });
 }
 
 onMounted(loadUserData);
+
 </script>
 
 <template>
@@ -106,10 +113,9 @@ onMounted(loadUserData);
       <v-col cols="12" md="6" class="position-relative">
         <div class="avatar-wrapper">
           <img
-            :src="avatarPreview"
+            :src="getCurrentUserAvatar()"
             alt="Profilbild"
             class="profile-img"
-            @dblclick="openAvatarPreview"
           />
           <div class="overlay-circle" @click="$refs.fileInput.click()">
             <v-icon color="white" size="30">camera</v-icon>
