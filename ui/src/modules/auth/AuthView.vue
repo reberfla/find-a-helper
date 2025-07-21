@@ -143,13 +143,7 @@ function cancelAuth() {
     <v-card>
       <v-card-title class="d-flex justify-space-between align-center">
         <span>{{ mode === 'register' ? t('LABEL_REGISTRATION') : t('LABEL_LOGIN') }}</span>
-        <v-btn
-          icon
-          @click="
-            dialogVisible = false
-            emit('close')
-          "
-        >
+        <v-btn icon @click="((dialogVisible = false), emit('close'))">
           <v-icon>close</v-icon>
         </v-btn>
       </v-card-title>
