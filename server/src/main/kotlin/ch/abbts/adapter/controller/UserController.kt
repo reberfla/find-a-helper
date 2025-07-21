@@ -42,7 +42,6 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                     """ This API creates a new user if it doesn't already exists.
                 When creating, a new user id is given by an integer counter of the db"""",
             )
-
             post("/register") {
                 LoggerService.debugLog("here")
                 try {
@@ -100,40 +99,45 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
 
                     val birthdate = json["birthdate"]?.jsonPrimitive?.content
                     val name = json["name"]?.jsonPrimitive?.content ?: user.name
-                    val password = json["password"]?.jsonPrimitive?.contentOrNull
-                    val zipCode = json["zipCode"]?.jsonPrimitive?.intOrNull ?: user.zipCode
-                    val imgBase64 = json["imgBase64"]?.jsonPrimitive?.contentOrNull
+                    val password =
+                        json["password"]?.jsonPrimitive?.contentOrNull
+                    val zipCode =
+                        json["zipCode"]?.jsonPrimitive?.intOrNull
+                            ?: user.zipCode
+                    val imgBase64 =
+                        json["imgBase64"]?.jsonPrimitive?.contentOrNull
 
-                    val updatedDto = UserDto(
-                        email = email,
-                        name = name,
-                        password = password,
-                        zipCode = zipCode,
-                        birthdate = birthdate ?: user.birthdate.toString(),
-                        authProvider = user.authProvider,
-                        idToken = token,
-                        imgBase64 = imgBase64
-                    )
+                    val updatedDto =
+                        UserDto(
+                            email = email,
+                            name = name,
+                            password = password,
+                            zipCode = zipCode,
+                            birthdate = birthdate ?: user.birthdate.toString(),
+                            authProvider = user.authProvider,
+                            idToken = token,
+                            imgBase64 = imgBase64,
+                        )
 
-                    val updatedUserDto = userInteractor.updateUser(user.id!!, updatedDto)
+                    val updatedUserDto =
+                        userInteractor.updateUser(user.id!!, updatedDto)
 
-                    val response = AuthResponseDto(
-                        id = updatedUserDto?.id,
-                        token = null,
-                        email = updatedUserDto?.email ?: "",
-                        name = updatedUserDto?.name,
-                        imgUrl = updatedUserDto?.imageUrl,
-                        imgBlob = updatedUserDto?.imgBase64
-                    )
+                    val response =
+                        AuthResponseDto(
+                            id = updatedUserDto?.id,
+                            token = null,
+                            email = updatedUserDto?.email ?: "",
+                            name = updatedUserDto?.name,
+                            imgUrl = updatedUserDto?.imageUrl,
+                            imgBlob = updatedUserDto?.imgBase64,
+                        )
 
                     call.respond(HttpStatusCode.OK, response)
-
                 } catch (e: WebserverError) {
                     LoggerService.debugLog("❌ PUT /v1/user/{token} error: $e")
                     call.respond(e.getStatus(), e.getMessage())
                 }
             }
-
         }
     }
 }

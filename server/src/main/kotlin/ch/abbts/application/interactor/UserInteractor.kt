@@ -14,9 +14,8 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import java.time.Instant
 import java.time.LocalDate
-import org.mindrot.jbcrypt.BCrypt
 import java.util.*
-import java.util.logging.Logger
+import org.mindrot.jbcrypt.BCrypt
 
 class UserInteractor(private val userRepository: UsersRepository) {
 
@@ -114,20 +113,25 @@ class UserInteractor(private val userRepository: UsersRepository) {
     }
 
     fun updateUser(id: Int, dto: UserDto): UserDto? {
-        val existing = userRepository.getUserByEmail(dto.email)
-            ?: throw UserNotFound()
+        val existing =
+            userRepository.getUserByEmail(dto.email) ?: throw UserNotFound()
 
-        val updatedModel = existing.copy(
-            name = dto.name ?: existing.name,
-            passwordHash = dto.password?.let { BCrypt.hashpw(it, BCrypt.gensalt()) } ?: existing.passwordHash,
-            zipCode = dto.zipCode ?: existing.zipCode,
-            birthdate = dto.birthdate?.let { LocalDate.parse(it) } ?: existing.birthdate,
-            image = dto.imgBase64?.let { Base64.getDecoder().decode(it) } ?: existing.image
-        )
+        val updatedModel =
+            existing.copy(
+                name = dto.name ?: existing.name,
+                passwordHash =
+                    dto.password?.let { BCrypt.hashpw(it, BCrypt.gensalt()) }
+                        ?: existing.passwordHash,
+                zipCode = dto.zipCode ?: existing.zipCode,
+                birthdate =
+                    dto.birthdate?.let { LocalDate.parse(it) }
+                        ?: existing.birthdate,
+                image =
+                    dto.imgBase64?.let { Base64.getDecoder().decode(it) }
+                        ?: existing.image,
+            )
 
         val saved = userRepository.updateUser(updatedModel)
         return saved?.let { UserDto.toDTO(it) }
     }
-
-
 }

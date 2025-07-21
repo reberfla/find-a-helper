@@ -130,7 +130,6 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                     description =
                         "This is a debug route to verify if a token is valid",
                 )
-
                 get("/validate") {
                     try {
                         val dto = call.receive<UserDto>()
@@ -144,7 +143,6 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                         call.respond(e.getStatus(), e.getMessage())
                     }
                 }
-
             }
         }
     }
