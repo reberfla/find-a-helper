@@ -1,6 +1,6 @@
-import {translate} from "@/service/translationService.ts";
+import { translate } from '@/service/translationService.ts'
 export default {
-    install(app:any) {
-        app.config.globalProperties.$translate = translate;
-    }
-};
+  install(app: any) {
+    app.config.globalProperties.$translate = translate
+  },
+}

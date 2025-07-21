@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import {onBeforeMount, onBeforeUnmount, onMounted, onUnmounted} from 'vue'
+import { onBeforeMount, onBeforeUnmount, onMounted, onUnmounted } from 'vue'
 
 onBeforeMount(() => console.log('component will be mounted..'))
 onMounted(() => console.log('component mounted... '))

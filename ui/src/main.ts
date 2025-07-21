@@ -1,4 +1,3 @@
-
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
@@ -10,14 +9,13 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
-import {loadTranslations, setLanguage} from "@/service/translationService";
-import translationPlugin from "@/plugins/translationPlugin.ts";
-import {aliases} from "vuetify/iconsets/fa";
-import {md} from "vuetify/iconsets/md";
+import { loadTranslations, setLanguage } from '@/service/translationService'
+import translationPlugin from '@/plugins/translationPlugin.ts'
+import { aliases } from 'vuetify/iconsets/fa'
+import { md } from 'vuetify/iconsets/md'
 
-await loadTranslations();
-setLanguage('de');
-
+await loadTranslations()
+setLanguage('de')
 
 const vuetify = createVuetify({
   components,
@@ -35,5 +33,5 @@ const app = createApp(App)
 
 app.use(router)
 app.use(vuetify)
-app.use(translationPlugin);
+app.use(translationPlugin)
 app.mount('#app')

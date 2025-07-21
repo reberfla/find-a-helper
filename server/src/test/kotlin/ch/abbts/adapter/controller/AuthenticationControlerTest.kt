@@ -2,6 +2,7 @@ package ch.abbts.adapter.controller
 
 import ch.abbts.adapter.routes.configureRouting
 import ch.abbts.application.dto.AuthenticationDto
+import ch.abbts.application.dto.UserDto
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.AuthProvider
 import ch.abbts.error.UserNotFound
@@ -25,9 +26,14 @@ class AuthenticationTest() {
                 mock<UserInteractor> {
                     given(mock.verifyLocalUser(eq("mailb@example.ch"), any()))
                         .willAnswer { throw UserNotFound() }
-                    doNothing()
-                        .whenever(mock)
-                        .verifyLocalUser(eq("mail@example.ch"), any())
+                    on {
+                        verifyLocalUser(eq("mail@example.ch"), any())
+                    } doReturn
+                        UserDto(
+                            email = "mail@example.ch",
+                            birthdate = "",
+                            id = 1,
+                        )
                     doNothing()
                         .whenever(mock)
                         .updateIssuedTime(eq("mail@example.ch"), any())
@@ -52,7 +58,7 @@ class AuthenticationTest() {
         assertEquals(HttpStatusCode.OK, response.status)
         val responseBody =
             Json.parseToJsonElement(response.bodyAsText()).jsonObject
-        assert(responseBody.containsKey("JWT"))
+        assert(responseBody.containsKey("token"))
 
         val userNotExisting =
             AuthenticationDto(

@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import Header from "@/components/header/Header.vue";
-import Footer from "@/components/footer/Footer.vue";
+import Header from '@/components/header/Header.vue'
+import Footer from '@/components/footer/Footer.vue'
 const route = useRoute()
 </script>

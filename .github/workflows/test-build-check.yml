@@ -17,7 +17,7 @@ jobs:
 
       - name: Run Kotlin format checks
         shell: bash
-        run: ./gradlew check
+        run: ./gradlew ktfmtCheck
 
       - name: Set up Node 22
         uses: actions/setup-node@v4

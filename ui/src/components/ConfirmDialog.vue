@@ -1,5 +1,9 @@
 <template>
-  <v-dialog :model-value="props.visible" @update:model-value="emit('update:visible', $event)" max-width="400">
+  <v-dialog
+    :model-value="props.visible"
+    @update:model-value="emit('update:visible', $event)"
+    max-width="400"
+  >
     <v-card>
       <v-card-title>{{ props.title }}</v-card-title>
       <v-card-text>{{ props.message }}</v-card-text>
@@ -34,5 +38,4 @@ function closeAndConfirm() {
   emit('update:visible', false)
   props.onConfirm()
 }
-
 </script>

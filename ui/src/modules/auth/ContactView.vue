@@ -4,12 +4,7 @@
       <v-col cols="12" md="6">
         <h1 class="text-h3 mb-6">Kontakt</h1>
         <v-form @submit.prevent="onSubmit">
-          <v-text-field
-            v-model="form.name"
-            label="Name"
-            required
-            variant="outlined"
-          ></v-text-field>
+          <v-text-field v-model="form.name" label="Name" required variant="outlined"></v-text-field>
 
           <v-text-field
             v-model="form.email"
@@ -34,9 +29,7 @@
             variant="outlined"
           ></v-textarea>
 
-          <v-btn type="submit" color="#748B6F" block>
-            Nachricht senden
-          </v-btn>
+          <v-btn type="submit" color="#748B6F" block> Nachricht senden </v-btn>
         </v-form>
       </v-col>
       <v-col cols="12" md="6">
@@ -78,16 +71,10 @@ const form = ref({
   name: '',
   email: '',
   subject: '',
-  message: ''
+  message: '',
 })
 
-const subjects = [
-  'Allgemeine Anfrage',
-  'Gartenarbeit',
-  'Babysitting',
-  'Platten legen',
-  'Sonstiges'
-]
+const subjects = ['Allgemeine Anfrage', 'Gartenarbeit', 'Babysitting', 'Platten legen', 'Sonstiges']
 
 const onSubmit = () => {
   console.log('Form submitted:', form.value)

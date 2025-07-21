@@ -1,67 +1,64 @@
 <script lang="ts" setup>
-
-import AuthView from "@/modules/auth/AuthView.vue";
-import {onMounted, ref} from 'vue';
-import {getLanguage, setLanguage, translate} from '@/service/translationService.js';
-import {useAuth} from "@/service/userAuthService.ts";
-import SnackBar from "@/components/Snackbar.vue";
+import AuthView from '@/modules/auth/AuthView.vue'
+import { onMounted, ref } from 'vue'
+import { getLanguage, setLanguage, translate } from '@/service/translationService.js'
+import { useAuth } from '@/service/userAuthService.ts'
+import SnackBar from '@/components/Snackbar.vue'
 const { isLoggedIn, logout, getCurrentUser, getCurrentUserAvatar } = useAuth()
 
-const authDialogVisible = ref(false);
-const authMode = ref<'login' | 'register'>('login');
+const authDialogVisible = ref(false)
+const authMode = ref<'login' | 'register'>('login')
 
 const snackBar = ref<InstanceType<typeof SnackBar> | null>(null)
 
 function openAuth(mode: 'login' | 'register') {
-  authMode.value = mode;
-  authDialogVisible.value = true;
+  authMode.value = mode
+  authDialogVisible.value = true
 }
 
-const dropdownOpen = ref(false);
-const languageDropdownOpen = ref(false);
-const currentLanguage = ref(getLanguage());
+const dropdownOpen = ref(false)
+const languageDropdownOpen = ref(false)
+const currentLanguage = ref(getLanguage())
 
-const t = translate;
+const t = translate
 
 const emit = defineEmits(['onAuthChange'])
 
 function onLogin() {
-  snackBar.value?.show(t('LABEL_LOGIN_SUCCESS'), 'info');
-  dropdownOpen.value = false;
+  snackBar.value?.show(t('LABEL_LOGIN_SUCCESS'), 'info')
+  dropdownOpen.value = false
   emit('onAuthChange')
 }
 
 function handleLogout() {
   logout()
-  snackBar.value?.show(t('LABEL_LOGOUT_SUCCESS'), 'info');
+  snackBar.value?.show(t('LABEL_LOGOUT_SUCCESS'), 'info')
   dropdownOpen.value = false
   emit('onAuthChange')
 }
 
-
 function getFlagIcon(lang: any) {
   switch (lang) {
     case 'en':
-      return '🇬🇧';
+      return '🇬🇧'
     case 'de':
-      return '🇩🇪';
+      return '🇩🇪'
     default:
-      return '🌐';
+      return '🌐'
   }
 }
 
 function getAvailableLanguages() {
-  return ['en', 'de'].filter(lang => lang !== currentLanguage.value);
+  return ['en', 'de'].filter((lang) => lang !== currentLanguage.value)
 }
 
 function changeLanguage(lang: any) {
-  currentLanguage.value = lang;
-  setLanguage(lang);
-  languageDropdownOpen.value = false;
+  currentLanguage.value = lang
+  setLanguage(lang)
+  languageDropdownOpen.value = false
 }
 
-onMounted(() => {
-});
+onMounted(() => {})
 
 const drawer = ref(false)
 
@@ -69,9 +66,8 @@ const menuItems = [
   { title: 'Startseite', icon: 'home', path: '/' },
   { title: 'Über uns', icon: 'info', path: '/about' },
   { title: 'Dienstleistungen', icon: 'work', path: '/services' },
-  { title: 'Kontakt', icon: 'email', path: '/contact' }
+  { title: 'Kontakt', icon: 'email', path: '/contact' },
 ]
-
 </script>
 
 <template>
@@ -93,9 +89,9 @@ const menuItems = [
       </template>
       <v-list>
         <v-list-item
-            v-for="lang in getAvailableLanguages()"
-            :key="lang"
-            @click="changeLanguage(lang)"
+          v-for="lang in getAvailableLanguages()"
+          :key="lang"
+          @click="changeLanguage(lang)"
         >
           <v-list-item-title>{{ getFlagIcon(lang) }}</v-list-item-title>
         </v-list-item>
@@ -106,7 +102,13 @@ const menuItems = [
     <v-menu offset-y>
       <template #activator="{ props }">
         <v-avatar size="36" v-bind="props">
-          <img :src="getCurrentUserAvatar()" alt="Avatar" height="36" width="36" referrerpolicy="no-referrer" />
+          <img
+            :src="getCurrentUserAvatar()"
+            alt="Avatar"
+            height="36"
+            width="36"
+            referrerpolicy="no-referrer"
+          />
         </v-avatar>
       </template>
       <v-list>
@@ -135,12 +137,7 @@ const menuItems = [
   <!-- Sidebar Navigation -->
   <v-navigation-drawer v-model="drawer" app>
     <v-list>
-      <v-list-item
-          v-for="item in menuItems"
-          :key="item.title"
-          :to="item.path"
-          link
-      >
+      <v-list-item v-for="item in menuItems" :key="item.title" :to="item.path" link>
         <template #prepend>
           <v-icon>{{ item.icon }}</v-icon>
         </template>
@@ -158,6 +155,4 @@ const menuItems = [
   <SnackBar ref="snackBar" />
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
