@@ -51,30 +51,34 @@ async function putJSON<T>(url: string, data: any): Promise<T> {
 }
 
 export default {
-  // Public API
-  async getAuftrags(lat: string, lng: string) {
-    return getJSON(`${BASE_URL}/auftrags?lat=${lat}&lng=${lng}`)
+    // Public API
+    async getAuftrags(lat: string, lng: string) {
+        return getJSON(`${BASE_URL}/auftrags?lat=${lat}&lng=${lng}`);
+    },
+
+    // Auth
+    async authUser(data: any) {
+        return postJSON(`${BASE_URL}/v1/auth`, data);
+    },
+
+  async authUserByToken(token: string) {
+    return getJSON(`${BASE_URL}/v1/auth/${token}`)
   },
 
-  // Auth
-  async authUser(data: any) {
-    return postJSON(`${BASE_URL}/v1/auth`, data)
-  },
+    async validateToken() {
+        return getJSON(`${BASE_URL}/v1/auth/validate`);
+    },
 
-  async validateToken() {
-    return getJSON(`${BASE_URL}/v1/auth/validate`)
-  },
+    // User-Profile
+    async registerLokalUser(data: any) {
+        return postJSON(`${BASE_URL}/v1/user/register`, data);
+    },
 
-  // User-Profile
-  async registerLokalUser(data: any) {
-    return postJSON(`${BASE_URL}/v1/user/register`, data)
-  },
+    async updateUser(data: any) {
+        return putJSON(`${BASE_URL}/v1/user/${data.id}`, data);
+    },
 
-  async updateUser(data: any) {
-    return putJSON(`${BASE_URL}/v1/user/${data.id}`, data)
-  },
-
-  async getUser(token: string) {
-    return getJSON(`${BASE_URL}/v1/user/${token}`)
-  },
+    async getUser(token: string) {
+        return getJSON(`${BASE_URL}/v1/user/${token}`)
+    }
 }

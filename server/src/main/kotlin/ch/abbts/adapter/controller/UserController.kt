@@ -3,6 +3,7 @@ package ch.abbts.adapter.controller
 import ch.abbts.application.dto.AuthResponseDto
 import ch.abbts.application.dto.AuthenticationDto
 import ch.abbts.application.dto.SuccessMessage
+import ch.abbts.application.dto.UserDto
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.UserAlreadyExists
@@ -18,6 +19,10 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonPrimitive
 
 @Tag(["User"])
 fun Application.userRoutes(userInteractor: UserInteractor) {
@@ -71,6 +76,66 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                             else -> e.getStatus() to e.getMessage()
                         }
                     call.respond(status, response)
+                }
+            }
+
+            put("/{token}") {
+                try {
+                    val token = call.parameters["token"]
+                    if (token == null) {
+                        call.respond(HttpStatusCode.BadRequest, "Missing token")
+                        return@put
+                    }
+
+                    val email = JWebToken.decodeEmailFromToken(token)
+                    val user = userInteractor.getUserByEmail(email)
+                    LoggerService.debugLog(user.toString())
+                    if (user == null) {
+                        call.respond(HttpStatusCode.NotFound, "User not found.")
+                        return@put
+                    }
+                    val json = call.receive<JsonObject>()
+                    LoggerService.debugLog("Received JSON: $json")
+
+                    val birthdate = json["birthdate"]?.jsonPrimitive?.content
+                    val name = json["name"]?.jsonPrimitive?.content ?: user.name
+                    val password =
+                        json["password"]?.jsonPrimitive?.contentOrNull
+                    val zipCode =
+                        json["zipCode"]?.jsonPrimitive?.intOrNull
+                            ?: user.zipCode
+                    val imgBase64 =
+                        json["imgBase64"]?.jsonPrimitive?.contentOrNull
+
+                    val updatedDto =
+                        UserDto(
+                            email = email,
+                            name = name,
+                            password = password,
+                            zipCode = zipCode,
+                            birthdate = birthdate ?: user.birthdate.toString(),
+                            authProvider = user.authProvider,
+                            idToken = token,
+                            imgBase64 = imgBase64,
+                        )
+
+                    val updatedUserDto =
+                        userInteractor.updateUser(user.id!!, updatedDto)
+
+                    val response =
+                        AuthResponseDto(
+                            id = updatedUserDto?.id,
+                            token = null,
+                            email = updatedUserDto?.email ?: "",
+                            name = updatedUserDto?.name,
+                            imgUrl = updatedUserDto?.imageUrl,
+                            imgBlob = updatedUserDto?.imgBase64,
+                        )
+
+                    call.respond(HttpStatusCode.OK, response)
+                } catch (e: WebserverError) {
+                    LoggerService.debugLog("❌ PUT /v1/user/{token} error: $e")
+                    call.respond(e.getStatus(), e.getMessage())
                 }
             }
         }
