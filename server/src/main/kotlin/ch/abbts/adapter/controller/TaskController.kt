@@ -25,13 +25,15 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
                 } else {
                     val params = TaskQueryParams(call.queryParameters)
                     log.debug("params: ${params.toString()}")
-                    call.respond(taskInteractor.getTasks(params))
+                    call.respond(
+                        taskInteractor.getTasks(params).map { it.toPublicDto() }
+                    )
                 }
             }
             get("/{id}") {
                 val id = call.parameters["id"]!!.toInt()
                 log.debug("GET request with id: $id")
-                call.respond(taskInteractor.getTaskById(id))
+                call.respond(taskInteractor.getTaskById(id).toPublicDto())
             }
             authenticate("jwt-auth") {
                 get("/my") {

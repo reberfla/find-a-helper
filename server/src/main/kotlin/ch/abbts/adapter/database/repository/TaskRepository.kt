@@ -4,7 +4,7 @@ import ch.abbts.adapter.database.table.TasksTable
 import ch.abbts.application.dto.TaskDto
 import ch.abbts.application.dto.TaskQueryParams
 import ch.abbts.domain.model.TaskModel
-import ch.abbts.utils.Log
+import ch.abbts.utils.logger
 import java.time.Instant
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Op
@@ -18,7 +18,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
 class TaskRepository {
-    companion object : Log() {}
+    val log = logger()
 
     fun createTask(task: TaskModel): TaskModel {
         return try {

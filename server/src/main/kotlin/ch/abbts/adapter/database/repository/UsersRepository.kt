@@ -5,8 +5,8 @@ import ch.abbts.domain.model.AuthProvider
 import ch.abbts.domain.model.UserModel
 import ch.abbts.error.UpdatingIssuedTimeFailed
 import ch.abbts.error.UserCreationFailed
-import ch.abbts.utils.Log
 import ch.abbts.utils.LoggerService
+import ch.abbts.utils.logger
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.update
 import org.mindrot.jbcrypt.BCrypt
 
 class UsersRepository {
-    companion object : Log() {}
+    val log = logger()
 
     fun createLocalUser(user: UserModel) {
         try {
@@ -59,6 +59,35 @@ class UsersRepository {
         return try {
             transaction {
                 User.select { User.email eq email }
+                    .singleOrNull()
+                    ?.let {
+                        UserModel(
+                            id = it[User.id],
+                            email = it[User.email],
+                            passwordHash = it[User.password_hash],
+                            authProvider = it[User.authProvider],
+                            birthdate = it[User.birthdate],
+                            active = it[User.active],
+                            name = it[User.name],
+                            imageUrl = it[User.imageUrl],
+                            image = it[User.image]?.bytes,
+                            zipCode = it[User.zipCode],
+                            lastTokenIssued = it[User.lastTokenIssued],
+                            lockedUntil = it[User.lockedUntil],
+                        )
+                    }
+            }
+        } catch (e: Exception) {
+            log.error("Error fetching user by email: ${e.message}")
+            null
+        }
+    }
+
+    fun getUserById(id: Int): UserModel? {
+        log.debug("fetching user for $id")
+        return try {
+            transaction {
+                User.select { User.id eq id }
                     .singleOrNull()
                     ?.let {
                         UserModel(

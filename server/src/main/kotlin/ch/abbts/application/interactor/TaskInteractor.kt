@@ -1,20 +1,27 @@
 package ch.abbts.application.interactor
 
 import ch.abbts.adapter.database.repository.TaskRepository
+import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.application.dto.TaskDto
+import ch.abbts.application.dto.TaskPrivateDto
 import ch.abbts.application.dto.TaskQueryParams
 import ch.abbts.domain.model.TaskModel
 import ch.abbts.error.TaskNotFound
-import ch.abbts.utils.Log
+import ch.abbts.utils.logger
 
-class TaskInteractor(val taskRepository: TaskRepository) {
-    companion object : Log() {}
+class TaskInteractor(
+    val taskRepository: TaskRepository,
+    val userRepository: UsersRepository,
+) {
+    val log = logger()
 
-    fun createTask(task: TaskModel): TaskModel {
-        return taskRepository.createTask(task)
+    fun createTask(task: TaskModel): TaskPrivateDto {
+        val createdTask = taskRepository.createTask(task)
+        val user = userRepository.getUserById(task.userId)!!
+        return createdTask.toPrivateDto(user.name, user.email)
     }
 
-    fun updateTask(task: TaskDto, userId: Int, id: Int): TaskModel {
+    fun updateTask(task: TaskDto, userId: Int, id: Int): TaskPrivateDto {
         val existing = taskRepository.getTaskById(id)
         if (existing == null) {
             throw TaskNotFound(id)
@@ -26,7 +33,8 @@ class TaskInteractor(val taskRepository: TaskRepository) {
         if (updatedTask == null) {
             throw TaskNotFound(id)
         } else {
-            return updatedTask
+            val user = userRepository.getUserById(updatedTask.userId)!!
+            return updatedTask.toPrivateDto(user.name, user.email)
         }
     }
 
@@ -38,8 +46,11 @@ class TaskInteractor(val taskRepository: TaskRepository) {
         }
     }
 
-    fun getTasksByCreator(userId: Int): List<TaskModel> {
-        return taskRepository.getTaskByCreator(userId) ?: listOf<TaskModel>()
+    fun getTasksByCreator(userId: Int): List<TaskPrivateDto> {
+        val user = userRepository.getUserById(userId)!!
+        return taskRepository.getTaskByCreator(userId)?.map {
+            it.toPrivateDto(user.name, user.email)
+        } ?: listOf<TaskPrivateDto>()
     }
 
     fun getTaskById(taskId: Int): TaskModel {

@@ -4,6 +4,7 @@ import ch.abbts.adapter.controller.authenticationRoutes
 import ch.abbts.adapter.controller.taskRoutes
 import ch.abbts.adapter.controller.userRoutes
 import ch.abbts.adapter.database.repository.TaskRepository
+import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.JWebToken
@@ -46,7 +47,7 @@ fun Application.configureRouting(userInteractor: UserInteractor) {
             }
         }
     }
-    val taskInteractor = TaskInteractor(TaskRepository())
+    val taskInteractor = TaskInteractor(TaskRepository(), UsersRepository())
     routing { userRoutes(userInteractor) }
     routing { authenticationRoutes(userInteractor) }
     routing { taskRoutes(taskInteractor) }

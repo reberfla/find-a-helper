@@ -2,7 +2,7 @@ package ch.abbts.domain.model
 
 import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.error.*
-import ch.abbts.utils.Log
+import ch.abbts.utils.logger
 import com.typesafe.config.ConfigFactory
 import java.time.Instant
 import java.util.*
@@ -21,13 +21,15 @@ class JWebToken(email: String, id: Int) {
     private val exp: Long = iat.plus(validDuration)
     val header = JWebTokenHeader(alg, typ)
     val body = JWebTokenBody(email, id, iat, exp)
+    val log = logger()
 
-    companion object : Log() {
+    companion object {
         val b64Encoder = Base64.getUrlEncoder().withoutPadding()
         val b64Decoder = Base64.getUrlDecoder()
         val config = ConfigFactory.load()
         val secret = config.getString("jwt.secret")
         val usersRepository = UsersRepository()
+        val log = logger()
 
         fun generateToken(header: JWebTokenHeader, body: JWebTokenBody): JWT {
             log.debug("issuing jwt token for ${body.email}")

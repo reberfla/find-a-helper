@@ -21,7 +21,7 @@ data class TaskModel(
     val weekdays: List<String>? = null,
     val createdAt: Long? = null,
 ) {
-    fun toPublicModel(): TaskPublicDto {
+    fun toPublicDto(): TaskPublicDto {
         return TaskPublicDto(
             id!!,
             zipCode,
