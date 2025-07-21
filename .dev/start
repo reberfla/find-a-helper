@@ -36,7 +36,7 @@ start_backend ()
 
     cd $SCRIPT_DIR
     cd ..
-    ./gradlew -t build -x test -i -q &
+    ./gradlew -t build -x check -i -q &
     build_pid=$!
     sleep 5 && { ./gradlew -Dorg.gradle.jvmargs=-Dio.ktor.development=true :server:run & run_pid=$! ; }
     wait
