@@ -2,8 +2,12 @@ package ch.abbts.adapter.routes
 
 import ch.abbts.adapter.controller.authenticationRoutes
 import ch.abbts.adapter.controller.offerRoutes
+import ch.abbts.adapter.controller.taskRoutes
 import ch.abbts.adapter.controller.userRoutes
+import ch.abbts.adapter.database.repository.TaskRepository
+import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.application.interactor.OfferInteractor
+import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.WebserverError
@@ -18,7 +22,10 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-fun Application.configureRouting(userInteractor: UserInteractor, offerInteractor: OfferInteractor) {
+fun Application.configureRouting(
+    userInteractor: UserInteractor,
+    offerInteractor: OfferInteractor,
+) {
     install(StatusPages) {
         exception<Throwable> { call, error ->
             when (error) {
@@ -45,7 +52,9 @@ fun Application.configureRouting(userInteractor: UserInteractor, offerInteractor
             }
         }
     }
+    val taskInteractor = TaskInteractor(TaskRepository(), UsersRepository())
     routing { userRoutes(userInteractor) }
     routing { authenticationRoutes(userInteractor) }
     routing { offerRoutes(offerInteractor, userInteractor) }
+    routing { taskRoutes(taskInteractor) }
 }

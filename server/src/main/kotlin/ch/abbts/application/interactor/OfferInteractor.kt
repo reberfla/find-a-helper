@@ -6,8 +6,8 @@ import ch.abbts.error.*
 import ch.abbts.utils.Log
 
 class OfferInteractor(
-    private val offerRepo: OffersRepository,
-    //private val taskRepo: TasksRepository,
+    private val offerRepo: OffersRepository
+    // private val taskRepo: TasksRepository,
 ) {
     companion object : Log()
 
@@ -19,7 +19,8 @@ class OfferInteractor(
         submit offer to own task
         */
 
-        val alreadyExists = offerRepo.hasUserSubmittedOfferForTask(offer.userId, offer.taskId)
+        val alreadyExists =
+            offerRepo.hasUserSubmittedOfferForTask(offer.userId, offer.taskId)
         if (alreadyExists) {
             throw OfferAlreadyExists()
         }

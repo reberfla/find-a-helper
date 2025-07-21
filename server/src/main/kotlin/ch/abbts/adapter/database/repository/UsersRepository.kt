@@ -6,6 +6,7 @@ import ch.abbts.error.UpdatingIssuedTimeFailed
 import ch.abbts.error.UserCreationFailed
 import ch.abbts.utils.Log
 import ch.abbts.utils.LoggerService
+import ch.abbts.utils.logger
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
@@ -15,6 +16,8 @@ import org.mindrot.jbcrypt.BCrypt
 
 class UsersRepository {
     companion object : Log()
+
+    val log = logger()
 
     fun createUser(user: UserModel): UserModel? {
         try {
@@ -58,10 +61,12 @@ class UsersRepository {
     }
 
     fun getUserByEmail(email: String): UserModel? {
-        LoggerService.debugLog("fetching user for in UserRespo $email")
+        log.debug("fetching user for $email")
         return try {
             transaction {
-                val user = UsersTable.select { UsersTable.email eq email }.singleOrNull()
+                val user =
+                    UsersTable.select { UsersTable.email eq email }
+                        .singleOrNull()
                 LoggerService.debugLog(user.toString())
                 user?.toUserModel()
             }
@@ -91,7 +96,7 @@ class UsersRepository {
     fun updateUser(user: UserModel): UserModel? {
         return try {
             transaction {
-                User.update({ User.id eq user.id!! }) {
+                UsersTable.update({ UsersTable.id eq user.id!! }) {
                     it[email] = user.email
                     it[password_hash] =
                         BCrypt.hashpw(user.passwordHash, BCrypt.gensalt())
