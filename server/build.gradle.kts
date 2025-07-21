@@ -23,6 +23,9 @@ dependencies {
     implementation(libs.bundles.exposed)
     implementation(libs.dbDriver)
     implementation(libs.bcrypt)
+    implementation(libs.googleApiClient)
+    implementation(libs.googleOauthClient)
+    implementation(libs.googleHttpClient)
 
     // utility dependencies
     implementation(libs.config)
@@ -34,6 +37,7 @@ dependencies {
     testImplementation(libs.ktorTest)
     testImplementation(libs.mockito)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
 }
 
 java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
@@ -78,3 +82,7 @@ tasks.named("shadowJar") {
 }
 
 tasks.named<Test>("test") { useJUnitPlatform() }
+tasks.named<Test>("test") {
+    useJUnitPlatform()
+}
+
