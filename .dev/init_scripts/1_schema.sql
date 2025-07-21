@@ -1,10 +1,8 @@
+DROP DATABASE IF EXISTS findahelper;
+CREATE DATABASE IF NOT EXISTS findahelper DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 CREATE USER IF NOT EXISTS 'dev'@'%' IDENTIFIED BY 'dev';
 GRANT ALL PRIVILEGES ON findahelper.* TO 'dev'@'%';
 FLUSH PRIVILEGES;
-
-DROP DATABASE IF EXISTS findahelper;
-
-CREATE DATABASE IF NOT EXISTS findahelper DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 USE findahelper;
 
@@ -25,7 +23,8 @@ CREATE TABLE assignments (
 CREATE TABLE offers (
   user_id int(11) NOT NULL,
   task_id int(11) NOT NULL,
-  message text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  text text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  title text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   status enum('SUBMITTED','ACCEPTED','REJECTED') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'SUBMITTED',
   created_at datetime DEFAULT current_timestamp(),
   active tinyint(1) NOT NULL DEFAULT 1,
