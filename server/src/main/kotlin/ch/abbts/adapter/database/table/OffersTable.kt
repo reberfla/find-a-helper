@@ -9,9 +9,8 @@ object OffersTable : Table("offers") {
     val userId = integer("user_id")
     val taskId = integer("task_id")
     val text = text("text")
-    val title = text("title")
+    val title = varchar("title", 255).nullable()
     val status = enumerationByName("status", 255, OfferStatus::class)
     val active = bool("active")
-    val validUntil = date("valid_until")
-    val createdAt = long("created_at")
+    val validUntil = date("valid_until").nullable()
 }

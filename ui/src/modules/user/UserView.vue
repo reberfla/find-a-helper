@@ -4,6 +4,7 @@ import {ref, onMounted, computed} from 'vue'
 import {translate} from "@/service/translationService.js";
 import UserProfilView from "@/modules/user/UserProfilView.vue";
 import BackHeader from "@/components/header/BackHeader.vue";
+import OfferListView from "@/modules/offer/OfferListView.vue";
 
 const t = translate
 const tab = ref('data')
@@ -11,7 +12,6 @@ const hasNewMessages = ref(false)
 
 const menuItems = [
   { value: 'data', label: 'PROFILE_DATA' },
-  { value: 'messages', label: 'MESSAGES' },
   { value: 'offers', label: 'MY_OFFERS' },
   { value: 'orders', label: 'MY_ORDERS' },
 ]
@@ -19,8 +19,7 @@ const menuItems = [
 const currentComponent = computed(() => {
   switch (tab.value) {
     case 'data': return UserProfilView
-    case 'messages': return UserProfilView
-    case 'offers': return UserProfilView
+    case 'offers': return OfferListView
     case 'orders': return UserProfilView
     default: return null
   }

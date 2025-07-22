@@ -4,7 +4,9 @@ import ch.abbts.domain.model.OfferModel
 import ch.abbts.domain.model.OfferStatus
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class OfferDto(
     val id: Int? = null,
     val userId: Int,
@@ -12,7 +14,7 @@ data class OfferDto(
     val status: OfferStatus = OfferStatus.SUBMITTED,
     val active: Boolean = true,
     val text: String,
-    val title: String,
+    val title: String?,
     val validUntil: String? = null,
 ) : DTO<OfferModel> {
     override fun toModel(): OfferModel {
@@ -40,7 +42,7 @@ data class OfferDto(
                 active = offer.active,
                 text = offer.text,
                 title = offer.title,
-                validUntil = offer.validUntil.format(dateFormatter),
+                validUntil = offer.validUntil?.format(dateFormatter),
             )
         }
     }

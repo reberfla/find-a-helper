@@ -12,6 +12,6 @@ data class OfferModel(
     val status: OfferStatus,
     val active: Boolean,
     val text: String,
-    val title: String,
-    @Contextual val validUntil: LocalDate,
+    val title: String?,
+    @Contextual val validUntil: LocalDate?,
 )

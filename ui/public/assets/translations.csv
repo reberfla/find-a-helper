@@ -11,3 +11,25 @@ ERROR_PASSWORD_WEAK;Passwort ist zu schwach;Password is too weak
 ERROR_AUTHENTIFICATION_ERROR;Authentifizierungsfehler;Authentication error
 CONFIRM_REGISTER_TITLE;Benutzer nicht gefunden;User not found
 CONFIRM_REGISTER_MESSAGE;Es wurde kein Benutzer mit dieser E-Mail gefunden. Möchten Sie sich registrieren?;No user was found with this email. Would you like to register?
+MY_OFFERS;Meine Angebote;My Offers
+MY_ORDERS;Meine Aufträge;My Orders
+PROFILE_DATA;Profildaten;Profile Data
+SUBMIT;Absenden;Submit
+SAVE;Speichern;Save
+CLOSE;Schließen;Close
+TASK;Aufgabe;Task
+TASK_DESCRIPTION;Beschreibung;Description
+OFFER_TITLE;Angebotstitel;Offer Title
+OFFER_TEXT;Angebotstext;Offer Text
+STATUS;Status;Status
+SUBMITTED;Eingereicht;Submitted
+ACCEPTED;Angenommen;Accepted
+REJECTED;Abgelehnt;Rejected
+DELETE;Löschen;Delete
+EDIT;Bearbeiten;Edit
+NEW_OFFER;Neues Angebot;New Offer
+VIEW_OFFER;Angebot anzeigen;View Offer
+NO_OFFERS;Keine Angebote vorhanden;No offers available
+BACK;Zurück;Back
+CANCEL_BUTTON;Abbrechen;Cancel
+SAVE_BUTTON;Speichern;Save

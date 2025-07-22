@@ -1,6 +1,7 @@
 package ch.abbts.adapter.controller
 
 import ch.abbts.application.dto.OfferDto
+import ch.abbts.application.dto.toWithTaskDto
 import ch.abbts.application.interactor.OfferInteractor
 import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.application.interactor.UserInteractor
@@ -8,6 +9,7 @@ import ch.abbts.domain.model.JWebToken
 import ch.abbts.domain.model.OfferStatus
 import ch.abbts.error.OfferForbidden
 import ch.abbts.error.WebserverError
+import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -15,6 +17,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
+@Tag(["Offer"])
 fun Application.offerRoutes(
     offerInteractor: OfferInteractor,
     userInteractor: UserInteractor,
@@ -31,7 +34,14 @@ fun Application.offerRoutes(
                 get("/my") {
                     val token = call.request.authorization()!!.split(" ")[1]
                     val id = JWebToken.getUserIdFromToken(token)
-                    call.respond(offerInteractor.getOffersByCreator(id))
+                    val offers = offerInteractor.getOffersByCreator(id)
+
+                    val result =
+                        offers.map { offer ->
+                            val task = taskInteractor.getTaskById(offer.taskId)
+                            offer.toWithTaskDto(task)
+                        }
+                    call.respond(HttpStatusCode.OK, result)
                 }
 
                 get("/task/{id}") {

@@ -4,6 +4,7 @@ import ch.abbts.adapter.database.table.OffersTable
 import ch.abbts.domain.model.OfferModel
 import ch.abbts.domain.model.OfferStatus
 import ch.abbts.utils.Log
+import ch.abbts.utils.LoggerService
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -22,7 +23,6 @@ class OfferRepository {
                         it[text] = offer.text
                         it[title] = offer.title
                         it[validUntil] = offer.validUntil
-                        it[createdAt] = System.currentTimeMillis()
                     }
                     .resultedValues
                     ?.firstOrNull()
@@ -71,6 +71,7 @@ class OfferRepository {
     }
 
     fun getOffersByCreator(userId: Int): List<OfferModel>? {
+        LoggerService.debugLog(userId)
         return try {
             transaction {
                 OffersTable.select { OffersTable.userId eq userId }
@@ -95,15 +96,20 @@ class OfferRepository {
     }
 
     private fun ResultRow.toModel(): OfferModel {
-        return OfferModel(
-            id = this[OffersTable.id],
-            userId = this[OffersTable.userId],
-            taskId = this[OffersTable.taskId],
-            status = this[OffersTable.status],
-            active = this[OffersTable.active],
-            text = this[OffersTable.text],
-            title = this[OffersTable.title],
-            validUntil = this[OffersTable.validUntil],
-        )
+        try {
+            return OfferModel(
+                id = this[OffersTable.id],
+                userId = this[OffersTable.userId],
+                taskId = this[OffersTable.taskId],
+                status = this[OffersTable.status],
+                active = this[OffersTable.active],
+                text = this[OffersTable.text],
+                title = this[OffersTable.title],
+                validUntil = this[OffersTable.validUntil],
+            )
+        } catch (e: Exception) {
+            LoggerService.debugLog("toModel() error: ${e.message}")
+            throw e
+        }
     }
 }
