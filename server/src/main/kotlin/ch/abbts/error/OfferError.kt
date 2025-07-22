@@ -12,4 +12,6 @@ class OfferAlreadyExists :
 class OfferDeletionNotAllowed :
     WebserverError("Offer cannot be deleted after it has been accepted.", 403)
 
+class OfferUpdateFailed : WebserverError("Offer cannot be updated.", 500)
+
 class OfferNotFound : WebserverError("Offer not found", 404)

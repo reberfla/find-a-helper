@@ -50,7 +50,7 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                     val newUser = userInteractor.createLocalUser(dto)
                     LoggerService.debugLog(newUser.toString())
                     if (newUser?.id != null) {
-                        val token = JWebToken(newUser.email)
+                        val token = JWebToken(newUser.email, newUser.id)
                         userInteractor.updateIssuedTime(
                             newUser.email,
                             token.body.iat,

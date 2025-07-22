@@ -67,7 +67,8 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                     LoggerService.debugLog(verifiedUser)
 
                     if (verifiedUser.id != null) {
-                        val token = JWebToken(verifiedUser.email)
+                        val token =
+                            JWebToken(verifiedUser.email, verifiedUser.id)
                         userInteractor.updateIssuedTime(
                             verifiedUser.email,
                             token.body.iat,

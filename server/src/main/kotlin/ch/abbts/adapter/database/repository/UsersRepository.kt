@@ -76,6 +76,35 @@ class UsersRepository {
         }
     }
 
+    fun getUserById(id: Int): UserModel? {
+        log.debug("fetching user for $id")
+        return try {
+            transaction {
+                UsersTable.select { UsersTable.id eq id }
+                    .singleOrNull()
+                    ?.let {
+                        UserModel(
+                            id = it[UsersTable.id],
+                            email = it[UsersTable.email],
+                            passwordHash = it[UsersTable.password_hash],
+                            authProvider = it[UsersTable.authProvider],
+                            birthdate = it[UsersTable.birthdate],
+                            active = it[UsersTable.active],
+                            name = it[UsersTable.name],
+                            imageUrl = it[UsersTable.imageUrl],
+                            image = it[UsersTable.image]?.bytes,
+                            zipCode = it[UsersTable.zipCode],
+                            lastTokenIssued = it[UsersTable.lastTokenIssued],
+                            lockedUntil = it[UsersTable.lockedUntil],
+                        )
+                    }
+            }
+        } catch (e: Exception) {
+            log.error("Error fetching user by email: ${e.message}")
+            null
+        }
+    }
+
     private fun ResultRow.toUserModel(): UserModel {
         return UserModel(
             id = this[UsersTable.id],
