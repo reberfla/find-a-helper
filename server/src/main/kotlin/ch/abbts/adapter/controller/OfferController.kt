@@ -2,6 +2,7 @@ package ch.abbts.adapter.controller
 
 import ch.abbts.application.dto.OfferDto
 import ch.abbts.application.interactor.OfferInteractor
+import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.domain.model.OfferStatus
@@ -17,92 +18,104 @@ import io.ktor.server.routing.*
 fun Application.offerRoutes(
     offerInteractor: OfferInteractor,
     userInteractor: UserInteractor,
+    taskInteractor: TaskInteractor,
 ) {
-  routing {
-    route("/v1/offer") {
-      authenticate("jwt-auth") {
-        get {}
-
-        get("/id") {
-            val id = call.parameters["id"]!!.toInt()
-            call.respond(offerInteractor.getOfferById(id))
-        }
-
-        get("/my") {
-            val token = call.request.authorization()!!.split(" ")[1]
-            val id = JWebToken.getUserIdFromToken(token)
-            call.respond(offerInteractor.getOffersByCreator(id))
-        }
-
-        post {
-          try {
-            val dto = call.receive<OfferDto>()
-            val token = call.request.authorization()!!.split(" ")[1]
-            val email = JWebToken.decodeEmailFromToken(token)
-            val user = userInteractor.getUserByEmail(email)
-
-            if (user?.id != dto.userId) {
-              throw OfferForbidden()
-            }
-
-            val createdOffer = offerInteractor.createOffer(dto)
-
-            val response =
-                createdOffer?.id?.let {
-                  OfferDto(
-                      id = createdOffer.id,
-                      userId = createdOffer.userId,
-                      taskId = createdOffer.taskId,
-                      status = OfferStatus.SUBMITTED,
-                      active = true,
-                      text = createdOffer.text,
-                      title = createdOffer.title,
-                  )
+    routing {
+        route("/v1/offer") {
+            authenticate("jwt-auth") {
+                get("/id") {
+                    val id = call.parameters["id"]!!.toInt()
+                    call.respond(offerInteractor.getOfferById(id))
                 }
 
-            if (response != null) {
-              call.respond(HttpStatusCode.Created, response)
-            }
-          } catch (e: WebserverError) {
-            call.respond(e.getStatus(), e.getMessage())
-          }
-        }
+                get("/my") {
+                    val token = call.request.authorization()!!.split(" ")[1]
+                    val id = JWebToken.getUserIdFromToken(token)
+                    call.respond(offerInteractor.getOffersByCreator(id))
+                }
 
-        put("/accept/{id}") {
-            val offerId = call.parameters["id"]!!.toInt()
-            val offer = offerInteractor.getOfferById(offerId)
-            call.respond(offerInteractor.acceptOffer(offerId,offer.userId))
-        }
+                get("/task/{id}") {
+                    val id = call.parameters["id"]!!.toInt()
+                    call.respond(offerInteractor.getOffersForTask(id))
+                }
 
-        put("/reject/{id}") {
-            val offerId = call.parameters["id"]!!.toInt()
-            val offer = offerInteractor.getOfferById(offerId)
-            call.respond(offerInteractor.setOfferStatus(offerId,offer.userId, OfferStatus.REJECTED))
-        }
+                post {
+                    try {
+                        val dto = call.receive<OfferDto>()
+                        val token = call.request.authorization()!!.split(" ")[1]
+                        val email = JWebToken.decodeEmailFromToken(token)
+                        val user = userInteractor.getUserByEmail(email)
 
-        delete("/{id}") {
-          try {
-            val id =
-                call.parameters["id"]?.toIntOrNull()
-                    ?: return@delete call.respond(
-                        HttpStatusCode.BadRequest,
-                        "Missing ID",
+                        if (user?.id != dto.userId) {
+                            throw OfferForbidden()
+                        }
+
+                        val createdOffer = offerInteractor.createOffer(dto)
+
+                        val response =
+                            createdOffer?.id?.let {
+                                OfferDto(
+                                    id = createdOffer.id,
+                                    userId = createdOffer.userId,
+                                    taskId = createdOffer.taskId,
+                                    status = OfferStatus.SUBMITTED,
+                                    active = true,
+                                    text = createdOffer.text,
+                                    title = createdOffer.title,
+                                )
+                            }
+
+                        if (response != null) {
+                            call.respond(HttpStatusCode.Created, response)
+                        }
+                    } catch (e: WebserverError) {
+                        call.respond(e.getStatus(), e.getMessage())
+                    }
+                }
+
+                put("/accept/{id}") {
+                    val offerId = call.parameters["id"]!!.toInt()
+                    val offer = offerInteractor.getOfferById(offerId)
+                    call.respond(
+                        offerInteractor.acceptOffer(offerId, offer.userId)
                     )
+                }
 
-            val token = call.request.authorization()!!.split(" ")[1]
-            val email = JWebToken.decodeEmailFromToken(token)
-            val user = userInteractor.getUserByEmail(email)
+                put("/reject/{id}") {
+                    val offerId = call.parameters["id"]!!.toInt()
+                    val offer = offerInteractor.getOfferById(offerId)
+                    call.respond(
+                        offerInteractor.setOfferStatus(
+                            offerId,
+                            offer.userId,
+                            OfferStatus.REJECTED,
+                        )
+                    )
+                }
 
-            user?.id?.let { offerInteractor.deleteOffer(it, id) }
-            call.respond(
-                HttpStatusCode.OK,
-                mapOf("message" to "Offer deleted"),
-            )
-          } catch (e: WebserverError) {
-            call.respond(e.getStatus(), e.getMessage())
-          }
+                delete("/{id}") {
+                    try {
+                        val id =
+                            call.parameters["id"]?.toIntOrNull()
+                                ?: return@delete call.respond(
+                                    HttpStatusCode.BadRequest,
+                                    "Missing ID",
+                                )
+
+                        val token = call.request.authorization()!!.split(" ")[1]
+                        val email = JWebToken.decodeEmailFromToken(token)
+                        val user = userInteractor.getUserByEmail(email)
+
+                        user?.id?.let { offerInteractor.deleteOffer(it, id) }
+                        call.respond(
+                            HttpStatusCode.OK,
+                            mapOf("message" to "Offer deleted"),
+                        )
+                    } catch (e: WebserverError) {
+                        call.respond(e.getStatus(), e.getMessage())
+                    }
+                }
+            }
         }
-      }
     }
-  }
 }
