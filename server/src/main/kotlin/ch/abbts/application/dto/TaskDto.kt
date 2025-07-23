@@ -4,6 +4,7 @@ import ch.abbts.domain.model.TaskCategory
 import ch.abbts.domain.model.TaskInterval
 import ch.abbts.domain.model.TaskModel
 import ch.abbts.domain.model.TaskStatus
+import ch.abbts.domain.model.Weekdays
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -19,7 +20,7 @@ data class TaskDto(
     val deadline: Long? = null,
     @SerialName("task_interval")
     val taskInterval: TaskInterval? = TaskInterval.ONE_TIME,
-    val weekdays: List<String>? = listOf<String>(),
+    val weekdays: List<Weekdays>? = listOf<Weekdays>(),
 ) {
     fun toModel(userId: Int): TaskModel {
         return TaskModel(

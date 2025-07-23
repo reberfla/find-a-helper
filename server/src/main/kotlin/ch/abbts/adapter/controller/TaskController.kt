@@ -5,6 +5,8 @@ import ch.abbts.application.dto.TaskDto
 import ch.abbts.application.dto.TaskQueryParams
 import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.domain.model.JWebToken
+import ch.abbts.error.InvalidPathParam
+import ch.abbts.error.MissingPathParam
 import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -31,40 +33,62 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
                 }
             }
             get("/{id}") {
-                val id = call.parameters["id"]!!.toInt()
-                log.debug("GET request with id: $id")
-                call.respond(taskInteractor.getTaskById(id).toPublicDto())
+                val id = call.parameters["id"]
+                if (id != null) {
+                    log.debug("GET request with id: $id")
+                    val intId =
+                        id.toIntOrNull() ?: throw InvalidPathParam("id", id)
+                    call.respond(
+                        taskInteractor.getTaskById(intId).toPublicDto()
+                    )
+                } else {
+                    throw MissingPathParam("id")
+                }
             }
             authenticate("jwt-auth") {
                 get("/my") {
-                    val token = call.request.authorization()!!.split(" ")[1]
-                    val id = JWebToken.getUserIdFromToken(token)
-                    log.debug("$id")
-                    call.respond(taskInteractor.getTasksByCreator(id))
+                    val userId = JWebToken.getUserIdFromCall(call)
+                    log.debug("$userId")
+                    call.respond(taskInteractor.getTasksByCreator(userId))
                 }
 
                 post {
                     val task = call.receive<TaskDto>()
                     log.debug("$task")
-                    val token = call.request.authorization()!!.split(" ")[1]
-                    val id = JWebToken.getUserIdFromToken(token)
-                    log.debug("got id $id")
-                    call.respond(taskInteractor.createTask(task.toModel(id)))
+                    val userId = JWebToken.getUserIdFromCall(call)
+                    log.debug("got id $userId")
+                    call.respond(
+                        taskInteractor.createTask(task.toModel(userId))
+                    )
                 }
                 put("/{id}") {
-                    val token = call.request.authorization()!!.split(" ")[1]
-                    val userId = JWebToken.getUserIdFromToken(token)
-                    val taskId = call.parameters["id"]!!.toInt()
-                    val task = call.receive<TaskDto>()
-                    call.respond(
-                        taskInteractor.updateTask(task, userId, taskId)
-                    )
+                    val userId = JWebToken.getUserIdFromCall(call)
+                    val taskId = call.parameters["id"]
+                    if (taskId != null) {
+                        val task = call.receive<TaskDto>()
+                        log.debug(task.toString())
+                        val intId =
+                            taskId.toIntOrNull()
+                                ?: throw InvalidPathParam("id", taskId)
+                        call.respond(
+                            taskInteractor.updateTask(task, userId, intId)
+                        )
+                    } else {
+                        throw MissingPathParam("id")
+                    }
                 }
 
                 delete("/{id}") {
-                    val id = call.parameters["id"]!!.toInt()
-                    taskInteractor.deleteTask(id)
-                    call.respond(SuccessMessage())
+                    val taskId = call.parameters["id"]
+                    if (taskId != null) {
+                        val intId =
+                            taskId.toIntOrNull()
+                                ?: throw InvalidPathParam("id", taskId)
+                        taskInteractor.deleteTask(intId)
+                        call.respond(SuccessMessage())
+                    } else {
+                        throw MissingPathParam("id")
+                    }
                 }
             }
         }

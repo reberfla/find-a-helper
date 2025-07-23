@@ -186,7 +186,7 @@ class TaskRepository {
         }
     }
 
-    fun updateTask(task: TaskDto, id: Int): Int {
+    fun updateTask(task: TaskDto, id: Int): TaskModel {
         return try {
             transaction {
                 TasksTable.update({ TasksTable.id eq id }) {
@@ -199,8 +199,10 @@ class TaskRepository {
                     it[TasksTable.active] = task.active!!
                     it[TasksTable.deadline] = task.deadline
                     it[TasksTable.taskInterval] = task.taskInterval!!
+                    it[TasksTable.weekdays] = Json.encodeToString(task.weekdays)
                 }
             }
+            getTaskById(id)!!
         } catch (e: Exception) {
             throw e
         }

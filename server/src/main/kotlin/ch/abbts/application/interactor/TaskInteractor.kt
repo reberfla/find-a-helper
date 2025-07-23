@@ -7,6 +7,7 @@ import ch.abbts.application.dto.TaskPrivateDto
 import ch.abbts.application.dto.TaskQueryParams
 import ch.abbts.domain.model.TaskModel
 import ch.abbts.error.TaskNotFound
+import ch.abbts.error.TaskOfOtherUser
 import ch.abbts.utils.logger
 
 class TaskInteractor(
@@ -26,15 +27,16 @@ class TaskInteractor(
         if (existing == null) {
             throw TaskNotFound(id)
         } else if (existing.userId != userId) {
-            TODO()
+            throw TaskOfOtherUser()
         }
         taskRepository.updateTask(task, id)
-        val updatedTask = taskRepository.getTaskById(id)
-        if (updatedTask == null) {
+        val toUpdateTask = taskRepository.getTaskById(id)
+        if (toUpdateTask == null) {
             throw TaskNotFound(id)
         } else {
+            val updatedTask = taskRepository.updateTask(task, id)
             val user = userRepository.getUserById(updatedTask.userId)!!
-            return updatedTask.toPrivateDto(user.name, user.email)
+            return toUpdateTask.toPrivateDto(user.name, user.email)
         }
     }
 

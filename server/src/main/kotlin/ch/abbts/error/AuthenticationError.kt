@@ -11,6 +11,9 @@ class TokenNotRecent :
 class InvalidIssuedTime :
     WebserverError("the token's issued at timestamp is invalid", 401)
 
+class MissingAuthorizationHeader :
+    WebserverError("Authorization header is missing", 400)
+
 class InvalidCredentials : WebserverError("wrong email or password", 401)
 
 class InvalidGoogelCredentials :

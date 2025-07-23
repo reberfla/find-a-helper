@@ -18,7 +18,7 @@ data class TaskModel(
     val active: Boolean,
     val deadline: Long? = null,
     @SerialName("task_interval") val taskInterval: TaskInterval,
-    val weekdays: List<String>? = null,
+    val weekdays: List<Weekdays>? = null,
     val createdAt: Long? = null,
 ) {
     fun toPublicDto(): TaskPublicDto {
@@ -33,6 +33,7 @@ data class TaskModel(
             deadline,
             taskInterval,
             weekdays,
+            createdAt!!,
         )
     }
 
