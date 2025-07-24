@@ -3,6 +3,7 @@ package ch.abbts.adapter.controller
 import ch.abbts.application.dto.SuccessMessage
 import ch.abbts.application.dto.TaskDto
 import ch.abbts.application.dto.TaskQueryParams
+import ch.abbts.application.dto.TaskUpdateDto
 import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.InvalidPathParamInt
@@ -23,11 +24,11 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
         route("/v1/task") {
             get {
                 if (call.queryParameters.isEmpty()) {
-                    log.debug("no query params set")
+                    log.info("${call.route} with no query params set")
                     call.respond(taskInteractor.getTasks())
                 } else {
                     val params = TaskQueryParams(call.queryParameters)
-                    log.debug("params: ${params.toString()}")
+                    log.info("${call.route} with query = ${params.toString()}")
                     call.respond(
                         taskInteractor.getTasks(params).map { it.toPublicDto() }
                     )
@@ -36,7 +37,7 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
             get("/{id}") {
                 val id = call.parameters["id"]
                 if (id != null) {
-                    log.debug("GET request with id: $id")
+                    log.info("${call.route}".replace("{id}", id))
                     val intId =
                         id.toIntOrNull() ?: throw InvalidPathParamInt("id", id)
                     call.respond(
@@ -49,31 +50,40 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
             authenticate("jwt-auth") {
                 get("/my") {
                     val userId = JWebToken.getUserIdFromCall(call)
-                    log.debug("$userId")
+                    log.info("${call.route} for userId = $userId")
                     call.respond(taskInteractor.getTasksByCreator(userId))
                 }
 
                 post {
                     val task = call.receiveHandled<TaskDto>()
-                    log.debug("$task")
                     val userId = JWebToken.getUserIdFromCall(call)
-                    log.debug("got id $userId")
-                    call.respond(
-                        taskInteractor.createTask(task.toModel(userId))
+                    log.info(
+                        "${call.route} creating task under userId = $userId"
                     )
+                    val createdTask =
+                        taskInteractor.createTask(task.toModel(userId))
+                    log.info(
+                        "${call.route} task with id = ${createdTask.id} created"
+                    )
+                    call.respond(createdTask)
                 }
                 put("/{id}") {
                     val userId = JWebToken.getUserIdFromCall(call)
                     val taskId = call.parameters["id"]
                     if (taskId != null) {
-                        val task = call.receiveHandled<TaskDto>()
-                        log.debug(task.toString())
+                        val task = call.receiveHandled<TaskUpdateDto>()
+                        log.info(
+                            "${call.route} updating properties $task for task with id = $taskId"
+                        )
                         val intId =
                             taskId.toIntOrNull()
                                 ?: throw InvalidPathParamInt("id", taskId)
-                        call.respond(
+                        val updatedTask =
                             taskInteractor.updateTask(task, userId, intId)
+                        log.info(
+                            "${call.route} updated properties $task for task with id = $taskId"
                         )
+                        call.respond(updatedTask)
                     } else {
                         throw MissingPathParam("id")
                     }
@@ -85,7 +95,13 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
                         val intId =
                             taskId.toIntOrNull()
                                 ?: throw InvalidPathParamInt("id", taskId)
+                        log.info(
+                            "${call.route} deleting task with id = $taskId"
+                        )
                         taskInteractor.deleteTask(intId)
+                        log.info(
+                            "${call.route} deleted task with id = $taskId successfully"
+                        )
                         call.respond(SuccessMessage())
                     } else {
                         throw MissingPathParam("id")
