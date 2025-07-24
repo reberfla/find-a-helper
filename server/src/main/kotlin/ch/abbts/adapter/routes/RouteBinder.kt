@@ -26,10 +26,12 @@ fun Application.configureRouting(userInteractor: UserInteractor) {
     install(StatusPages) {
         exception<Throwable> { call, error ->
             when (error) {
-                is WebserverError ->
+                is WebserverError -> {
+                    log.info("${error.message}")
                     call.respond(status = error.getStatus(), error.getMessage())
+                }
                 else -> {
-                    log.debug("{}: {}", error.javaClass, error.message)
+                    log.error("${error.message}")
                     call.respond(
                         status = HttpStatusCode.InternalServerError,
                         message =
