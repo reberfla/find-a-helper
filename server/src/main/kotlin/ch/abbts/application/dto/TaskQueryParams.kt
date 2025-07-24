@@ -3,8 +3,8 @@ package ch.abbts.application.dto
 import ch.abbts.domain.model.TaskCategory
 import ch.abbts.domain.model.TaskInterval
 import ch.abbts.domain.model.TaskStatus
-import ch.abbts.error.InvalidParamValue
-import ch.abbts.error.InvalidParams
+import ch.abbts.error.InvalidQueryParam
+import ch.abbts.error.InvalidQueryParamValue
 import ch.abbts.utils.Log
 import io.ktor.http.Parameters
 
@@ -22,31 +22,31 @@ class TaskQueryParams(params: Parameters) {
                     value.forEach {
                         try {
                             category.add(TaskCategory.valueOf(it.uppercase()))
-                        } catch (e: IllegalArgumentException) {
-                            throw InvalidParamValue(key, it)
+                        } catch (_: IllegalArgumentException) {
+                            throw InvalidQueryParamValue(key, it)
                         }
                     }
                 "interval" ->
                     value.forEach {
                         try {
                             interval.add(TaskInterval.valueOf(it.uppercase()))
-                        } catch (e: IllegalArgumentException) {
-                            throw InvalidParamValue(key, it)
+                        } catch (_: IllegalArgumentException) {
+                            throw InvalidQueryParamValue(key, it)
                         }
                     }
                 "status" ->
                     value.forEach {
                         try {
                             status.add(TaskStatus.valueOf(it.uppercase()))
-                        } catch (e: IllegalArgumentException) {
-                            throw InvalidParamValue(key, it)
+                        } catch (_: IllegalArgumentException) {
+                            throw InvalidQueryParamValue(key, it)
                         }
                     }
                 else -> {
                     log.debug(
                         "unsupported param in request: ${key.lowercase()}"
                     )
-                    throw InvalidParams(key)
+                    throw InvalidQueryParam(key)
                 }
             }
         }

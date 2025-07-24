@@ -19,14 +19,17 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.slf4j.LoggerFactory
 
 fun Application.configureRouting(userInteractor: UserInteractor) {
+    val log = LoggerFactory.getLogger(object {}::class.java.`package`.name)
     install(StatusPages) {
         exception<Throwable> { call, error ->
             when (error) {
                 is WebserverError ->
                     call.respond(status = error.getStatus(), error.getMessage())
-                else ->
+                else -> {
+                    log.debug("{}: {}", error.javaClass, error.message)
                     call.respond(
                         status = HttpStatusCode.InternalServerError,
                         message =
@@ -34,6 +37,7 @@ fun Application.configureRouting(userInteractor: UserInteractor) {
                                 put("message", "something went wrong")
                             },
                     )
+                }
             }
         }
     }
