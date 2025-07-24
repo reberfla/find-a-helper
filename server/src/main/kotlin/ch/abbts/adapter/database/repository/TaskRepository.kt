@@ -4,6 +4,8 @@ import ch.abbts.adapter.database.table.TasksTable
 import ch.abbts.application.dto.TaskQueryParams
 import ch.abbts.application.dto.TaskUpdateDto
 import ch.abbts.domain.model.TaskModel
+import ch.abbts.error.TaskNotFound
+import ch.abbts.error.TaskOfOtherUser
 import ch.abbts.utils.logger
 import java.time.Instant
 import kotlinx.serialization.json.Json
@@ -66,11 +68,11 @@ class TaskRepository {
         return transaction { TasksTable.select { query }.map { it.toModel() } }
     }
 
-    fun getTaskById(taskId: Int): TaskModel? {
+    fun getTaskById(taskId: Int): TaskModel {
         return transaction {
             TasksTable.select { TasksTable.id eq taskId }
                 .singleOrNull()
-                ?.let { it.toModel() }
+                ?.let { it.toModel() } ?: throw TaskNotFound(taskId)
         }
     }
 
@@ -84,7 +86,7 @@ class TaskRepository {
 
     fun updateTask(task: TaskUpdateDto, id: Int): TaskModel {
         transaction {
-            val existingTask = getTaskById(id)!!
+            val existingTask = getTaskById(id)
             TasksTable.update({ TasksTable.id eq id }) {
                 it[TasksTable.zipCode] = task.zipCode ?: existingTask.zipCode
                 it[TasksTable.coordinates] =
@@ -103,11 +105,18 @@ class TaskRepository {
                         ?: Json.encodeToString(existingTask.weekdays)
             }
         }
-        return getTaskById(id)!!
+        return getTaskById(id)
     }
 
-    fun deleteTask(taskId: Int): Unit {
-        transaction { TasksTable.deleteWhere { id eq taskId } }
+    fun deleteTask(taskId: Int, userId: Int): Unit {
+        transaction {
+            val task = getTaskById(taskId)
+            if (task.userId == userId) {
+                TasksTable.deleteWhere { id eq taskId }
+            } else {
+                throw TaskOfOtherUser()
+            }
+        }
     }
 
     private fun ResultRow.toModel(): TaskModel {

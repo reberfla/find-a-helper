@@ -6,7 +6,6 @@ import ch.abbts.application.dto.TaskPrivateDto
 import ch.abbts.application.dto.TaskQueryParams
 import ch.abbts.application.dto.TaskUpdateDto
 import ch.abbts.domain.model.TaskModel
-import ch.abbts.error.TaskNotFound
 import ch.abbts.error.TaskOfOtherUser
 import ch.abbts.utils.logger
 
@@ -24,20 +23,14 @@ class TaskInteractor(
 
     fun updateTask(task: TaskUpdateDto, userId: Int, id: Int): TaskPrivateDto {
         val existing = taskRepository.getTaskById(id)
-        if (existing == null) {
-            throw TaskNotFound(id)
-        } else if (existing.userId != userId) {
+        if (existing.userId != userId) {
             throw TaskOfOtherUser()
         }
         taskRepository.updateTask(task, id)
         val toUpdateTask = taskRepository.getTaskById(id)
-        if (toUpdateTask == null) {
-            throw TaskNotFound(id)
-        } else {
-            val updatedTask = taskRepository.updateTask(task, id)
-            val user = userRepository.getUserById(updatedTask.userId)!!
-            return toUpdateTask.toPrivateDto(user.name, user.email)
-        }
+        val updatedTask = taskRepository.updateTask(task, id)
+        val user = userRepository.getUserById(updatedTask.userId)!!
+        return toUpdateTask.toPrivateDto(user.name, user.email)
     }
 
     fun getTasks(filterQuery: TaskQueryParams? = null): List<TaskModel> {
@@ -57,14 +50,10 @@ class TaskInteractor(
 
     fun getTaskById(taskId: Int): TaskModel {
         val task = taskRepository.getTaskById(taskId)
-        if (task != null) {
-            return task
-        } else {
-            throw TaskNotFound(taskId)
-        }
+        return task
     }
 
-    fun deleteTask(id: Int): Unit {
-        taskRepository.deleteTask(id)
+    fun deleteTask(id: Int, userId: Int): Unit {
+        taskRepository.deleteTask(id, userId)
     }
 }

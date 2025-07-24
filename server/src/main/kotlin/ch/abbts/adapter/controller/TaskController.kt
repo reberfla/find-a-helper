@@ -2,13 +2,19 @@ package ch.abbts.adapter.controller
 
 import ch.abbts.application.dto.SuccessMessage
 import ch.abbts.application.dto.TaskDto
+import ch.abbts.application.dto.TaskPrivateDto
+import ch.abbts.application.dto.TaskPublicDto
 import ch.abbts.application.dto.TaskQueryParams
 import ch.abbts.application.dto.TaskUpdateDto
 import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.InvalidPathParamInt
 import ch.abbts.error.MissingPathParam
+import ch.abbts.error.WebserverErrorMessage
 import ch.abbts.utils.receiveHandled
+import io.github.tabilzad.ktor.annotations.KtorDescription
+import io.github.tabilzad.ktor.annotations.KtorResponds
+import io.github.tabilzad.ktor.annotations.ResponseEntry
 import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -22,6 +28,20 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
     val log = LoggerFactory.getLogger(object {}::class.java.`package`.name)
     routing {
         route("/v1/task") {
+            @KtorResponds(
+                mapping =
+                    [
+                        ResponseEntry("200", TaskPublicDto::class),
+                        ResponseEntry("400", WebserverErrorMessage::class),
+                        ResponseEntry("500", WebserverErrorMessage::class),
+                    ]
+            )
+            @KtorDescription(
+                summary = "Get all tasks",
+                description =
+                    """ Returning all available tasks. As it is used anauthorized it returns a TaskPublicDto
+                to protect users privacy."""",
+            )
             get {
                 if (call.queryParameters.isEmpty()) {
                     log.info("${call.route} with no query params set")
@@ -34,6 +54,20 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
                     )
                 }
             }
+            @KtorResponds(
+                mapping =
+                    [
+                        ResponseEntry("200", TaskPublicDto::class),
+                        ResponseEntry("400", WebserverErrorMessage::class),
+                        ResponseEntry("500", WebserverErrorMessage::class),
+                    ]
+            )
+            @KtorDescription(
+                summary = "Get specific task by id",
+                description =
+                    """ Returning a task by id. As it is used anauthorized it returns a TaskPublicDto
+                    to protect users privacy."""",
+            )
             get("/{id}") {
                 val id = call.parameters["id"]
                 if (id != null) {
@@ -48,12 +82,42 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
                 }
             }
             authenticate("jwt-auth") {
+                @KtorResponds(
+                    mapping =
+                        [
+                            ResponseEntry("200", TaskPrivateDto::class),
+                            ResponseEntry("400", WebserverErrorMessage::class),
+                            ResponseEntry("401", WebserverErrorMessage::class),
+                            ResponseEntry("500", WebserverErrorMessage::class),
+                        ]
+                )
+                @KtorDescription(
+                    summary = "Gets tasks created by the user calling the API",
+                    description =
+                        """ Returning tasks created by the user calling the API. User gets
+                        identified by the JWT used for authrization."""",
+                )
                 get("/my") {
                     val userId = JWebToken.getUserIdFromCall(call)
                     log.info("${call.route} for userId = $userId")
                     call.respond(taskInteractor.getTasksByCreator(userId))
                 }
 
+                @KtorResponds(
+                    mapping =
+                        [
+                            ResponseEntry("200", TaskPrivateDto::class),
+                            ResponseEntry("400", WebserverErrorMessage::class),
+                            ResponseEntry("401", WebserverErrorMessage::class),
+                            ResponseEntry("500", WebserverErrorMessage::class),
+                        ]
+                )
+                @KtorDescription(
+                    summary = "Create a task",
+                    description =
+                        """ Creates a task and then returns it with the given id of the DB. User ID gets
+                        populated by the JWT of the authorization."""",
+                )
                 post {
                     val task = call.receiveHandled<TaskDto>()
                     val userId = JWebToken.getUserIdFromCall(call)
@@ -67,6 +131,22 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
                     )
                     call.respond(createdTask)
                 }
+                @KtorResponds(
+                    mapping =
+                        [
+                            ResponseEntry("200", TaskPrivateDto::class),
+                            ResponseEntry("400", WebserverErrorMessage::class),
+                            ResponseEntry("401", WebserverErrorMessage::class),
+                            ResponseEntry("403", WebserverErrorMessage::class),
+                            ResponseEntry("500", WebserverErrorMessage::class),
+                        ]
+                )
+                @KtorDescription(
+                    summary = "Update a task",
+                    description =
+                        """ updates a task and then returns it back to the user. User ID must match
+                        the user ID of the JWT."""",
+                )
                 put("/{id}") {
                     val userId = JWebToken.getUserIdFromCall(call)
                     val taskId = call.parameters["id"]
@@ -89,8 +169,25 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
                     }
                 }
 
+                @KtorResponds(
+                    mapping =
+                        [
+                            ResponseEntry("200", TaskPrivateDto::class),
+                            ResponseEntry("400", WebserverErrorMessage::class),
+                            ResponseEntry("401", WebserverErrorMessage::class),
+                            ResponseEntry("403", WebserverErrorMessage::class),
+                            ResponseEntry("500", WebserverErrorMessage::class),
+                        ]
+                )
+                @KtorDescription(
+                    summary = "Delete a task",
+                    description =
+                        """Delets a task. User ID must match
+                        the user ID of the JWT."""",
+                )
                 delete("/{id}") {
                     val taskId = call.parameters["id"]
+                    val userId = JWebToken.getUserIdFromCall(call)
                     if (taskId != null) {
                         val intId =
                             taskId.toIntOrNull()
@@ -98,7 +195,7 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
                         log.info(
                             "${call.route} deleting task with id = $taskId"
                         )
-                        taskInteractor.deleteTask(intId)
+                        taskInteractor.deleteTask(intId, userId)
                         log.info(
                             "${call.route} deleted task with id = $taskId successfully"
                         )
