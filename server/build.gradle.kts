@@ -23,6 +23,9 @@ dependencies {
     implementation(libs.bundles.exposed)
     implementation(libs.dbDriver)
     implementation(libs.bcrypt)
+    implementation(libs.googleApiClient)
+    implementation(libs.googleOauthClient)
+    implementation(libs.googleHttpClient)
 
     // utility dependencies
     implementation(libs.config)
@@ -76,5 +79,7 @@ tasks.named("shadowJar") {
     dependsOn(tasks.named("distZip"))
     dependsOn(tasks.named("startScripts"))
 }
+
+tasks.named<Test>("test") { useJUnitPlatform() }
 
 tasks.named<Test>("test") { useJUnitPlatform() }
