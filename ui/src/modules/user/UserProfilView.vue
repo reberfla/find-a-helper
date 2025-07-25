@@ -16,6 +16,7 @@ const newAvatar = ref<File | null>(null)
 const editMode = ref(false)
 const snackBar = ref<InstanceType<typeof SnackBar> | null>(null)
 const t = translate
+const fileInput = ref<HTMLInputElement | null>(null)
 
 async function loadUserData() {
   if (!token) return
@@ -124,7 +125,7 @@ onMounted(loadUserData)
       <v-col cols="12" md="6" class="position-relative">
         <div class="avatar-wrapper">
           <img :src="getCurrentUserAvatar()" alt="Profilbild" class="profile-img" />
-          <div class="overlay-circle" @click="$refs.fileInput.click()">
+          <div class="overlay-circle" @click="fileInput?.click()">
             <v-icon color="white" size="30">camera</v-icon>
           </div>
         </div>
