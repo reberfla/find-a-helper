@@ -5,12 +5,11 @@ import ch.abbts.domain.model.TaskInterval
 import ch.abbts.domain.model.TaskModel
 import ch.abbts.domain.model.TaskStatus
 import ch.abbts.domain.model.Weekdays
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class TaskDto(
-    @SerialName("zip_code") val zipCode: String,
+    val zipCode: String,
     val coordinates: String,
     val title: String,
     val description: String,
@@ -18,7 +17,6 @@ data class TaskDto(
     val status: TaskStatus? = TaskStatus.OPEN,
     val active: Boolean? = true,
     val deadline: Long? = null,
-    @SerialName("task_interval")
     val taskInterval: TaskInterval? = TaskInterval.ONE_TIME,
     val weekdays: List<Weekdays>? = listOf<Weekdays>(),
 ) {
