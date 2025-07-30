@@ -12,7 +12,7 @@
     <v-row class="mb-12">
       <v-col cols="12" md="6">
         <v-img
-          src="/src/assets/mission-image.jpg"
+          src='https://picsum.photos/id/240/800/600'
           height="400"
           cover
           class="rounded-lg"
@@ -132,6 +132,16 @@ const team = [
 <style scoped>
 .v-container {
   max-width: 1200px;
+}
+
+h1 {
+  color: #D05663 !important;
+}
+p {
+  color: #2a403D !important;
+}
+h2 {
+  color: #D05663 !important;
 }
 
 

@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="pa-0">
-    <!-- Hero Section -->
+
     <v-parallax
       src="https://picsum.photos/id/41/600/900"
       height="600"
