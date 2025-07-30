@@ -4,9 +4,11 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.api.doc)
     alias(libs.plugins.ktor)
+    alias(libs.plugins.ktfmt)
 }
 
 group = "ch.abbts"
+
 version = "0.1.0"
 
 repositories {
@@ -21,6 +23,9 @@ dependencies {
     implementation(libs.bundles.exposed)
     implementation(libs.dbDriver)
     implementation(libs.bcrypt)
+    implementation(libs.googleApiClient)
+    implementation(libs.googleOauthClient)
+    implementation(libs.googleHttpClient)
 
     // utility dependencies
     implementation(libs.config)
@@ -34,10 +39,12 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
+java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
+
+ktfmt {
+    kotlinLangStyle()
+    removeUnusedImports.set(true)
+    maxWidth.set(80)
 }
 
 swagger {
@@ -62,25 +69,17 @@ swagger {
     }
 }
 
-application {
-    mainClass = "ch.abbts.MainKt"
-}
+application { mainClass = "ch.abbts.MainKt" }
 
-ktor {
-    fatJar {
-        archiveFileName.set("server.jar")
-    }
-}
+ktor { fatJar { archiveFileName.set("server.jar") } }
 
-tasks.named("distTar") {
-    dependsOn(tasks.named("shadowJar"))
-}
+tasks.named("distTar") { dependsOn(tasks.named("shadowJar")) }
 
 tasks.named("shadowJar") {
     dependsOn(tasks.named("distZip"))
     dependsOn(tasks.named("startScripts"))
 }
 
-tasks.named<Test>("test") {
-    useJUnitPlatform()
-}
+tasks.named<Test>("test") { useJUnitPlatform() }
+
+tasks.named<Test>("test") { useJUnitPlatform() }

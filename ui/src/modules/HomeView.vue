@@ -1,10 +1,7 @@
 <template>
   <v-container fluid class="pa-0">
-
-    <v-parallax
-      src="https://picsum.photos/id/41/600/900"
-      height="600"
-    >
+    <!-- Hero Section -->
+    <v-parallax src="https://picsum.photos/id/41/600/900" height="600">
       <div class="d-flex flex-column fill-height justify-center align-center text-white">
         <h1 class="text-h2 font-weight-bold mb-4 text-center">
           Finden Sie den perfekten Helfer für Ihre Aufgaben
@@ -13,28 +10,13 @@
           Professionelle Unterstützung in Ihrer Nachbarschaft
         </h2>
         <div class="d-flex">
-          <v-btn
-            size="x-large"
-            color="#D05663"
-            class="mx-2"
-            to="/services"
-          >
+          <v-btn size="x-large" color="#D05663" class="mx-2" to="/services">
             Dienstleistungen entdecken
           </v-btn>
-          <v-btn
-            size="x-large"
-            color="#2a403D"
-            class="mx-2"
-            to="/services"
-          >
+          <v-btn size="x-large" color="#2a403D" class="mx-2" to="/services">
             Dienstleistung anbieten
           </v-btn>
-          <v-btn
-            size="x-large"
-            color="#748B6F"
-            class="mx-2"
-            to="/contact"
-          >
+          <v-btn size="x-large" color="#748B6F" class="mx-2" to="/contact">
             Kontakt aufnehmen
           </v-btn>
         </div>
@@ -53,12 +35,7 @@
               height="100%"
               @click="navigateToService(service.path)"
             >
-              <v-img
-                :src="service.image"
-                height="250"
-                cover
-                class="align-end"
-              >
+              <v-img :src="service.image" height="250" cover class="align-end">
                 <v-card-title class="text-white bg-black bg-opacity-50">
                   {{ service.title }}
                 </v-card-title>
@@ -67,11 +44,7 @@
                 <p class="text-body-1">{{ service.description }}</p>
               </v-card-text>
               <v-card-actions>
-                <v-btn
-                  variant="text"
-                  :to="service.path"
-                  color="primary"
-                >
+                <v-btn variant="text" :to="service.path" color="primary">
                   Mehr erfahren
                   <v-icon class="ml-2">mdi-arrow-right</v-icon>
                 </v-btn>
@@ -94,20 +67,20 @@ const services = [
     title: 'Gartenarbeit',
     description: 'Professionelle Gartenpflege für einen gepflegten und schönen Garten.',
     image: 'https://picsum.photos/id/94/800/600',
-    path: '/services/gardening'
+    path: '/services/gardening',
   },
   {
     title: 'Babysitting',
     description: 'Zuverlässige und liebevolle Betreuung für Ihre Kleinen.',
     image: 'https://picsum.photos/id/822/800/600',
-    path: '/services/babysitting'
+    path: '/services/babysitting',
   },
   {
     title: 'Platten legen',
     description: 'Fachmännische Verlegung von Fliesen und Natursteinen.',
     image: 'https://picsum.photos/id/240/800/600',
-    path: '/services/tiling'
-  }
+    path: '/services/tiling',
+  },
 ]
 
 const navigateToService = (path: string) => {

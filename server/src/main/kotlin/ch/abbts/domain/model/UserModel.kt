@@ -1,8 +1,8 @@
 package ch.abbts.domain.model
 
+import java.time.LocalDate
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import java.time.LocalDate
 
 @Serializable
 data class UserModel(
@@ -10,12 +10,12 @@ data class UserModel(
     val name: String,
     val email: String,
     val passwordHash: String? = null,
-    val zipCode: Int,
+    val zipCode: Int? = -1,
     val imageUrl: String? = "",
     val image: ByteArray? = null,
     val active: Boolean? = true,
     val authProvider: AuthProvider,
     val lastTokenIssued: Long? = null,
     @Contextual val birthdate: LocalDate,
-    @Contextual val lockedUntil: Long? = null
+    @Contextual val lockedUntil: Long? = null,
 )

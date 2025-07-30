@@ -1,7 +1,11 @@
 package ch.abbts.adapter.routes
 
 import ch.abbts.adapter.controller.authenticationRoutes
+import ch.abbts.adapter.controller.taskRoutes
 import ch.abbts.adapter.controller.userRoutes
+import ch.abbts.adapter.database.repository.TaskRepository
+import ch.abbts.adapter.database.repository.UsersRepository
+import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.WebserverError
@@ -15,19 +19,27 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.slf4j.LoggerFactory
 
-fun Application.configureRouting(
-    userInteractor: UserInteractor,
-) {
+fun Application.configureRouting(userInteractor: UserInteractor) {
+    val log = LoggerFactory.getLogger(object {}::class.java.`package`.name)
     install(StatusPages) {
         exception<Throwable> { call, error ->
             when (error) {
-                is WebserverError -> call.respond(status = error.getStatus(), error.getMessage())
-                else ->
+                is WebserverError -> {
+                    log.info("${error.message}")
+                    call.respond(status = error.getStatus(), error.getMessage())
+                }
+                else -> {
+                    log.error("${error.message}")
                     call.respond(
                         status = HttpStatusCode.InternalServerError,
-                        message = buildJsonObject { put("message", "something went wrong") }
+                        message =
+                            buildJsonObject {
+                                put("message", "something went wrong")
+                            },
                     )
+                }
             }
         }
     }
@@ -41,6 +53,8 @@ fun Application.configureRouting(
             }
         }
     }
+    val taskInteractor = TaskInteractor(TaskRepository(), UsersRepository())
     routing { userRoutes(userInteractor) }
     routing { authenticationRoutes(userInteractor) }
+    routing { taskRoutes(taskInteractor) }
 }

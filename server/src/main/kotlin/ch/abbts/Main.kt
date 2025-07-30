@@ -11,15 +11,14 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.cors.routing.*
 
-
 fun main() {
     embeddedServer(
-        Netty,
-        host = "0.0.0.0",
-        port = 8080,
-        module = Application::main,
-        watchPaths = listOf("classes", "resources")
-    )
+            Netty,
+            host = "0.0.0.0",
+            port = 8080,
+            module = Application::main,
+            watchPaths = listOf("classes", "resources"),
+        )
         .start(wait = true)
 }
 
@@ -45,5 +44,4 @@ fun Application.main() {
 
     configureRouting(userInteractor)
     configureOpenApi()
-
 }

@@ -5,9 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class AuthProvider {
-    @SerialName("LOCAL")
-    LOCAL,
-
-    @SerialName("GOOGLE")
-    GOOGLE
+    @SerialName("LOCAL") LOCAL,
+    @SerialName("GOOGLE") GOOGLE,
 }

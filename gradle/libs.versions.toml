@@ -33,13 +33,16 @@ exposedCore = { module = "org.jetbrains.exposed:exposed-core", version.ref = "ex
 exposedDao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposedVersion" }
 exposedJdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposedVersion" }
 exposedJavaTime = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposedVersion" }
-
+googleApiClient = { module = "com.google.api-client:google-api-client", version = "2.5.0" }
+googleOauthClient = { module = "com.google.oauth-client:google-oauth-client", version = "1.34.1" }
+googleHttpClient = { module = "com.google.http-client:google-http-client", version = "1.43.3" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinVersion" }
 api-doc = { id = "io.github.tabilzad.inspektor", version = "0.8.2-alpha" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktorVersion" }
+ktfmt = { id = "com.ncorti.ktfmt.gradle", version = "0.23.0" }
 
 
 [bundles]

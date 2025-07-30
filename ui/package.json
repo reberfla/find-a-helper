@@ -16,12 +16,12 @@
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
-    "test": "vitest run"
+    "test" : "vitest run",
+    "check" : "prettier -c src/"
   },
   "dependencies": {
-    "@mdi/font": "^7.4.47",
     "sass": "^1.89.1",
-    "vue": "^3.5.17",
+    "vue": "^3.5.13",
     "vue-router": "^4.5.0",
     "vuetify": "^3.8.8"
   },

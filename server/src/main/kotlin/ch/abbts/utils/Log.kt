@@ -3,8 +3,13 @@ package ch.abbts.utils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-// see 2. approach here: https://gist.github.com/maxixcom/cd454e4b75730c17a515e8db15a4ae78
+// see 2. approach here:
+// https://gist.github.com/maxixcom/cd454e4b75730c17a515e8db15a4ae78
 
 abstract class Log {
     val log: Logger = LoggerFactory.getLogger(this.javaClass)
+}
+
+inline fun <reified T> T.logger(): Logger {
+    return LoggerFactory.getLogger(T::class.java)
 }

@@ -2,17 +2,19 @@ package ch.abbts.domain.model
 
 import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.error.*
-import ch.abbts.utils.Log
+import ch.abbts.utils.logger
 import com.typesafe.config.ConfigFactory
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
+import io.ktor.server.request.authorization
+import io.ktor.server.routing.RoutingCall
 import java.time.Instant
 import java.util.*
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
-class JWebToken(email: String) {
+class JWebToken(email: String, id: Int) {
     private val validDuration = 43500L // 12h + 5min
     private val config = ConfigFactory.load()
     private val alg = config.getString("jwt.auth.alg")
@@ -20,14 +22,16 @@ class JWebToken(email: String) {
     private val iat: Long = Instant.now().epochSecond
     private val exp: Long = iat.plus(validDuration)
     val header = JWebTokenHeader(alg, typ)
-    val body = JWebTokenBody(email, iat, exp)
+    val body = JWebTokenBody(email, id, iat, exp)
+    val log = logger()
 
-    companion object : Log() {
+    companion object {
         val b64Encoder = Base64.getUrlEncoder().withoutPadding()
         val b64Decoder = Base64.getUrlDecoder()
         val config = ConfigFactory.load()
         val secret = config.getString("jwt.secret")
         val usersRepository = UsersRepository()
+        val log = logger()
 
         fun generateToken(header: JWebTokenHeader, body: JWebTokenBody): JWT {
             log.debug("issuing jwt token for ${body.email}")
@@ -48,7 +52,8 @@ class JWebToken(email: String) {
             val secretKey =
                 SecretKeySpec(secret.toByteArray(Charsets.UTF_8), "HmacSHA256")
             hmac.init(secretKey)
-            val signature = hmac.doFinal("$header.$body".toByteArray(Charsets.UTF_8))
+            val signature =
+                hmac.doFinal("$header.$body".toByteArray(Charsets.UTF_8))
             hmac.reset()
             return b64Encoder.encodeToString(signature)
         }
@@ -60,7 +65,6 @@ class JWebToken(email: String) {
             try {
                 Json.decodeFromString<JWebTokenHeader>(
                     b64Decoder.decode(header).decodeToString()
-
                 )
             } catch (_: Exception) {
                 log.debug("Invalid Header Format")
@@ -98,21 +102,46 @@ class JWebToken(email: String) {
                 throw TokenExpired()
             }
         }
+
+        fun getUserIdFromCall(call: RoutingCall): Int {
+            val bearerToken =
+                call.request.authorization()
+                    ?: throw MissingAuthorizationHeader()
+            val token = bearerToken.split(" ")[1]
+            val tokenBody = token.split(".")[1]
+            return Json.decodeFromString<JWebTokenBody>(
+                    b64Decoder.decode(tokenBody).decodeToString()
+                )
+                .id
+        }
+
+        fun decodeEmailFromToken(token: String): String {
+            val parts = token.split(".")
+            if (parts.size != 3)
+                throw IllegalArgumentException("Invalid token structure")
+
+            val bodyBase64 = parts[1]
+            val decodedBody = String(Base64.getUrlDecoder().decode(bodyBase64))
+            val json = Json { ignoreUnknownKeys = true }
+
+            val body = json.decodeFromString<JWebTokenBody>(decodedBody)
+            return body.email
+        }
     }
 
     @Serializable
-    data class JWebTokenHeader(private val alg: String, private val typ: String) {}
+    data class JWebTokenHeader(
+        private val alg: String,
+        private val typ: String,
+    )
 
     @Serializable
     data class JWebTokenBody(
         val email: String,
+        val id: Int,
         val iat: Long,
-        val exp: Long
+        val exp: Long,
     )
 }
 
-@Serializable
-data class JWT(
-    @SerialName("JWT")
-    val jwt: String
-)
+@Serializable data class JWT(@SerialName("JWT") val jwt: String)
