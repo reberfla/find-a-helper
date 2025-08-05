@@ -11,3 +11,34 @@ ERROR_PASSWORD_WEAK;Passwort ist zu schwach;Password is too weak
 ERROR_AUTHENTIFICATION_ERROR;Authentifizierungsfehler;Authentication error
 CONFIRM_REGISTER_TITLE;Benutzer nicht gefunden;User not found
 CONFIRM_REGISTER_MESSAGE;Es wurde kein Benutzer mit dieser E-Mail gefunden. Möchten Sie sich registrieren?;No user was found with this email. Would you like to register?
+WEEKDAYS;Wochentage;Weekdays
+CATEGORY;Kategorie;Category
+INTERVAL;Wiederholung;Interval
+DEADLINE;Zu erledigen bis;Deadline
+NO_DEADLINE;Kein Zeitpunkt angegeben; no deadline
+MAKE_OFFER;Angebot machen;make offer
+MONDAY;Mo;Mo
+TUESDAY;Di;Tu
+WEDNESDAY;Mi;We
+THURSDAY;Do;Th
+FRIDAY;Fr;Fr
+SATURDAY;Sa;Sa
+SUNDAY;So;Su
+OPEN;Offen;Open
+ASSIGNED;Zugewiesen;Open
+COMPLETED;Abgeschlossen;Completed
+CONTINUOUS;Kontinuierlich;Continuous
+RECURRING;Wiederkehrend;Recurring
+ONE_TIME;Einmaling;One time
+SHOPPING;Einkauf;Shopping
+TRANSPORT;Transportieren;Transport
+CLEANING;Putzen;Cleaning
+PETCARE;Haustierbetreuung;Petcare
+GARDENING;Gartenarbeit;Gardening
+TUTORING;Unterricht;Tutoring
+TECHHELP;Technische Hilfe;Techhelp
+CHILDCARE;Kinderbetreuung;Childcare
+LANGUAGETANDEM;Sprach Tandem;Language tandem
+HOMEWORK;Hausaufgaben;Homework
+REPAIRS;Reparaturen;Repairs
+OTHERS;Andere;Others
