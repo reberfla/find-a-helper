@@ -13,12 +13,12 @@ data class TaskDto(
     val coordinates: String,
     val title: String,
     val description: String,
-    val category: TaskCategory? = TaskCategory.OTHERS,
-    val status: TaskStatus? = TaskStatus.OPEN,
-    val active: Boolean? = true,
+    val category: TaskCategory = TaskCategory.OTHERS,
+    val status: TaskStatus = TaskStatus.OPEN,
+    val active: Boolean = true,
     val deadline: Long? = null,
-    val taskInterval: TaskInterval? = TaskInterval.ONE_TIME,
-    val weekdays: List<Weekdays>? = listOf<Weekdays>(),
+    val taskInterval: TaskInterval = TaskInterval.ONE_TIME,
+    val weekdays: List<Weekdays> = listOf<Weekdays>(),
 ) {
     fun toModel(userId: Int): TaskModel {
         return TaskModel(
@@ -28,11 +28,11 @@ data class TaskDto(
             coordinates,
             title,
             description,
-            category!!,
-            status!!,
-            active!!,
+            category,
+            status,
+            active,
             deadline,
-            taskInterval!!,
+            taskInterval,
             weekdays,
         )
     }
