@@ -1,7 +1,9 @@
+import type { Task } from '@/models/TaskModel.ts'
 const BASE_URL = 'http://localhost:8080'
 
 function getToken(): string | null {
-  return localStorage.getItem('token')
+  const user = localStorage.getItem('user')
+  return user ? JSON.parse(user).token : null
 }
 
 function buildHeaders(): HeadersInit {
@@ -80,5 +82,10 @@ export default {
 
   async getUser(token: string) {
     return getJSON(`${BASE_URL}/v1/user/${token}`)
+  },
+
+  // Tasks
+  async getTasks() {
+    return getJSON<Task[]>(`${BASE_URL}/v1/task`)
   },
 }

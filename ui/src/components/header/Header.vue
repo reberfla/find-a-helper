@@ -66,6 +66,7 @@ const drawer = ref(false)
 const menuItems = [
   { title: 'Startseite', icon: 'home', path: '/' },
   { title: 'Über uns', icon: 'info', path: '/about' },
+  { title: 'Aufgaben Entdecken', icon: 'info', path: '/tasks' },
   { title: 'Dienstleistungen', icon: 'work', path: '/services' },
   { title: 'Kontakt', icon: 'email', path: '/contact' },
 ]
