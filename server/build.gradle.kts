@@ -75,6 +75,11 @@ ktor { fatJar { archiveFileName.set("server.jar") } }
 
 tasks.named("distTar") { dependsOn(tasks.named("shadowJar")) }
 
+tasks.named<JavaExec>("run") {
+    jvmArgs("-Dconfig.resource=application-dev.conf")
+    jvmArgs("-Dio.ktor.development=true")
+}
+
 tasks.named("shadowJar") {
     dependsOn(tasks.named("distZip"))
     dependsOn(tasks.named("startScripts"))

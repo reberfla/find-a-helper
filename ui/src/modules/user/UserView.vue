@@ -12,16 +12,23 @@ const hasNewMessages = ref(false)
 
 const menuItems = [
   { value: 'data', label: 'PROFILE_DATA' },
+  { value: 'messages', label: 'MESSAGES' },
   { value: 'offers', label: 'MY_OFFERS' },
   { value: 'orders', label: 'MY_ORDERS' },
 ]
 
 const currentComponent = computed(() => {
   switch (tab.value) {
-    case 'data': return UserProfilView
-    case 'offers': return OfferListView
-    case 'orders': return UserProfilView
-    default: return null
+    case 'data':
+      return UserProfilView
+    case 'messages':
+      return UserProfilView
+    case 'offers':
+      return UserProfilView
+    case 'orders':
+      return UserProfilView
+    default:
+      return null
   }
 })
 
@@ -29,16 +36,13 @@ onMounted(async () => {
   const response = await fetch('/api/chat/has-new')
   hasNewMessages.value = await response.json()
 })
-
 </script>
 
 <template>
   <v-container fluid>
-
-  <BackHeader></BackHeader>
+    <BackHeader></BackHeader>
 
     <v-row>
-
       <v-col cols="12" md="3">
         <v-list nav>
           <v-list-item
@@ -66,6 +70,4 @@ onMounted(async () => {
     </v-row>
   </v-container>
 </template>
-<style scoped>
-
-</style>
+<style scoped></style>

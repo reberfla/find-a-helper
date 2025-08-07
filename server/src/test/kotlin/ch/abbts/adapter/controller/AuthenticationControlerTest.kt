@@ -2,6 +2,7 @@ package ch.abbts.adapter.controller
 
 import ch.abbts.adapter.routes.configureRouting
 import ch.abbts.application.dto.AuthenticationDto
+import ch.abbts.application.dto.UserDto
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.AuthProvider
 import ch.abbts.domain.model.UserModel
@@ -12,7 +13,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
-import java.time.LocalDate
 import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -30,13 +30,10 @@ class AuthenticationTest() {
                     on {
                         verifyLocalUser(eq("mail@example.ch"), any())
                     } doReturn
-                        UserModel(
-                            1,
-                            "Peter Meier",
-                            "mail@example.com",
-                            zipCode = 1234,
-                            authProvider = AuthProvider.LOCAL,
-                            birthdate = LocalDate.now(),
+                        UserDto(
+                            email = "mail@example.ch",
+                            birthdate = "",
+                            id = 1,
                         )
                     doNothing()
                         .whenever(mock)
@@ -51,6 +48,7 @@ class AuthenticationTest() {
             AuthenticationDto(
                 email = "mail@example.ch",
                 password = "1234",
+                name = "Bob Builder",
                 authenticationProvider = AuthProvider.LOCAL,
             )
         val response =
@@ -67,6 +65,7 @@ class AuthenticationTest() {
             AuthenticationDto(
                 email = "mailb@example.ch",
                 password = "1234",
+                name = "BobBuilder",
                 authenticationProvider = AuthProvider.LOCAL,
             )
         val responseNotExisting =

@@ -2,11 +2,11 @@ package ch.abbts.application.interactor
 
 import ch.abbts.adapter.database.repository.TaskRepository
 import ch.abbts.adapter.database.repository.UsersRepository
-import ch.abbts.application.dto.TaskDto
 import ch.abbts.application.dto.TaskPrivateDto
 import ch.abbts.application.dto.TaskQueryParams
+import ch.abbts.application.dto.TaskUpdateDto
 import ch.abbts.domain.model.TaskModel
-import ch.abbts.error.TaskNotFound
+import ch.abbts.error.TaskOfOtherUser
 import ch.abbts.utils.logger
 
 class TaskInteractor(
@@ -21,21 +21,16 @@ class TaskInteractor(
         return createdTask.toPrivateDto(user.name, user.email)
     }
 
-    fun updateTask(task: TaskDto, userId: Int, id: Int): TaskPrivateDto {
+    fun updateTask(task: TaskUpdateDto, userId: Int, id: Int): TaskPrivateDto {
         val existing = taskRepository.getTaskById(id)
-        if (existing == null) {
-            throw TaskNotFound(id)
-        } else if (existing.userId != userId) {
-            TODO()
+        if (existing.userId != userId) {
+            throw TaskOfOtherUser()
         }
         taskRepository.updateTask(task, id)
-        val updatedTask = taskRepository.getTaskById(id)
-        if (updatedTask == null) {
-            throw TaskNotFound(id)
-        } else {
-            val user = userRepository.getUserById(updatedTask.userId)!!
-            return updatedTask.toPrivateDto(user.name, user.email)
-        }
+        val toUpdateTask = taskRepository.getTaskById(id)
+        val updatedTask = taskRepository.updateTask(task, id)
+        val user = userRepository.getUserById(updatedTask.userId)!!
+        return toUpdateTask.toPrivateDto(user.name, user.email)
     }
 
     fun getTasks(filterQuery: TaskQueryParams? = null): List<TaskModel> {
@@ -55,14 +50,10 @@ class TaskInteractor(
 
     fun getTaskById(taskId: Int): TaskModel {
         val task = taskRepository.getTaskById(taskId)
-        if (task != null) {
-            return task
-        } else {
-            throw TaskNotFound(taskId)
-        }
+        return task
     }
 
-    fun deleteTask(id: Int): Unit {
-        taskRepository.deleteTask(id)
+    fun deleteTask(id: Int, userId: Int): Unit {
+        taskRepository.deleteTask(id, userId)
     }
 }

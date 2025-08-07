@@ -4,6 +4,8 @@ import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.error.*
 import ch.abbts.utils.logger
 import com.typesafe.config.ConfigFactory
+import io.ktor.server.request.authorization
+import io.ktor.server.routing.RoutingCall
 import java.time.Instant
 import java.util.*
 import javax.crypto.Mac
@@ -99,6 +101,18 @@ class JWebToken(email: String, id: Int) {
             } else if (claims.exp < Instant.now().epochSecond) {
                 throw TokenExpired()
             }
+        }
+
+        fun getUserIdFromCall(call: RoutingCall): Int {
+            val bearerToken =
+                call.request.authorization()
+                    ?: throw MissingAuthorizationHeader()
+            val token = bearerToken.split(" ")[1]
+            val tokenBody = token.split(".")[1]
+            return Json.decodeFromString<JWebTokenBody>(
+                    b64Decoder.decode(tokenBody).decodeToString()
+                )
+                .id
         }
 
         fun decodeEmailFromToken(token: String): String {

@@ -4,6 +4,7 @@ import ch.abbts.application.dto.AuthResponseDto
 import ch.abbts.application.dto.AuthenticationDto
 import ch.abbts.application.dto.SuccessMessage
 import ch.abbts.application.dto.UserDto
+import ch.abbts.application.dto.UserUpdateDto
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.UserAlreadyExists
@@ -19,10 +20,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.Json
 
 @Tag(["User"])
 fun Application.userRoutes(userInteractor: UserInteractor) {
@@ -94,33 +92,28 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                         call.respond(HttpStatusCode.NotFound, "User not found.")
                         return@put
                     }
-                    val json = call.receive<JsonObject>()
-                    LoggerService.debugLog("Received JSON: $json")
+                    val updateUser = call.receive<UserUpdateDto>()
+                    LoggerService.debugLog(
+                        "Received JSON: ${Json.encodeToString(updateUser)}"
+                    )
 
-                    val birthdate = json["birthdate"]?.jsonPrimitive?.content
-                    val name = json["name"]?.jsonPrimitive?.content ?: user.name
-                    val password =
-                        json["password"]?.jsonPrimitive?.contentOrNull
-                    val zipCode =
-                        json["zipCode"]?.jsonPrimitive?.intOrNull
-                            ?: user.zipCode
-                    val imgBase64 =
-                        json["imgBase64"]?.jsonPrimitive?.contentOrNull
-
-                    val updatedDto =
+                    val updateDto =
                         UserDto(
-                            email = email,
-                            name = name,
-                            password = password,
-                            zipCode = zipCode,
-                            birthdate = birthdate ?: user.birthdate.toString(),
+                            email = updateUser.email ?: user.email,
+                            name = updateUser.name ?: user.name,
+                            password = updateUser.password ?: user.passwordHash,
+                            zipCode = updateUser.zipCode ?: user.zipCode,
+                            birthdate =
+                                updateUser.birthdate
+                                    ?: user.birthdate.toString(),
                             authProvider = user.authProvider,
                             idToken = token,
-                            imgBase64 = imgBase64,
+                            imgBase64 =
+                                updateUser.imgBase64 ?: user.image.toString(),
                         )
 
                     val updatedUserDto =
-                        userInteractor.updateUser(user.id!!, updatedDto)
+                        userInteractor.updateUser(user.id!!, updateDto)
 
                     val response =
                         AuthResponseDto(

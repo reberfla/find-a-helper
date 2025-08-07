@@ -4,7 +4,6 @@ import ch.abbts.adapter.database.table.UsersTable
 import ch.abbts.domain.model.UserModel
 import ch.abbts.error.UpdatingIssuedTimeFailed
 import ch.abbts.error.UserCreationFailed
-import ch.abbts.utils.Log
 import ch.abbts.utils.LoggerService
 import ch.abbts.utils.logger
 import org.jetbrains.exposed.sql.ResultRow
@@ -15,8 +14,6 @@ import org.jetbrains.exposed.sql.update
 import org.mindrot.jbcrypt.BCrypt
 
 class UsersRepository {
-    companion object : Log()
-
     val log = logger()
 
     fun createUser(user: UserModel): UserModel? {
@@ -61,7 +58,7 @@ class UsersRepository {
     }
 
     fun getUserByEmail(email: String): UserModel? {
-        log.debug("fetching user for $email")
+        LoggerService.debugLog("fetching user for in UserRespo $email")
         return try {
             transaction {
                 val user =

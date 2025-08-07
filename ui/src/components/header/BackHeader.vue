@@ -5,8 +5,8 @@ import { defineProps } from 'vue'
 const props = defineProps({
   title: {
     type: String,
-    default: 'Zurück'
-  }
+    default: 'Zurück',
+  },
 })
 
 const router = useRouter()
@@ -25,5 +25,4 @@ function goHome() {
   </v-row>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
