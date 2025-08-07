@@ -46,14 +46,20 @@ const defaultImage = 'https://images.pexels.com/photos/5428830/pexels-photo-5428
 </script>
 
 <template>
-  <v-card class="ma-2" elevation="4" max-width="320" @click="showDialog = true">
+  <v-card
+    class="ma-2 d-flex flex-column"
+    elevation="4"
+    max-width="320"
+    min-height="420"
+    @click="showDialog = true"
+  >
     <v-img :src="offer.task.imageUrl || defaultImage" height="180" cover>
       <v-card-title class="text-white bg-grey-darken-3 text-h6">
         {{ offer.task.title }}
       </v-card-title>
     </v-img>
 
-    <v-card-text>
+    <v-card-text class="flex-grow-1">
       <div class="mb-2">{{ offer.task.description }}</div>
       <div class="text-subtitle-1 font-weight-bold">{{ offer.title }}</div>
       <div class="text-body-2">{{ offer.text }}</div>
@@ -73,7 +79,12 @@ const defaultImage = 'https://images.pexels.com/photos/5428830/pexels-photo-5428
         </v-btn>
       </div>
 
-      <v-btn icon color="error" v-if="isOwnOffer && offer.status === 'SUBMITTED'" @click.stop="$emit('delete', offer.id)">
+      <v-btn
+        icon
+        color="error"
+        v-if="isOwnOffer && offer.status === 'SUBMITTED'"
+        @click.stop="$emit('delete', offer.id)"
+      >
         <v-icon>delete</v-icon>
       </v-btn>
     </v-card-actions>
@@ -86,3 +97,4 @@ const defaultImage = 'https://images.pexels.com/photos/5428830/pexels-photo-5428
     :readonly="true"
   />
 </template>
+

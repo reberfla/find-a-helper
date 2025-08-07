@@ -6,7 +6,7 @@ const props = defineProps<{
   task: Task
 }>()
 
-const emit = defineEmits(['open-offer'])
+const emit = defineEmits(['new-offer'])
 </script>
 
 <template>
@@ -40,7 +40,7 @@ const emit = defineEmits(['open-offer'])
       </div>
     </template>
     <v-card-actions class="justify-center align-end">
-      <v-btn @click="$emit('open-offer', task)">{{ translate('MAKE_OFFER') }}</v-btn>
+      <v-btn @click="$emit('new-offer', task)">{{ translate('MAKE_OFFER') }}</v-btn>
     </v-card-actions>
   </v-card>
 </template>

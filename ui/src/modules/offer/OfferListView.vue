@@ -62,19 +62,34 @@ onMounted(loadOffers)
 <template>
   <v-container>
     <h3 class="mb-4">
-      {{ t('MY_OFFERS')}}
+      {{ t('MY_OFFERS') }}
     </h3>
 
-    <OfferCard
-        v-for="offer in offers"
-        :key="offer.id"
-        :offer="offer"
-        :isOwnOffer="myOffers"
-        @delete="deleteOffer"
-        @accept="acceptOffer"
-        @reject="rejectOffer"
-    />
+    <v-row dense>
+      <v-col
+          v-for="offer in offers"
+          :key="offer.id"
+          cols="12"
+          sm="6"
+          md="4"
+          lg="3"
+          xl="3"
+      >
+        <OfferCard
+            :offer="offer"
+            :isOwnOffer="myOffers"
+            @delete="deleteOffer"
+            @accept="acceptOffer"
+            @reject="rejectOffer"
+        />
+      </v-col>
+    </v-row>
+
+    <v-alert v-if="offers.length === 0" type="info">
+      {{ t('NO_OFFERS_FOUND') }}
+    </v-alert>
   </v-container>
 </template>
+
 
 

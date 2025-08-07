@@ -1,3 +1,4 @@
+import {useAuth} from "@/service/userAuthService.ts";
 import type { Task } from '@/models/TaskModel.ts'
 const BASE_URL = 'http://localhost:8080'
 
@@ -10,7 +11,7 @@ function buildHeaders(): HeadersInit {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   }
-  const token = getToken()
+  const token = useAuth().getCurrentUser()?.token ?? null
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
   }
@@ -55,12 +56,12 @@ async function putJSON<T>(url: string, data: any): Promise<T> {
 export default {
   // Public API
   async getAuftrags(lat: string, lng: string) {
-    return getJSON(`${BASE_URL}/auftrags?lat=${lat}&lng=${lng}`)
+    return getJSON(`${BASE_URL}/auftrags?lat=${lat}&lng=${lng}`);
   },
 
   // Auth
   async authUser(data: any) {
-    return postJSON(`${BASE_URL}/v1/auth`, data)
+    return postJSON(`${BASE_URL}/v1/auth`, data);
   },
 
   async authUserByToken(token: string) {
@@ -68,21 +69,51 @@ export default {
   },
 
   async validateToken() {
-    return getJSON(`${BASE_URL}/v1/auth/validate`)
+    return getJSON(`${BASE_URL}/v1/auth/validate`);
   },
 
   // User-Profile
   async registerLokalUser(data: any) {
-    return postJSON(`${BASE_URL}/v1/user/register`, data)
+    return postJSON(`${BASE_URL}/v1/user/register`, data);
   },
 
   async updateUser(data: any) {
-    return putJSON(`${BASE_URL}/v1/user/${data.id}`, data)
+    return putJSON(`${BASE_URL}/v1/user/${data.id}`, data);
   },
 
   async getUser(token: string) {
     return getJSON(`${BASE_URL}/v1/user/${token}`)
   },
+
+//Offers
+  async getMyOffers() {
+    return getJSON(`${BASE_URL}/v1/offer/my`)
+  },
+
+  async getOfferById(id: number) {
+    return getJSON(`${BASE_URL}/v1/offer/${id}`)
+  },
+
+  async getOffersForTask(taskId: number) {
+    return getJSON(`${BASE_URL}/v1/offer/task/${taskId}`)
+  },
+
+  async submitOffer(data: any) {
+    return postJSON(`${BASE_URL}/v1/offer`, data)
+  },
+
+  async acceptOffer(offerId: number) {
+    return putJSON(`${BASE_URL}/v1/offer/accept/${offerId}`, null)
+  },
+
+  async rejectOffer(offerId: number) {
+    return putJSON(`${BASE_URL}/v1/offer/reject/${offerId}`, null)
+  },
+
+  async deleteOffer(offerId: number) {
+    return getJSON(`${BASE_URL}/v1/offer/${offerId}`)
+  },
+
 
   // Tasks
   async getTasks() {

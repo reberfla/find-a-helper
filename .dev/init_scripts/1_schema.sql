@@ -24,7 +24,7 @@ CREATE TABLE offers (
   user_id int(11) NOT NULL,
   task_id int(11) NOT NULL,
   text text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  title text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  title varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   status enum('SUBMITTED','ACCEPTED','REJECTED') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'SUBMITTED',
   created_at datetime DEFAULT current_timestamp(),
   active tinyint(1) NOT NULL DEFAULT 1,
