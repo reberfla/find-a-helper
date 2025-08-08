@@ -119,4 +119,9 @@ export default {
   async getTasks() {
     return getJSON<Task[]>(`${BASE_URL}/v1/task`)
   },
+
+  //todo => implement backend
+  async getMyTasks() {
+    return getJSON<Task[]>(`${BASE_URL}/v1/task`)
+  },
 }

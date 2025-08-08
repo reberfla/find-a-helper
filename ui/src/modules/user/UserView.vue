@@ -4,7 +4,8 @@ import {ref, onMounted, computed} from 'vue'
 import {translate} from "@/service/translationService.js";
 import UserProfilView from "@/modules/user/UserProfilView.vue";
 import BackHeader from "@/components/header/BackHeader.vue";
-import OfferListView from "@/modules/offer/OfferListView.vue";
+import MyOffers from "@/modules/offer/MyOffers.vue";
+import MyTasksWithOffers from "@/modules/task/MyTasksWithOffers.vue";
 
 const t = translate
 const tab = ref('data')
@@ -24,9 +25,9 @@ const currentComponent = computed(() => {
     case 'messages':
       return UserProfilView
     case 'offers':
-      return UserProfilView
-    case 'orders':
-      return UserProfilView
+      return MyOffers
+    case 'tasks':
+      return MyTasksWithOffers
     default:
       return null
   }
