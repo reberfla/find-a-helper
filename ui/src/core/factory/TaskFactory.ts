@@ -4,6 +4,7 @@ import type { Task } from '@/models/TaskModel'
 import apiService from '@/service/apiService'
 import { translate as t } from '@/service/translationService'
 import { TaskInterval, Weekday } from '@/models/TaskModel'
+import {getTaskImage} from "@/service/imageService.ts";
 
 type Ctx = { mine?: boolean }
 
@@ -23,7 +24,7 @@ export class TaskFactory implements ViewFactory<Task> {
   getAdapter(_: Ctx = {}): CardAdapter<Task> {
     return {
       getId: x => x.id,
-      // getImage: x => x.imageUrl,
+      getImage: x => /*x?.imageUrl ??*/ getTaskImage(x.category),
       getTitle: x => x.title,
       getSubtitle: x => x.zipCode,
       getLines: x => {

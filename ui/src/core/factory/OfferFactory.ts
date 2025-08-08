@@ -2,8 +2,7 @@ import type { ViewFactory, CardAdapter, CardAction } from './view-factory.types'
 import type { OfferModel as Offer } from '@/models/OfferModel'
 import apiService from '@/service/apiService'
 import { translate as t } from '@/service/translationService'
-
-const IMG = 'https://images.pexels.com/photos/5428830/pexels-photo-5428830.jpeg'
+import {getTaskImage} from "@/service/imageService.ts";
 
 const chipColor = (s: Offer['status']) =>
   s === 'ACCEPTED' ? 'green' : s === 'REJECTED' ? 'red' : 'grey'
@@ -35,7 +34,7 @@ export class OfferFactory implements ViewFactory<Offer> {
     const isMine = !!ctx?.mine
     return {
       getId: o => o.id,
-      getImage: o => o.task?.imageUrl || IMG,
+      getImage: o => o.task?.imageUrl ?? getTaskImage(o.task.category),
       getTitle: o => o.task?.title ?? o.title,
       getSubtitle: o => o.task?.description ?? '',
       getLines: o => [
