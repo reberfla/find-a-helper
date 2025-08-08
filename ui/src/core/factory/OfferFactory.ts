@@ -48,14 +48,14 @@ export class OfferFactory implements ViewFactory<Offer> {
         if (isMine) {
           acts.push({
             name: 'delete',
-            icon: 'mdi-delete',
+            icon: 'delete',
             color: 'error',
             visible: o.status === 'SUBMITTED'
           })
         } else {
-          acts.push({ name: 'open', icon: 'mdi-eye', color: 'primary', visible: true })
-          acts.push({ name: 'accept', icon: 'mdi-check', color: 'green', visible: true })
-          acts.push({ name: 'reject', icon: 'mdi-close', color: 'red', visible: true })
+          acts.push({ name: 'open', icon: 'eye', color: 'primary', visible: true })
+          acts.push({ name: 'accept', icon: 'check', color: 'green', visible: true })
+          acts.push({ name: 'reject', icon: 'close', color: 'red', visible: true })
         }
         return acts
       }

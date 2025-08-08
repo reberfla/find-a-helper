@@ -2,17 +2,18 @@
   <v-container fluid class="pa-0">
 
     <v-parallax
-      src="https://picsum.photos/id/41/600/900"
+      :src="hero"
       height="600"
     >
-      <div class="d-flex flex-column fill-height justify-center align-center text-white">
+      <div class="overlay"></div>
+      <div class=" header-container d-flex flex-column fill-height justify-center align-center text-white">
         <h1 class="text-h2 font-weight-bold mb-4 text-center">
           Finden Sie den perfekten Helfer für Ihre Aufgaben
         </h1>
         <h2 class="text-h5 mb-8 text-center">
           Professionelle Unterstützung in Ihrer Nachbarschaft
         </h2>
-        <div class="d-flex">
+        <div class=" btn-container d-flex">
           <v-btn
             size="x-large"
             color="#D05663"
@@ -44,75 +45,62 @@
     <v-container class="py-12">
       <h2 class="text-h4 mb-8 text-center">Unsere Dienstleistungen</h2>
       <v-row>
-        <v-col v-for="service in services" :key="service.title" cols="12" md="4">
+        <v-col v-for="s in viewModels" :key="s.slug" cols="12" md="4">
           <v-hover v-slot="{ isHovering, props }">
             <v-card
+              class="service-card"
               v-bind="props"
               :elevation="isHovering ? 8 : 2"
               :class="{ 'on-hover': isHovering }"
               height="100%"
-              @click="navigateToService(service.path)"
+              @click="toTasksWith(s.slug)"
             >
-              <v-img
-                :src="service.image"
-                height="250"
-                cover
-                class="align-end"
-              >
+              <v-img :src="s.image" height="230" cover class="align-end">
                 <v-card-title class="text-white bg-black bg-opacity-50">
-                  {{ service.title }}
+                  {{ s.title }}
                 </v-card-title>
               </v-img>
+
               <v-card-text>
-                <p class="text-body-1">{{ service.description }}</p>
+                <p class="text-body-1">{{ s.description }}</p>
               </v-card-text>
+
               <v-card-actions>
-                <v-btn
-                  variant="text"
-                  :to="service.path"
-                  color="primary"
-                >
-                  Mehr erfahren
-                  <v-icon class="ml-2">mdi-arrow-right</v-icon>
+
+                <v-btn variant="text" color="primary" @click.stop="toTasksWith(s.slug)">
+                  {{ t('MEHR_ERFAHREN') }}
+                  <v-icon class="ml-2">arrow_right</v-icon>
                 </v-btn>
               </v-card-actions>
             </v-card>
           </v-hover>
         </v-col>
       </v-row>
+
     </v-container>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import {computed, ref} from 'vue'
+import {serviceCategories} from "@/data/serviceCategories.ts";
+import {useNav} from "@/utils/nav.ts";
+import { translate } from '@/service/translationService'
+import hero from '@/assets/images/greg-rosenke-CwjX0miEPGc-unsplash.jpg'
 
-const router = useRouter()
+const t = translate
 
-const services = [
-  {
-    title: 'Gartenarbeit',
-    description: 'Professionelle Gartenpflege für einen gepflegten und schönen Garten.',
-    image: 'https://picsum.photos/id/94/800/600',
-    path: '/services/gardening'
-  },
-  {
-    title: 'Babysitting',
-    description: 'Zuverlässige und liebevolle Betreuung für Ihre Kleinen.',
-    image: 'https://picsum.photos/id/822/800/600',
-    path: '/services/babysitting'
-  },
-  {
-    title: 'Platten legen',
-    description: 'Fachmännische Verlegung von Fliesen und Natursteinen.',
-    image: 'https://picsum.photos/id/240/800/600',
-    path: '/services/tiling'
-  }
-]
+const { toTasksWith } = useNav()
+const services = ref(serviceCategories)
 
-const navigateToService = (path: string) => {
-  router.push(path)
-}
+const viewModels = computed(() =>
+  services.value.map(s => ({
+    ...s,
+    title: t(s.titleKey),
+    description: t(s.descKey),
+  }))
+)
+
 </script>
 
 <style scoped>
@@ -120,4 +108,38 @@ const navigateToService = (path: string) => {
 .bg-opacity-50 {
   background-color: rgba(0, 0, 0, 0.5) !important;
 }
+
+.header-container{
+  padding: 12px;
+}
+
+.btn-container{
+  width: 100%;
+  justify-content: center;
+}
+
+.service-card{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-content: space-between;
+  justify-content: space-evenly;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(42, 64, 61, 0.45); 
+  z-index: 1;
+}
+
+.header-container {
+  position: relative;
+  z-index: 2;
+  padding: 12px;
+}
+
 </style>

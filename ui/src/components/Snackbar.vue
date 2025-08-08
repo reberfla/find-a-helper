@@ -41,7 +41,7 @@ const color = computed(() => {
 
     <template #actions>
       <v-btn icon variant="text" @click="visible = false">
-        <v-icon>mdi-close</v-icon>
+        <v-icon>close</v-icon>
       </v-btn>
     </template>
   </v-snackbar>

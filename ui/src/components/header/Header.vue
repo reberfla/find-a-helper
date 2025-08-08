@@ -31,6 +31,10 @@ function onLogin() {
   emit('onAuthChange')
 }
 
+function goHome() {
+  router.push('/')
+}
+
 function handleLogout() {
   logout()
   snackBar.value?.show(t('LABEL_LOGOUT_SUCCESS'), 'info')
@@ -79,8 +83,10 @@ const menuItems = [
       <v-icon>{{ drawer ? 'close' : 'menu' }}</v-icon>
     </v-btn>
 
-    <v-toolbar-title>Find A Helper</v-toolbar-title>
-    <v-spacer />
+    <v-toolbar-title class="d-flex align-center brand-link" @click="goHome">
+      <span class="font-weight-bold">Find A Helper</span>
+    </v-toolbar-title>
+
 
     <!-- Language Switch -->
     <v-menu offset-y>
@@ -164,4 +170,10 @@ const menuItems = [
   <SnackBar ref="snackBar" />
 </template>
 
-<style scoped></style>
+<style scoped>
+.brand-link {
+  user-select: none;
+  cursor: pointer;
+}
+</style>
+

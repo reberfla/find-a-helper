@@ -40,17 +40,18 @@
       </v-col>
       <v-col v-for="value in values" :key="value.title" cols="12" md="4">
         <v-card height="100%" variant="elevated" class="pa-4">
-          <v-card-item>
-            <v-icon
-              :color="value.color"
-              size="x-large"
-              class="mb-4"
-            >
-              {{ value.icon }}
-            </v-icon>
-            <v-card-title class="text-h5 mb-2">
-              {{ value.title }}
-            </v-card-title>
+          <v-card-item class="card-item">
+              <v-card-title class="card-title text-h5 mb-2">
+                <v-icon
+                  class="icon"
+                  :color="value.color"
+                >
+                  {{ value.icon }}
+                </v-icon>
+                <p>
+                  {{ value.title }}
+                </p>
+              </v-card-title>
             <v-card-text>
               {{ value.description }}
             </v-card-text>
@@ -86,19 +87,19 @@ const values = [
   {
     title: 'Vertrauen',
     description: 'Wir schaffen eine sichere Plattform, auf der sich Menschen gegenseitig vertrauen können.',
-    icon: 'mdi-shield-check',
+    icon: 'check',
     color: 'success'
   },
   {
     title: 'Gemeinschaft',
     description: 'Wir fördern den Zusammenhalt in der Nachbarschaft und schaffen neue Verbindungen.',
-    icon: 'mdi-account-group',
+    icon: 'group',
     color: 'primary'
   },
   {
     title: 'Qualität',
     description: 'Wir setzen hohe Standards für unsere Dienstleistungen und deren Vermittlung.',
-    icon: 'mdi-star',
+    icon: 'star',
     color: 'warning'
   }
 ]
@@ -130,9 +131,6 @@ const team = [
 </script>
 
 <style scoped>
-.v-container {
-  max-width: 1200px;
-}
 
 h1 {
   color: #D05663 !important;
@@ -142,6 +140,16 @@ p {
 }
 h2 {
   color: #D05663 !important;
+}
+
+.card-title{
+  display: grid;
+  grid-template-columns: 20% 1fr;
+  grid-gap: 5px;
+}
+
+.card-item{
+  height:100%;
 }
 
 

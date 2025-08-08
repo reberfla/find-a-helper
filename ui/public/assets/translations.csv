@@ -64,3 +64,35 @@ NO_OFFERS;Keine Angebote vorhanden;No offers available
 BACK;Zurück;Back
 CANCEL_BUTTON;Abbrechen;Cancel
 SAVE_BUTTON;Speichern;Save
+MEHR_ERFAHREN;Mehr Erfahren;Find out more
+LABEL_LOGOUT_SUCCESS;Abmeldung erfolgreich;User logout successful
+LABEL_LOGIN_SUCCESS;Anmeldung erfolgreich;User login successful
+LABEL_OR_CONTINUE_WITH;oder;or
+LABEL_CONFIRM;Bestätigen;Confirm
+LABEL_EMAIL;Email;Email;
+LABEL_PASSWORD;Passwort;Password
+MESSAGES;Nachrichten;Messages
+SERVICE_SHOPPING_TITLE;Einkaufen;Shopping
+SERVICE_SHOPPING_DESC;Hilfe beim Einkaufen, Besorgungen erledigen oder Rezepturen abholen.;Help with groceries, running errands, or picking up prescriptions.
+SERVICE_TRANSPORT_TITLE;Transport;Transport
+SERVICE_TRANSPORT_DESC;Gegenstände tragen, umziehen oder kurze Transporte innerhalb der Stadt.;Carrying items, moving, or short-distance city transports.
+SERVICE_CLEANING_TITLE;Reinigung;Cleaning
+SERVICE_CLEANING_DESC;Wohnung, Haus oder Büro gründlich reinigen – einmalig oder regelmäßig.;Thorough cleaning for home or office—one-off or regular.
+SERVICE_PETCARE_TITLE;Haustierbetreuung;Pet care
+SERVICE_PETCARE_DESC;Gassi gehen, füttern, Spielen oder Urlaubsbetreuung für Haustiere.;Dog walking, feeding, playtime, or vacation pet sitting.
+SERVICE_GARDENING_TITLE;Gartenarbeit;Gardening
+SERVICE_GARDENING_DESC;Rasen mähen, Hecken schneiden oder Beete pflegen – für einen gepflegten Garten.;Mowing, trimming, and bed care—for a well-kept garden.
+SERVICE_TUTORING_TITLE;Nachhilfe;Tutoring
+SERVICE_TUTORING_DESC;Unterstützung in Schul- und Ausbildungsfächern – vor Ort oder online.;Support in school subjects or training—on-site or online.
+SERVICE_TECHHELP_TITLE;Technische Hilfe;Tech help
+SERVICE_TECHHELP_DESC;PC/Handy einrichten, Software-Probleme lösen oder Smart-Home einrichten.;Set up PC/phone, fix software issues, or configure smart home.
+SERVICE_CHILDCARE_TITLE;Kinderbetreuung;Childcare
+SERVICE_CHILDCARE_DESC;Zuverlässige Betreuung, Abholen/Bringen oder flexible Unterstützung.;Reliable care, pick-up/drop-off, or flexible support.
+SERVICE_LANGUAGETANDEM_TITLE;Sprachtandem;Language tandem
+SERVICE_LANGUAGETANDEM_DESC;Gemeinsam Sprachen üben – wechselseitig helfen und sprechen.;Practice languages together—mutual help and conversation.
+SERVICE_HOMEWORK_TITLE;Hausaufgabenhilfe;Homework help
+SERVICE_HOMEWORK_DESC;Begleitung bei Aufgaben, Lernen und Prüfungsvorbereitung.;Support with assignments, study, and exam prep.
+SERVICE_REPAIRS_TITLE;Reparaturen;Repairs
+SERVICE_REPAIRS_DESC;Kleine Reparaturen, Möbel aufbauen oder Dinge instand setzen.;Small fixes, assembling furniture, or maintenance.
+SERVICE_OTHERS_TITLE;Sonstiges;Others
+SERVICE_OTHERS_DESC;Alles, was nicht in die anderen Kategorien passt – einfach anfragen.;Anything that doesn’t fit other categories—just ask.

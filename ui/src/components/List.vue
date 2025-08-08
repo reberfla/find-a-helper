@@ -40,7 +40,6 @@ function onAction(e:{name:string; id:number; item:any}) {
 
 <template>
   <v-container>
-    <h3 class="mb-4">{{ title }}</h3>
     <v-progress-linear v-if="loading" indeterminate class="mb-4" />
     <v-row dense>
       <v-col v-for="it in items" :key="adapter.getId(it)" cols="12" sm="6" md="4" lg="3" xl="3">
