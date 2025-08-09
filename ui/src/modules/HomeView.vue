@@ -1,46 +1,30 @@
 <template>
-  <v-container fluid class="pa-0">
 
-    <v-parallax
-      :src="hero"
-      height="600"
-    >
+  <v-container fluid class="pa-0">
+    <v-parallax src="/assets/images/home.jpg" height="600">
+      <div id="particles-js"></div>
       <div class="overlay"></div>
-      <div class=" header-container d-flex flex-column fill-height justify-center align-center text-white">
+      <div class="header-container d-flex flex-column fill-height justify-center align-center text-white">
         <h1 class="text-h2 font-weight-bold mb-4 text-center">
           Finden Sie den perfekten Helfer für Ihre Aufgaben
         </h1>
         <h2 class="text-h5 mb-8 text-center">
           Professionelle Unterstützung in Ihrer Nachbarschaft
         </h2>
-        <div class=" btn-container d-flex">
-          <v-btn
-            size="x-large"
-            color="#D05663"
-            class="mx-2"
-            to="/services"
-          >
+        <div class="btn-container d-flex">
+          <v-btn size="x-large" color="#D05663" class="mx-2" to="/services">
             Dienstleistungen entdecken
           </v-btn>
-          <v-btn
-            size="x-large"
-            color="#2a403D"
-            class="mx-2"
-            to="/services"
-          >
+          <v-btn size="x-large" color="#2a403D" class="mx-2" to="/services">
             Dienstleistung anbieten
           </v-btn>
-          <v-btn
-            size="x-large"
-            color="#748B6F"
-            class="mx-2"
-            to="/contact"
-          >
+          <v-btn size="x-large" color="#748B6F" class="mx-2" to="/contact">
             Kontakt aufnehmen
           </v-btn>
         </div>
       </div>
     </v-parallax>
+  </v-container>
 
     <v-container class="py-12">
       <h2 class="text-h4 mb-8 text-center">Unsere Dienstleistungen</h2>
@@ -76,17 +60,17 @@
           </v-hover>
         </v-col>
       </v-row>
-
-    </v-container>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import {computed, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {serviceCategories} from "@/data/serviceCategories.ts";
 import {useNav} from "@/utils/nav.ts";
 import { translate } from '@/service/translationService'
-import hero from '@/assets/images/greg-rosenke-CwjX0miEPGc-unsplash.jpg'
+onMounted(() => {
+  window.particlesJS?.load('particles-js', '/particles.json')
+})
 
 const t = translate
 
@@ -101,6 +85,10 @@ const viewModels = computed(() =>
   }))
 )
 
+onMounted(() => {
+  window.particlesJS?.load('particles-js', '/particles.json')
+})
+
 </script>
 
 <style scoped>
@@ -109,8 +97,26 @@ const viewModels = computed(() =>
   background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
-.header-container{
-  padding: 12px;
+#particles-js {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(42, 64, 61, 0.45);
+  z-index: 2;
+}
+
+.header-container {
+  position: relative;
+  z-index: 3;
 }
 
 .btn-container{
@@ -132,7 +138,7 @@ const viewModels = computed(() =>
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(42, 64, 61, 0.45); 
+  background: rgba(42, 64, 61, 0.45);
   z-index: 1;
 }
 
