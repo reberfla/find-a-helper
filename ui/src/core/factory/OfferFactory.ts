@@ -58,21 +58,24 @@ export class OfferFactory implements ViewFactory<Offer> {
     }
   }
 
-  getFormConfig(ctx?: OfferCtx): SubmissionFormConfig<Offer> {
-    console.log(ctx)
-    return {
-      title:` ${t('NEW_OFFER')} '${ctx?.task.title}'`,
-      getInitialData:  () => {
-        return {
+  getFormConfig(ctx?: Partial<Offer>): SubmissionFormConfig<Offer> {
+    const taskTitle = ctx?.task?.title ?? ''
+    const isEdit = !!ctx?.id && ctx.id !== 0
+      return {
+        title: isEdit
+          ? `${t('OFFER_FOR')} '${taskTitle}'`
+          : `${t('NEW_OFFER')} '${taskTitle}'`,
+
+        getInitialData: () => ({
           id: 0,
           title: '',
           text: '',
           status: 'SUBMITTED',
           userId: null,
           task: ctx?.task ?? { id: 0, title: '', description: '', category: '', imageUrl: '' },
-          createdAt: Date.now()
-        } as Offer
-      },
+          createdAt: Date.now(),
+          ...ctx,
+        }) as Offer,
       fields: [
         { key: 'title', label: t('OFFER_TITLE'), type: 'text', required: true },
         { key: 'text',  label: t('OFFER_TEXT'),  type: 'textarea', required: true },
