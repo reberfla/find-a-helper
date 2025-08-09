@@ -1,6 +1,6 @@
 package ch.abbts.config
 
-import ch.abbts.adapter.database.table.User
+import ch.abbts.adapter.database.table.UsersTable
 import com.typesafe.config.ConfigFactory
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -21,6 +21,6 @@ object DatabaseConfig {
             password = password,
         )
 
-        transaction { SchemaUtils.create(User) }
+        transaction { SchemaUtils.create(UsersTable) }
     }
 }

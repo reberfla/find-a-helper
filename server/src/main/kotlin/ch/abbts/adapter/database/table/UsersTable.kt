@@ -4,7 +4,7 @@ import ch.abbts.domain.model.AuthProvider
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.date
 
-object User : Table("users") {
+object UsersTable : Table("users") {
     val id = integer("id").autoIncrement()
     val name = varchar("name", 255)
     val email = varchar("email", 255)

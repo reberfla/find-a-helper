@@ -17,6 +17,6 @@ data class TaskPublicDto(
     val active: Boolean,
     val deadline: Long? = null,
     val taskInterval: TaskInterval,
-    val weekdays: List<Weekdays>? = listOf<Weekdays>(),
+    val weekdays: List<Weekdays> = listOf<Weekdays>(),
     val createdAt: Long,
 )

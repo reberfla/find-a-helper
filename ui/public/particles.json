@@ -1,0 +1,116 @@
+{
+  "particles": {
+    "number": {
+      "value": 5,
+      "density": {
+        "enable": true,
+        "value_area": 10
+      }
+    },
+    "color": {
+      "value": "#C0C0C0"
+    },
+    "shape": {
+      "type": "circle",
+      "stroke": {
+        "width":0.5,
+        "color": "#C0C0C0"
+      },
+      "polygon": {
+        "nb_sides": 2
+      },
+      "image": {
+        "src": "img/github.svg",
+        "width": 5,
+        "height": 5
+      }
+    },
+    "opacity": {
+      "value": 1,
+      "random": true,
+      "anim": {
+        "enable": true,
+        "speed": 1,
+        "opacity_min": 0.5,
+        "sync": true
+      }
+    },
+    "size": {
+      "value": 1,
+      "random": true,
+      "anim": {
+        "enable": true,
+        "speed": 1,
+        "size_min": 2,
+        "sync": false
+      }
+    },
+    "line_linked": {
+      "enable": true,
+      "distance": 100,
+      "color": "#C0C0C0",
+      "opacity": 1,
+      "width": 0.5
+    },
+    "move": {
+      "enable": true,
+      "speed": 1,
+      "direction": "none",
+      "random": false,
+      "straight": false,
+      "out_mode": "bounce",
+      "attract": {
+        "enable": false,
+        "rotateX": 200,
+        "rotateY": 300
+      }
+    }
+  },
+  "interactivity": {
+    "detect_on": "canvas",
+    "events": {
+      "onhover": {
+        "enable": true,
+        "mode": "grab"
+      },
+      "onclick": {
+        "enable": true,
+        "mode": "repulse"
+      },
+      "resize": true
+    },
+    "modes": {
+      "grab": {
+        "distance": 10,
+        "line_linked": {
+          "opacity": 1
+        }
+      },
+      "bubble": {
+        "distance": 90,
+        "size": 400,
+        "duration": 2,
+        "opacity": 12,
+        "speed": 3
+      },
+      "repulse": {
+        "distance": 40
+      },
+      "push": {
+        "particles_nb": 4
+      },
+      "remove": {
+        "particles_nb": 2
+      }
+    }
+  },
+  "retina_detect": true,
+  "config_demo": {
+    "hide_card": false,
+    "background_color": "#b61924",
+    "background_image": "",
+    "background_position": "50% 50%",
+    "background_repeat": "no-repeat",
+    "background_size": "cover"
+  }
+}

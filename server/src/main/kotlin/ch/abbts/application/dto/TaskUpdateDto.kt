@@ -9,13 +9,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TaskUpdateDto(
     val zipCode: String?,
-    val coordinates: String? = null,
-    val title: String? = null,
-    val description: String? = null,
-    val category: TaskCategory? = null,
-    val status: TaskStatus? = null,
-    val active: Boolean? = null,
-    val deadline: Long? = null,
-    val taskInterval: TaskInterval? = null,
-    val weekdays: List<Weekdays>? = null,
+    val coordinates: String?,
+    val title: String?,
+    val description: String?,
+    val category: TaskCategory?,
+    val status: TaskStatus?,
+    val active: Boolean?,
+    val deadline: Long?,
+    val taskInterval: TaskInterval?,
+    val weekdays: List<Weekdays>?,
 )

@@ -1,6 +1,6 @@
 package ch.abbts.adapter.database.repository
 
-import ch.abbts.adapter.database.table.User
+import ch.abbts.adapter.database.table.UsersTable
 import ch.abbts.domain.model.UserModel
 import ch.abbts.error.UpdatingIssuedTimeFailed
 import ch.abbts.error.UserCreationFailed
@@ -19,7 +19,7 @@ class UsersRepository {
     fun createUser(user: UserModel): UserModel? {
         try {
             val userModel = transaction {
-                User.insert {
+                UsersTable.insert {
                         it[email] = user.email
                         it[password_hash] =
                             BCrypt.hashpw(user.passwordHash, BCrypt.gensalt())
@@ -48,7 +48,7 @@ class UsersRepository {
     fun updateIssuedTime(email: String, timestamp: Long): Unit {
         try {
             transaction {
-                User.update({ User.email eq email }) {
+                UsersTable.update({ UsersTable.email eq email }) {
                     it[lastTokenIssued] = timestamp
                 }
             }
@@ -61,7 +61,9 @@ class UsersRepository {
         LoggerService.debugLog("fetching user for in UserRespo $email")
         return try {
             transaction {
-                val user = User.select { User.email eq email }.singleOrNull()
+                val user =
+                    UsersTable.select { UsersTable.email eq email }
+                        .singleOrNull()
                 LoggerService.debugLog(user.toString())
                 user?.toUserModel()
             }
@@ -75,22 +77,22 @@ class UsersRepository {
         log.debug("fetching user for $id")
         return try {
             transaction {
-                User.select { User.id eq id }
+                UsersTable.select { UsersTable.id eq id }
                     .singleOrNull()
                     ?.let {
                         UserModel(
-                            id = it[User.id],
-                            email = it[User.email],
-                            passwordHash = it[User.password_hash],
-                            authProvider = it[User.authProvider],
-                            birthdate = it[User.birthdate],
-                            active = it[User.active],
-                            name = it[User.name],
-                            imageUrl = it[User.imageUrl],
-                            image = it[User.image]?.bytes,
-                            zipCode = it[User.zipCode],
-                            lastTokenIssued = it[User.lastTokenIssued],
-                            lockedUntil = it[User.lockedUntil],
+                            id = it[UsersTable.id],
+                            email = it[UsersTable.email],
+                            passwordHash = it[UsersTable.password_hash],
+                            authProvider = it[UsersTable.authProvider],
+                            birthdate = it[UsersTable.birthdate],
+                            active = it[UsersTable.active],
+                            name = it[UsersTable.name],
+                            imageUrl = it[UsersTable.imageUrl],
+                            image = it[UsersTable.image]?.bytes,
+                            zipCode = it[UsersTable.zipCode],
+                            lastTokenIssued = it[UsersTable.lastTokenIssued],
+                            lockedUntil = it[UsersTable.lockedUntil],
                         )
                     }
             }
@@ -102,25 +104,25 @@ class UsersRepository {
 
     private fun ResultRow.toUserModel(): UserModel {
         return UserModel(
-            id = this[User.id],
-            email = this[User.email],
-            name = this[User.name],
-            passwordHash = this[User.password_hash],
-            zipCode = this[User.zipCode],
-            imageUrl = this[User.imageUrl],
-            image = this[User.image]?.bytes,
-            active = this[User.active],
-            authProvider = this[User.authProvider],
-            birthdate = this[User.birthdate],
-            lastTokenIssued = this[User.lastTokenIssued],
-            lockedUntil = this[User.lockedUntil],
+            id = this[UsersTable.id],
+            email = this[UsersTable.email],
+            name = this[UsersTable.name],
+            passwordHash = this[UsersTable.password_hash],
+            zipCode = this[UsersTable.zipCode],
+            imageUrl = this[UsersTable.imageUrl],
+            image = this[UsersTable.image]?.bytes,
+            active = this[UsersTable.active],
+            authProvider = this[UsersTable.authProvider],
+            birthdate = this[UsersTable.birthdate],
+            lastTokenIssued = this[UsersTable.lastTokenIssued],
+            lockedUntil = this[UsersTable.lockedUntil],
         )
     }
 
     fun updateUser(user: UserModel): UserModel? {
         return try {
             transaction {
-                User.update({ User.id eq user.id!! }) {
+                UsersTable.update({ UsersTable.id eq user.id!! }) {
                     it[email] = user.email
                     it[password_hash] =
                         BCrypt.hashpw(user.passwordHash, BCrypt.gensalt())

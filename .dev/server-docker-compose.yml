@@ -14,6 +14,11 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./init_scripts/:/docker-entrypoint-initdb.d/
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-pdev" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
 
 volumes:
   db_data:
