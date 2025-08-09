@@ -1,10 +1,10 @@
 // TaskFactory.ts
-import type { ViewFactory, CardAdapter } from './view-factory.types'
-import type { Task } from '@/models/TaskModel'
+import type {CardAction, CardAdapter, ViewFactory} from './view-factory.types'
+import {type Task, TaskCategory, TaskInterval, TaskStatus, Weekday} from '@/models/TaskModel'
 import apiService from '@/service/apiService'
-import { translate as t } from '@/service/translationService'
-import { TaskInterval, Weekday } from '@/models/TaskModel'
+import {translate as t} from '@/service/translationService'
 import {getTaskImage} from "@/service/imageService.ts";
+import type {SubmissionFormConfig} from "@/core/factory/SubmissionFormConfig.ts";
 
 type Ctx = { mine?: boolean }
 
@@ -15,13 +15,14 @@ export class TaskFactory implements ViewFactory<Task> {
   getEmptyText() { return t('NO_TASKS_FOUND') }
 
   async loadItems(ctx?: Ctx): Promise<Task[]> {
-    if (ctx?.mine && typeof apiService.getMyTasks === 'function') {
+    if (ctx?.mine) {
       return apiService.getMyTasks()
     }
     return apiService.getTasks()
   }
 
-  getAdapter(_: Ctx = {}): CardAdapter<Task> {
+  getAdapter(ctx: Ctx = {}): CardAdapter<Task> {
+    const isMine = !!ctx?.mine
     return {
       getId: x => x.id,
       getImage: x => /*x?.imageUrl ??*/ getTaskImage(x.category),
@@ -41,7 +42,59 @@ export class TaskFactory implements ViewFactory<Task> {
         return lines
       },
       getChips: () => [],
-      getActions: () => [{ name: 'open', icon: 'add', color: 'primary', visible: true }]
+      getActions: (x) => {
+        const acts: CardAction[] = []
+        acts.push({ name: 'open', icon: 'info', color: 'primary', visible: true })
+        if (isMine) {
+          acts.push({name: 'delete', icon: 'delete', color: 'error', visible: isMine})
+        } else {
+          acts.push({ name: 'addOffer', icon: 'add_circle', color: 'green', visible: true })
+        }
+        return acts
+      },
     }
   }
+
+  getFormConfig(ctx?: Partial<Task>): SubmissionFormConfig<Task> {
+    console.log(ctx)
+    return {
+      title: ctx?.title || t('NEW_TASK'),
+      getInitialData: () => ({
+        id: 0,
+        name: '',
+        email: '',
+        zipCode: '',
+        coordinates: '',
+        title: '',
+        description: '',
+        category: TaskCategory.OTHERS,
+        status: TaskStatus.OPEN,
+        active: true,
+        deadline: undefined,
+        taskInterval: TaskInterval.ONE_TIME,
+        weekdays: [],
+        createdAt: Date.now(),
+        ...ctx
+      }),
+      fields: [
+        { key: 'title', label: t('TASK_TITLE'), type: 'text', required: true },
+        { key: 'description', label: t('TASK_DESCRIPTION'), type: 'textarea', required: true },
+        { key: 'zipCode', label: t('ZIP_CODE'), type: 'text', required: true },
+        { key: 'category', label: t('CATEGORY'), type: 'select', options: Object.keys(TaskCategory).map(k => ({ value: k, text: t(k) })) },
+        { key: 'taskInterval', label: t('INTERVAL'), type: 'select', options: Object.keys(TaskInterval).map(k => ({ value: k, text: t(k) })) },
+        { key: 'weekdays', label: t('WEEKDAYS'), type: 'multiselect', options: Object.keys(Weekday).map(k => ({ value: k, text: t(k) })) },
+        { key: 'deadline', label: t('DEADLINE'), type: 'date' }
+      ],
+      save: async (task) => {
+        if (task.id) {
+          //todo implement updateTask method
+         // await apiService.updateTask(task)
+        } else {
+        //todo implenebt createTask method
+         // await apiService.createTask(task)
+        }
+      }
+    }
+  }
+
 }

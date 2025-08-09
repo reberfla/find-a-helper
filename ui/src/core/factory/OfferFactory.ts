@@ -3,11 +3,12 @@ import type { OfferModel as Offer } from '@/models/OfferModel'
 import apiService from '@/service/apiService'
 import { translate as t } from '@/service/translationService'
 import {getTaskImage} from "@/service/imageService.ts";
+import type {SubmissionFormConfig} from "@/core/factory/SubmissionFormConfig.ts";
 
 const chipColor = (s: Offer['status']) =>
   s === 'ACCEPTED' ? 'green' : s === 'REJECTED' ? 'red' : 'grey'
 
-type OfferCtx = { mine?: boolean; taskId?: number }
+type OfferCtx = { mine?: boolean; taskId?: number; task?: { id: number; title: string; description: string; category: string; imageUrl?: string } }
 
 export class OfferFactory implements ViewFactory<Offer> {
   kind: 'offer' = 'offer'
@@ -45,15 +46,10 @@ export class OfferFactory implements ViewFactory<Offer> {
         isMine ? [{ text: t(o.status), color: chipColor(o.status) }] : [],
       getActions: o => {
         const acts: CardAction[] = []
+        acts.push({ name: 'open', icon: 'info', color: 'primary', visible: true })
         if (isMine) {
-          acts.push({
-            name: 'delete',
-            icon: 'delete',
-            color: 'error',
-            visible: o.status === 'SUBMITTED'
-          })
+          acts.push({name: 'delete', icon: 'delete', color: 'error', visible: o.status != 'ACCEPTED'})
         } else {
-          acts.push({ name: 'open', icon: 'eye', color: 'primary', visible: true })
           acts.push({ name: 'accept', icon: 'check', color: 'green', visible: true })
           acts.push({ name: 'reject', icon: 'close', color: 'red', visible: true })
         }
@@ -61,4 +57,31 @@ export class OfferFactory implements ViewFactory<Offer> {
       }
     }
   }
+
+  getFormConfig(ctx?: OfferCtx): SubmissionFormConfig<Offer> {
+    console.log(ctx)
+    return {
+      title:` ${t('NEW_OFFER')} '${ctx?.task.title}'`,
+      getInitialData:  () => {
+        return {
+          id: 0,
+          title: '',
+          text: '',
+          status: 'SUBMITTED',
+          userId: null,
+          task: ctx?.task ?? { id: 0, title: '', description: '', category: '', imageUrl: '' },
+          createdAt: Date.now()
+        } as Offer
+      },
+      fields: [
+        { key: 'title', label: t('OFFER_TITLE'), type: 'text', required: true },
+        { key: 'text',  label: t('OFFER_TEXT'),  type: 'textarea', required: true },
+        { key: 'status', label: t('STATUS'), type: 'text', readonly: true }
+      ],
+      save: async (offer) => {
+          await apiService.submitOffer(offer)
+      }
+    }
+  }
+
 }

@@ -15,7 +15,6 @@ export function getLanguage(): Language {
 
 export async function loadTranslations(): Promise<void> {
   const response = await fetch('/assets/translations.csv')
-  console.log(response)
   if (!response.ok) throw new Error('CSV not found')
 
   const csvText = await response.text()
@@ -31,18 +30,13 @@ export async function loadTranslations(): Promise<void> {
     headers.forEach((header, i) => {
       row[header] = values[i] || ''
     })
-    console.log('row:', row)
-
     if (row.key) {
-      console.log('row:', row.key)
       translations.set(row.key, {
         de: row.de || '',
         en: row.en || '',
       })
     }
   }
-
-  console.log('Translations loaded:', translations)
 }
 
 export function translate(key: string): string {

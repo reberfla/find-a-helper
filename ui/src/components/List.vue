@@ -16,7 +16,9 @@ const adapter = ref(factory.getAdapter(props.context))
 
 async function load() {
   loading.value = true
-  try { items.value = await factory.loadItems(props.context) }
+  try {
+    items.value = await factory.loadItems(props.context)
+  }
   finally { loading.value = false }
 }
 
@@ -29,12 +31,13 @@ watch(() => props.context, () => {
 
 onMounted(load)
 
-const emit = defineEmits<{ (e:'accept',id:number):void; (e:'reject',id:number):void; (e:'delete',id:number):void; (e:'open',p:any):void }>()
+const emit = defineEmits<{ (e:'accept',id:number):void; (e:'reject',id:number):void; (e:'delete',id:number):void; (e:'open',p:any):void; (e:'addOffer',p:any):void }>()
 function onAction(e:{name:string; id:number; item:any}) {
   if (e.name === 'open') emit('open', e.item)
-  else if (e.name === 'accept') emit('accept', e.id)
-  else if (e.name === 'reject') emit('reject', e.id)
+  else if (e.name === 'accept') emit('accept', e.item)
+  else if (e.name === 'reject') emit('reject', e.item)
   else if (e.name === 'delete') emit('delete', e.id)
+  else if (e.name === 'addOffer') emit('addOffer', e.item)
 }
 </script>
 
