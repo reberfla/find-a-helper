@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { translate } from '@/service/translationService.js'
-import UserProfilView from '@/modules/user/UserProfilView.vue'
-import BackHeader from '@/components/header/BackHeader.vue'
-import MyOffers from '@/modules/offer/MyOffers.vue'
+
+import {ref, onMounted, computed, watch} from 'vue'
+import {translate} from "@/service/translationService.js";
+import UserProfilView from "@/modules/user/UserProfilView.vue";
+import BackHeader from "@/components/header/BackHeader.vue";
+import MyOffers from "@/modules/offer/MyOffers.vue";
+import MyTasksWithOffers from "@/modules/task/MyTasksWithOffers.vue";
+import router from "@/router";
+import {useAuth} from "@/service/userAuthService.ts";
 
 const t = translate
 const tab = ref('data')
 const hasNewMessages = ref(false)
+const { isLoggedIn } = useAuth()
 
 const menuItems = [
   { value: 'data', label: 'PROFILE_DATA' },
@@ -33,6 +38,11 @@ onMounted(async () => {
   const response = await fetch('/api/chat/has-new')
   hasNewMessages.value = await response.json()
 })
+
+watch(isLoggedIn, (val) => {
+  if (!val) router.push('/')
+}, { immediate: true })
+
 </script>
 
 <template>

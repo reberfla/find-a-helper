@@ -82,7 +82,8 @@ export default {
   },
 
   async updateUser(data: any) {
-    return putJSON(`${BASE_URL}/v1/user/${data.id}`, data)
+    const token = useAuth().getCurrentUser()?.token ?? data.token
+    return putJSON(`${BASE_URL}/v1/user/${token}`, data);
   },
 
   async getUser(token: string) {

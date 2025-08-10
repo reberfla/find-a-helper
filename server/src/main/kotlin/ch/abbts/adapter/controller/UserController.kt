@@ -41,7 +41,6 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                 When creating, a new user id is given by an integer counter of the db"""",
             )
             post("/register") {
-                LoggerService.debugLog("here")
                 try {
                     val dto = call.receive<AuthenticationDto>()
                     LoggerService.debugLog("DTO OK: $dto")
@@ -109,7 +108,7 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                             authProvider = user.authProvider,
                             idToken = token,
                             imgBase64 =
-                                updateUser.imgBase64 ?: user.image.toString(),
+                                updateUser.imgBase64,
                         )
 
                     val updatedUserDto =
