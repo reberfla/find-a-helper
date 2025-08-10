@@ -12,6 +12,8 @@ class TaskQueryParams(params: Parameters) {
     var category = mutableSetOf<TaskCategory>()
     var interval = mutableSetOf<TaskInterval>()
     var status = mutableSetOf<TaskStatus>()
+    var q: String? = null
+    var zip: String? = null
 
     companion object : Log() {}
 
@@ -42,6 +44,8 @@ class TaskQueryParams(params: Parameters) {
                             throw InvalidQueryParamValue(key, it)
                         }
                     }
+                "q"   -> { q = value.firstOrNull()?.trim()?.ifBlank { null } }
+                "zip" -> { zip = value.firstOrNull()?.trim()?.ifBlank { null } }
                 else -> {
                     log.debug(
                         "unsupported param in request: ${key.lowercase()}"
@@ -53,6 +57,7 @@ class TaskQueryParams(params: Parameters) {
     }
 
     override fun toString(): String {
-        return "category: $category, interval: $interval, status: $status"
+        return "category: $category, interval: $interval, status: $status, q: $q, zip: $zip"
     }
+
 }

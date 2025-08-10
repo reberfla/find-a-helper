@@ -7,7 +7,7 @@ import {getTaskImage} from "@/service/imageService.ts";
 import type {SubmissionFormConfig} from "@/core/factory/SubmissionFormConfig.ts";
 import {useAuth} from "@/service/userAuthService.ts";
 
-type Ctx = { mine?: boolean }
+type Ctx = { mine?: boolean; q?: string; category?: string; zip?: string }
 type TaskWithCanOffer = Task & { canOffer?: boolean }
 
 export class TaskFactory implements ViewFactory<Task> {
@@ -19,13 +19,23 @@ export class TaskFactory implements ViewFactory<Task> {
   async loadItems(ctx?: Ctx): Promise<TaskWithCanOffer[]> {
     const auth = useAuth()
     const myId = auth.getCurrentUserId()
+
+    const params: Record<string, any> = {}
+    if (ctx?.q) params.q = ctx.q
+    if (ctx?.category) params.category = ctx.category
+    if (ctx?.zip) params.zip = ctx.zip
+
     const tasks: TaskWithCanOffer[] = ctx?.mine
       ? await apiService.getMyTasks()
-      : await apiService.getTasks()
+      : await apiService.getTasks(params)
 
+    let offeredIds = new Set<number>()
+    if (myId) {
+      const myOffers = await apiService.getMyOffers() as any
+      offeredIds = new Set(myOffers.map((o: any) => o.taskId))
+    }
     for (const task of tasks) {
-      const offers = await apiService.getOffersForTask(task.id) as any
-      task.canOffer = !offers.some((o:any) => o.userId === myId)
+      task.canOffer = myId ? !offeredIds.has(task.id) : true
     }
     return tasks
   }

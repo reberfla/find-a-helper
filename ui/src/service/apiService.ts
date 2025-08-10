@@ -64,6 +64,24 @@ async function deleteJSON<T>(url: string): Promise<T> {
   return await response.json()
 }
 
+export type TaskQuery = {
+  q?: string;
+  category?: string;
+  zip?: string;
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
+function qs(params: Record<string, any> = {}) {
+  const u = new URLSearchParams()
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== '') u.append(k, String(v))
+  })
+  const s = u.toString()
+  return s ? `?${s}` : ''
+}
+
 export default {
   // Public API
   async getAuftrags(lat: string, lng: string) {
@@ -127,8 +145,9 @@ export default {
 
 
   // Tasks
-  async getTasks() {
-    return getJSON<Task[]>(`${BASE_URL}/v1/task`)
+  async getTasks(params?: TaskQuery) {
+    console.log(params)
+    return getJSON<Task[]>(`${BASE_URL}/v1/task${qs(params)}`)
   },
 
   //todo => implement backend

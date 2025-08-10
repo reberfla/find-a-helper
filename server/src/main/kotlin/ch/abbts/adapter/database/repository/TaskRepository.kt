@@ -7,19 +7,13 @@ import ch.abbts.domain.model.TaskModel
 import ch.abbts.domain.model.Weekdays
 import ch.abbts.error.TaskNotFound
 import ch.abbts.error.TaskOfOtherUser
+import ch.abbts.utils.LoggerService
 import ch.abbts.utils.logger
 import java.time.Instant
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 
 class TaskRepository {
     val log = logger()
@@ -48,26 +42,40 @@ class TaskRepository {
         return transaction { TasksTable.selectAll().map { it.toModel() } }
     }
 
+
     fun getTasks(queryParams: TaskQueryParams): List<TaskModel>? {
-        val query =
-            Op.build {
-                listOfNotNull(
-                        queryParams.category
-                            .takeIf { it.isNotEmpty() }
-                            ?.let {
-                                (TasksTable.category inList it) as Op<Boolean>
-                            },
-                        queryParams.status
-                            .takeIf { it.isNotEmpty() }
-                            ?.let { TasksTable.status inList it },
-                        queryParams.interval
-                            .takeIf { it.isNotEmpty() }
-                            ?.let { TasksTable.taskInterval inList it },
-                    )
-                    .reduceOrNull { acc, op -> acc and op } ?: Op.TRUE
+        LoggerService.debugLog(queryParams)
+        val query = Op.build {
+            val parts = mutableListOf<Op<Boolean>>()
+
+            if (queryParams.category.isNotEmpty()) {
+                parts += (TasksTable.category inList queryParams.category)
             }
-        return transaction { TasksTable.select { query }.map { it.toModel() } }
+            if (queryParams.status.isNotEmpty()) {
+                parts += (TasksTable.status inList queryParams.status)
+            }
+            if (queryParams.interval.isNotEmpty()) {
+                parts += (TasksTable.taskInterval inList queryParams.interval)
+            }
+
+            queryParams.q?.takeIf { it.isNotBlank() }?.let { q ->
+                val like = "%${q.replace("%", "\\%").replace("_", "\\_")}%"
+                parts += ((TasksTable.title like like) or (TasksTable.description like like))
+            }
+
+            queryParams.zip?.takeIf { it.isNotBlank() }?.let { z ->
+                parts += (TasksTable.zipCode like "${z}%")
+            }
+
+            parts.reduceOrNull { acc, op -> acc and op } ?: Op.TRUE
+        }
+
+        return transaction {
+            TasksTable.select { query }
+                .map { it.toModel() }
+        }
     }
+
 
     fun getTaskById(taskId: Int): TaskModel {
         return transaction {
