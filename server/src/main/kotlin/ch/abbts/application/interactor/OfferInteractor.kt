@@ -6,6 +6,7 @@ import ch.abbts.application.dto.OfferDto
 import ch.abbts.domain.model.OfferStatus
 import ch.abbts.error.*
 import ch.abbts.utils.Log
+import ch.abbts.utils.LoggerService
 
 class OfferInteractor(
     private val offerRepo: OfferRepository,
@@ -48,11 +49,13 @@ class OfferInteractor(
     fun deleteOffer(userId: Int, offerId: Int): Boolean {
         val offer = offerRepo.getOfferById(offerId)
 
+        LoggerService.debugLog(offer.toString())
+
         if (offer?.userId != userId) {
             throw OfferForbidden()
         }
 
-        if (offer.status != ch.abbts.domain.model.OfferStatus.SUBMITTED) {
+        if (offer.status == ch.abbts.domain.model.OfferStatus.SUBMITTED) {
             throw OfferForbidden()
         }
 

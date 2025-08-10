@@ -5,8 +5,10 @@ import apiService from '@/service/apiService'
 import {translate as t} from '@/service/translationService'
 import {getTaskImage} from "@/service/imageService.ts";
 import type {SubmissionFormConfig} from "@/core/factory/SubmissionFormConfig.ts";
+import {useAuth} from "@/service/userAuthService.ts";
 
 type Ctx = { mine?: boolean }
+type TaskWithCanOffer = Task & { canOffer?: boolean }
 
 export class TaskFactory implements ViewFactory<Task> {
   kind: 'task' = 'task'
@@ -14,14 +16,21 @@ export class TaskFactory implements ViewFactory<Task> {
   getTitle(ctx?: Ctx) { return ctx?.mine ? t('MY_TASKS') : t('TASKS') }
   getEmptyText() { return t('NO_TASKS_FOUND') }
 
-  async loadItems(ctx?: Ctx): Promise<Task[]> {
-    if (ctx?.mine) {
-      return apiService.getMyTasks()
+  async loadItems(ctx?: Ctx): Promise<TaskWithCanOffer[]> {
+    const auth = useAuth()
+    const myId = auth.getCurrentUserId()
+    const tasks: TaskWithCanOffer[] = ctx?.mine
+      ? await apiService.getMyTasks()
+      : await apiService.getTasks()
+
+    for (const task of tasks) {
+      const offers = await apiService.getOffersForTask(task.id) as any
+      task.canOffer = !offers.some((o:any) => o.userId === myId)
     }
-    return apiService.getTasks()
+    return tasks
   }
 
-  getAdapter(ctx: Ctx = {}): CardAdapter<Task> {
+  getAdapter(ctx: Ctx = {}): CardAdapter<TaskWithCanOffer> {
     const isMine = !!ctx?.mine
     return {
       getId: x => x.id,
@@ -43,15 +52,22 @@ export class TaskFactory implements ViewFactory<Task> {
       },
       getChips: () => [],
       getActions: (x) => {
-        const acts: CardAction[] = []
-        acts.push({ name: 'open', icon: 'info', color: 'primary', visible: true })
+        console.log(x)
+        const acts: CardAction[] = [{ name: 'open', icon: 'info', color: 'primary', visible: true }]
         if (isMine) {
-          acts.push({name: 'delete', icon: 'delete', color: 'error', visible: isMine})
-        } else {
+          acts.push({ name: 'delete', icon: 'delete', color: 'error', visible: true })
+          if (!x.canOffer) {
+            acts.push({ name: 'submitted', icon: 'check_circle', color: 'green', visible: true })
+          }
+        } else if (x.canOffer) {
           acts.push({ name: 'addOffer', icon: 'add_circle', color: 'green', visible: true })
+        } else {
+          acts.push({ name: 'submitted', icon: 'check_circle', color: 'green', visible: true })
         }
+        console.log(acts)
         return acts
-      },
+      }
+
     }
   }
 

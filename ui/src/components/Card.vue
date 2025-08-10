@@ -13,7 +13,11 @@ const actions = computed<CardAction[]>(() => {
   const list = props.adapter.getActions?.(props.item) ?? []
   return list.filter(Boolean).map((a: any) => ({ visible: true, ...a }))
 })
-function onAction(name: string) { emit('action', { name, id: props.adapter.getId(props.item), item: props.item }) }
+async function onAction(name: string) {
+  console.log(name)
+  emit('action', { name, id: props.adapter.getId(props.item), item: props.item })
+}
+
 
 </script>
 

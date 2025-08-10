@@ -4,7 +4,7 @@ export interface SubmissionFormConfig<T> {
   fields: {
     key: keyof T | string
     label: string
-    type: 'text' | 'textarea' | 'select' | 'date' | 'image'
+    type: 'text' | 'textarea' | 'select' | 'date' | 'image' |'multiselect'
     readonly?: boolean
     options?: any[],
     required?:boolean

@@ -5,6 +5,9 @@ import { TaskFactory } from '@/core/factory/TaskFactory'
 import List from '@/components/List.vue'
 import SubmissionForm from "@/components/SubmissionForm.vue";
 import {OfferFactory} from "@/core/factory/OfferFactory.ts";
+import type {Task} from "@/models/TaskModel.ts";
+import SnackBar from "@/components/Snackbar.vue";
+import {translate} from "@/service/translationService.ts";
 
 const offerDialog = ref(false)
 const offerConfig = ref()
@@ -16,6 +19,9 @@ const taskContext = ref(null)
 
 provide(ViewFactoryToken, new TaskFactory())
 
+const snackBar = ref<InstanceType<typeof SnackBar> | null>(null)
+const t = translate
+
 function openTask(task: any) {
   taskContext.value = task
   taskConfig.value = new TaskFactory().getFormConfig(task)
@@ -24,9 +30,8 @@ function openTask(task: any) {
 }
 
 function newOffer(task: any) {
-  offerContext.value = { task }
+  offerContext.value = task
   offerConfig.value = new OfferFactory().getFormConfig({
-    taskId: task.id,
     task: task
   })
   readonlyForm.value = false
@@ -41,10 +46,14 @@ function handleAddOffer(offer: any) {
   //todo implement add-logik
 }
 
+function onSubmitted(task:Task){
+  snackBar.value?.show(t('ERROR_OFFER_EXISTS'))
+}
+
 </script>
 
 <template>
-  <List @addOffer="newOffer" @open="openTask" />
+  <List @addOffer="newOffer" @open="openTask" @submitted="onSubmitted"/>
 
   <v-dialog v-model="taskDialog" max-width="600">
     <SubmissionForm
@@ -67,5 +76,5 @@ function handleAddOffer(offer: any) {
       @save="handleAddOffer"
     />
   </v-dialog>
-
+  <SnackBar ref="snackBar" />
 </template>
