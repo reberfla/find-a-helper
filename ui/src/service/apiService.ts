@@ -53,6 +53,17 @@ async function putJSON<T>(url: string, data: any): Promise<T> {
   return await response.json()
 }
 
+async function deleteJSON<T>(url: string): Promise<T> {
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: buildHeaders(),
+  })
+  if (!response.ok) {
+    throw response
+  }
+  return await response.json()
+}
+
 export default {
   // Public API
   async getAuftrags(lat: string, lng: string) {
@@ -111,7 +122,7 @@ export default {
   },
 
   async deleteOffer(offerId: number) {
-    return getJSON(`${BASE_URL}/v1/offer/${offerId}`)
+    return deleteJSON(`${BASE_URL}/v1/offer/${offerId}`)
   },
 
 

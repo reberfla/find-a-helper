@@ -1,4 +1,4 @@
-export type ActionName = 'open' | 'accept' | 'reject' | 'delete' | 'addOffer'
+export type ActionName = 'open' | 'accept' | 'reject' | 'delete' | 'addOffer' | 'submitted'
 
 export interface CardAction {
   name: ActionName
