@@ -94,15 +94,17 @@ function onImageSelected(event: Event) {
 
 async function saveChanges() {
   changedFields.value.id = user.value.id
-  const currentToken = getCurrentUser()?.token
-  const payload = {
-    token: currentToken,
-    ...toRaw(changedFields.value),
+
+  const { id, token, imageUrl, authenticationProvider, ...rest } = toRaw(changedFields.value)
+
+  if (rest.zipCode !== undefined && rest.zipCode !== null) {
+    rest.zipCode = Number(rest.zipCode)
+  } else {
+    delete rest.zipCode
   }
-  console.log('🔄 Payload being sent:', payload)
 
   apiService
-    .updateUser(payload)
+    .updateUser(rest)
     .then(async (res: any) => {
       editMode.value = false
       snackBar.value?.show(t('SAVE_SUCESS'), 'info')
