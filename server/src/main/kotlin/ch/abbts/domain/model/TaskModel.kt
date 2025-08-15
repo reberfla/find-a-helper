@@ -42,6 +42,7 @@ data class TaskModel(
             name,
             email,
             zipCode,
+            coordinates,
             title,
             description,
             category,

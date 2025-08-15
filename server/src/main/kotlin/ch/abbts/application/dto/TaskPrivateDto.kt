@@ -12,6 +12,7 @@ data class TaskPrivateDto(
     val name: String,
     val email: String,
     val zipCode: String,
+    val coordinates: String,
     val title: String,
     val description: String,
     val category: TaskCategory,
