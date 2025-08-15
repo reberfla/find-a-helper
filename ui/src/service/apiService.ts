@@ -1,6 +1,7 @@
 import {useAuth} from "@/service/userAuthService.ts";
 import type { Task } from '@/models/TaskModel.ts'
-const BASE_URL = 'http://localhost:8080'
+
+export const BASE_URL = 'http://localhost:8080'
 
 function getToken(): string | null {
   const user = localStorage.getItem('user')
@@ -18,7 +19,7 @@ function buildHeaders(): HeadersInit {
   return headers
 }
 
-async function getJSON<T>(url: string): Promise<T> {
+export async function getJSON<T>(url: string): Promise<T> {
   const response = await fetch(url, {
     method: 'GET',
     headers: buildHeaders(),
@@ -29,7 +30,7 @@ async function getJSON<T>(url: string): Promise<T> {
   return await response.json()
 }
 
-async function postJSON<T>(url: string, data: any): Promise<T> {
+export async function postJSON<T>(url: string, data: any): Promise<T> {
   const response = await fetch(url, {
     method: 'POST',
     headers: buildHeaders(),
@@ -41,7 +42,7 @@ async function postJSON<T>(url: string, data: any): Promise<T> {
   return await response.json()
 }
 
-async function putJSON<T>(url: string, data: any): Promise<T> {
+export async function putJSON<T>(url: string, data: any): Promise<T> {
   const response = await fetch(url, {
     method: 'PUT',
     headers: buildHeaders(),
