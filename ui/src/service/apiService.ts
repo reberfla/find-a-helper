@@ -1,5 +1,6 @@
 import type { Task } from '@/models/TaskModel.ts'
-const BASE_URL = 'http://localhost:8080'
+
+export const BASE_URL = 'http://localhost:8080'
 
 function getToken(): string | null {
   const user = localStorage.getItem('user')
@@ -17,7 +18,7 @@ function buildHeaders(): HeadersInit {
   return headers
 }
 
-async function getJSON<T>(url: string): Promise<T> {
+export async function getJSON<T>(url: string): Promise<T> {
   const response = await fetch(url, {
     method: 'GET',
     headers: buildHeaders(),
@@ -28,7 +29,7 @@ async function getJSON<T>(url: string): Promise<T> {
   return await response.json()
 }
 
-async function postJSON<T>(url: string, data: any): Promise<T> {
+export async function postJSON<T>(url: string, data: any): Promise<T> {
   const response = await fetch(url, {
     method: 'POST',
     headers: buildHeaders(),
@@ -40,11 +41,22 @@ async function postJSON<T>(url: string, data: any): Promise<T> {
   return await response.json()
 }
 
-async function putJSON<T>(url: string, data: any): Promise<T> {
+export async function putJSON<T>(url: string, data: any): Promise<T> {
   const response = await fetch(url, {
     method: 'PUT',
     headers: buildHeaders(),
     body: JSON.stringify(data),
+  })
+  if (!response.ok) {
+    throw response
+  }
+  return await response.json()
+}
+
+export async function deleteRequest(url: string): Promise<{ message: string }> {
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: buildHeaders(),
   })
   if (!response.ok) {
     throw response
@@ -82,10 +94,5 @@ export default {
 
   async getUser(token: string) {
     return getJSON(`${BASE_URL}/v1/user/${token}`)
-  },
-
-  // Tasks
-  async getTasks() {
-    return getJSON<Task[]>(`${BASE_URL}/v1/task`)
   },
 }
