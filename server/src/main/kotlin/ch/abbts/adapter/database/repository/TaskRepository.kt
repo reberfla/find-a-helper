@@ -38,6 +38,7 @@ class TaskRepository {
                 it[TasksTable.active] = task.active
                 it[TasksTable.deadline] = task.deadline
                 it[TasksTable.taskInterval] = task.taskInterval
+                it[TasksTable.weekdays] = Json.encodeToString(task.weekdays)
                 it[TasksTable.createdAt] = timeStamp
             } get TasksTable.id
         }
