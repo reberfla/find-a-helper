@@ -5,7 +5,6 @@ import ch.abbts.application.dto.AuthenticationDto
 import ch.abbts.application.dto.UserDto
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.AuthProvider
-import ch.abbts.domain.model.UserModel
 import ch.abbts.error.UserNotFound
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
