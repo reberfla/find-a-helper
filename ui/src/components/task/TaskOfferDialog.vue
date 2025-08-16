@@ -23,7 +23,7 @@ const emit = defineEmits(['close-offer', 'send-offer'])
 </script>
 <template>
   <v-card>
-    <template v-slot:title> Angebot für Aufgabe: {{ props.task.title }} </template>
+    <template v-slot:title> Angebot für Aufgabe: {{ props.task.title }}</template>
     <template v-slot:text>
       <div><strong>Aufgabenbeschreibung: </strong>{{ task.description }}</div>
       <div class="mt-2">
@@ -42,13 +42,8 @@ const emit = defineEmits(['close-offer', 'send-offer'])
       </div>
     </template>
     <template v-slot:actions>
-      <v-btn @click="() => console.log(offer)">Log</v-btn>
-      <v-btn @click="$emit('send-offer', offer.value)">
-        {{ t('SEND_OFFER') }}
-      </v-btn>
-      <v-btn @click="$emit('close-offer')">
-        {{ t('CANCEL') }}
-      </v-btn>
+      <v-btn @click="$emit('send-offer', offer.value)"> Angebot senden </v-btn>
+      <v-btn @click="$emit('close-offer')"> Schliessen </v-btn>
     </template>
   </v-card>
 </template>

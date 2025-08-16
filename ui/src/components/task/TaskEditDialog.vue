@@ -31,9 +31,11 @@ const updateTask = computed(() => {
 })
 
 const props = defineProps<{
-  task: Task | undefined
+  task: Task
   update: boolean
 }>()
+
+const date = ref(props.task.deadline ? new Date(props.task.deadline * 1000) : undefined)
 
 onMounted(() => {
   if (props.task) {
@@ -89,6 +91,26 @@ defineEmits(['close', 'delete'])
           density="compact"
           variant="outlined"
         ></v-select>
+        <v-date-input
+          label="Deadline"
+          name="asdf"
+          v-model="date"
+          density="compact"
+          variant="outlined"
+          prepend-icon=""
+          clearable
+          @update:modelValue="
+            () => {
+              editTask.deadline = Math.floor(date!.getTime() / 1000)
+            }
+          "
+          @click:clear="
+            () => {
+              editTask.deadline = null
+            }
+          "
+        >
+        </v-date-input>
         <v-select
           name="interval"
           label="Aufgaben wiederholung"
@@ -112,7 +134,6 @@ defineEmits(['close', 'delete'])
             selected-class="day-active"
           ></v-chip>
         </v-chip-group>
-        <v-date-input name="deadline" label="Deadline" v-model="editTask.deadline"></v-date-input>
       </v-form>
     </template>
     <template v-slot:actions>
@@ -125,8 +146,8 @@ defineEmits(['close', 'delete'])
             this.$router.push({ path: '/tasks/my' })
           }
         "
-        >Speichern</v-btn
-      >
+        >Speichern
+      </v-btn>
       <v-btn
         v-if="update"
         @click="

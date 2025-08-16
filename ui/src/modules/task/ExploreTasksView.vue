@@ -66,9 +66,9 @@ onMounted(() => loadTasks())
 </script>
 <template>
   <v-dialog v-model="createTaskDialog" max-width="800">
-    <TaskEditDialog :task="undefined" @close="createTaskDialog = false" :update="false" />
+    <TaskEditDialog :task="{} as Task" @close="createTaskDialog = false" :update="false" />
   </v-dialog>
-  <v-dialog v-model="offerDialog">
+  <v-dialog v-model="offerDialog" max-width="800">
     <TaskOfferDialog :task="selectedTask" @close-offer="offerDialog = false" />
   </v-dialog>
   <div class="d-flex w-100 align-top">
