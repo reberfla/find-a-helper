@@ -116,7 +116,17 @@ defineEmits(['close', 'delete'])
       </v-form>
     </template>
     <template v-slot:actions>
-      <v-btn v-if="!update" @click="taskService.createTask(editTask)">Speichern</v-btn>
+      <v-btn
+        v-if="!update"
+        @click="
+          () => {
+            taskService.createTask(editTask)
+            $emit('close')
+            this.$router.push({ path: '/tasks/my' })
+          }
+        "
+        >Speichern</v-btn
+      >
       <v-btn
         v-if="update"
         @click="
