@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, shallowRef } from 'vue'
+import { computed, onMounted, ref, shallowRef } from 'vue'
 import TaskOfferDialog from '@/components/task/TaskOfferDialog.vue'
 import TaskCard from '@/components/task/TaskCard.vue'
 import taskService from '@/service/TaskService.ts'
@@ -28,18 +28,18 @@ async function filterTasks(isOpen: boolean) {
   }
 }
 
-function searchTask() {
+const displayTasks = computed(() => {
   if (searchTerm.value.length > 0) {
-    tasks.value = tasks.value.filter((task: Task) => {
+    return tasks.value.filter((task) => {
       return (
         task.title.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
         task.description.toLowerCase().includes(searchTerm.value.toLowerCase())
       )
     })
   } else {
-    loadTasks()
+    return tasks.value
   }
-}
+})
 
 function openOffer(task: Task) {
   selectedTask.value = task
@@ -61,7 +61,6 @@ onMounted(() => loadTasks())
       v-model="searchTerm"
       placeholder="Suchen"
       variant="outlined"
-      @keydown="searchTask"
     ></v-text-field>
     <v-select
       title="Kategorie"
@@ -87,12 +86,12 @@ onMounted(() => loadTasks())
       @update:menu="filterTasks"
     ></v-select>
     <v-btn @click="() => (createTaskDialog = true)" :color="green.darken2" class="mx-auto"
-      >Aufgabe erstellen</v-btn
-    >
+      >Aufgabe erstellen
+    </v-btn>
   </div>
   <div class="d-flex flex-wrap justify-space-evenly">
     <TaskCard
-      v-for="task in tasks"
+      v-for="task in displayTasks"
       class="task"
       v-bind:key="task.id"
       :task="task"
