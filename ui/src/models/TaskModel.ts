@@ -9,7 +9,7 @@ export interface Task {
   category: TaskCategory
   status: TaskStatus
   active: boolean
-  deadline?: number
+  deadline?: number | null
   taskInterval: TaskInterval
   weekdays: Weekday[]
   createdAt: number

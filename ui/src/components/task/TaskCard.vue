@@ -47,11 +47,17 @@ const emit = defineEmits(['open-offer', 'edit-task', 'delete-task'])
           <strong>Aktiv: </strong><span v-if="task.active">Ja</span><span v-else>Nein</span>
         </div>
         <div>
-          <strong>Erstellt am: </strong> {{ new Date(task.createdAt).toLocaleDateString() }}
+          <strong>Erstellt am: </strong> {{ new Date(task.createdAt * 1000).toLocaleDateString() }}
         </div>
       </template>
 
       <div><strong>Kategorie: </strong>{{ categoryMap.get(task.category) }}</div>
+      <div>
+        <strong>Zu erledigen bis: </strong
+        >{{
+          task.deadline ? new Date(task.deadline * 1000).toLocaleDateString() : 'nicht angegeben'
+        }}
+      </div>
       <div><strong>Wiederholung: </strong>{{ intervalMap.get(task.taskInterval) }}</div>
       <div v-if="task.taskInterval == TaskInterval.RECURRING">
         <strong>Wochentage:</strong>
