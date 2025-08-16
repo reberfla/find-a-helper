@@ -127,7 +127,7 @@ defineEmits(['close', 'delete'])
         "
         >Speichern
       </v-btn>
-      <v-btn @click="$emit('close')">schliessen</v-btn>
+      <v-btn @click="$emit('close')">Abbrechen</v-btn>
     </template>
   </v-card>
 </template>
