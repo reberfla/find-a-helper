@@ -14,6 +14,11 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./init_scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   server:
     build:
@@ -25,7 +30,8 @@ services:
     environment:
       - KTOR_ENV=prod
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:

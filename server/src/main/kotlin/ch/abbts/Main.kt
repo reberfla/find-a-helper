@@ -1,8 +1,12 @@
 package ch.abbts
 
+import ch.abbts.adapter.database.repository.OfferRepository
+import ch.abbts.adapter.database.repository.TaskRepository
 import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.adapter.routes.configureOpenApi
 import ch.abbts.adapter.routes.configureRouting
+import ch.abbts.application.interactor.OfferInteractor
+import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.config.DatabaseConfig
 import io.github.tabilzad.ktor.annotations.GenerateOpenApi
@@ -41,7 +45,9 @@ fun Application.main() {
     DatabaseConfig.init()
 
     val userInteractor = UserInteractor(UsersRepository())
+    val offerInteractor = OfferInteractor(OfferRepository(), TaskRepository())
+    val taskInteractor = TaskInteractor(TaskRepository(), UsersRepository())
 
-    configureRouting(userInteractor)
+    configureRouting(userInteractor, offerInteractor, taskInteractor)
     configureOpenApi()
 }

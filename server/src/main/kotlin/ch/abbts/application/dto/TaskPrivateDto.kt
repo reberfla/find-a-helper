@@ -12,7 +12,6 @@ data class TaskPrivateDto(
     val name: String,
     val email: String,
     val zipCode: String,
-    val coordinates: String,
     val title: String,
     val description: String,
     val category: TaskCategory,
@@ -20,6 +19,6 @@ data class TaskPrivateDto(
     val active: Boolean,
     val deadline: Long? = null,
     val taskInterval: TaskInterval,
-    val weekdays: List<Weekdays>? = listOf<Weekdays>(),
+    val weekdays: List<Weekdays> = listOf<Weekdays>(),
     val createdAt: Long,
 )

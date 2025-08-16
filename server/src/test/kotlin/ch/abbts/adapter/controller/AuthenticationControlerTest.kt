@@ -58,7 +58,7 @@ class AuthenticationTest() {
         assertEquals(HttpStatusCode.OK, response.status)
         val responseBody =
             Json.parseToJsonElement(response.bodyAsText()).jsonObject
-        assert(responseBody.containsKey("token"))
+        assert(responseBody.containsKey("JWT"))
 
         val userNotExisting =
             AuthenticationDto(

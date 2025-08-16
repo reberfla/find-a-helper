@@ -4,6 +4,7 @@ import ch.abbts.adapter.database.table.TasksTable
 import ch.abbts.application.dto.TaskQueryParams
 import ch.abbts.application.dto.TaskUpdateDto
 import ch.abbts.domain.model.TaskModel
+import ch.abbts.domain.model.Weekdays
 import ch.abbts.error.TaskNotFound
 import ch.abbts.error.TaskOfOtherUser
 import ch.abbts.utils.logger
@@ -133,7 +134,8 @@ class TaskRepository {
             taskInterval = this[TasksTable.taskInterval],
             deadline = this[TasksTable.deadline],
             weekdays =
-                this[TasksTable.weekdays]?.let { Json.decodeFromString(it) },
+                this[TasksTable.weekdays]?.let { Json.decodeFromString(it) }
+                    ?: listOf<Weekdays>(),
             createdAt = this[TasksTable.createdAt],
         )
     }

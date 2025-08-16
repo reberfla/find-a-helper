@@ -127,6 +127,14 @@ class JWebToken(email: String, id: Int) {
             val body = json.decodeFromString<JWebTokenBody>(decodedBody)
             return body.email
         }
+
+        fun getUserIdFromToken(token: String): Int {
+            val tokenBody = token.split(".")[1]
+            return Json.decodeFromString<JWebTokenBody>(
+                    b64Decoder.decode(tokenBody).decodeToString()
+                )
+                .id
+        }
     }
 
     @Serializable
