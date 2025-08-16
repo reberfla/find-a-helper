@@ -99,7 +99,7 @@ class TaskRepository {
                 it[TasksTable.category] = task.category ?: existingTask.category
                 it[TasksTable.status] = task.status ?: existingTask.status
                 it[TasksTable.active] = task.active ?: existingTask.active
-                it[TasksTable.deadline] = task.deadline ?: existingTask.deadline
+                it[TasksTable.deadline] = task.deadline
                 it[TasksTable.taskInterval] =
                     task.taskInterval ?: existingTask.taskInterval
                 it[TasksTable.weekdays] =
