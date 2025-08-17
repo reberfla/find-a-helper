@@ -107,29 +107,29 @@ export const weekdayMap = new Map<Weekday, string>([
 export function getIconOfCategory(category: TaskCategory): string {
   switch (category) {
     case TaskCategory.SHOPPING:
-      return 'mdi-cart'
+      return 'shopping_basket'
     case TaskCategory.TRANSPORT:
-      return 'mdi-train-car'
+      return 'local_shipping'
     case TaskCategory.CLEANING:
-      return 'mdi-vacuum'
+      return 'cleaning_services'
     case TaskCategory.PETCARE:
-      return 'mdi-paw'
+      return 'pets'
     case TaskCategory.GARDENING:
-      return 'mdi-grass'
+      return 'grass'
     case TaskCategory.TUTORING:
-      return 'mdi-school'
+      return 'school'
     case TaskCategory.TECHHELP:
-      return 'mdi-laptop'
+      return 'computer'
     case TaskCategory.CHILDCARE:
-      return 'mdi-baby-carriage'
+      return 'child_care'
     case TaskCategory.LANGUAGETANDEM:
-      return 'mdi-translate'
+      return 'translate'
     case TaskCategory.HOMEWORK:
-      return 'mdi-book'
+      return 'menu_book'
     case TaskCategory.REPAIRS:
-      return 'mdi-hammer-screwdriver'
+      return 'build'
     default:
-      return 'mdi-folder-question'
+      return 'more_horiz'
   }
 }
 

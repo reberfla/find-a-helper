@@ -70,8 +70,8 @@ const drawer = ref(false)
 const menuItems = [
   { title: 'Startseite', icon: 'home', path: '/' },
   { title: 'Über uns', icon: 'info', path: '/about' },
-  { title: 'Aufgaben Entdecken', icon: 'mdi-magnify', path: '/tasks' },
-  { title: 'Meine Aufgaben', icon: 'mdi-account-arrow-left', path: '/tasks/my' },
+  { title: 'Aufgaben Entdecken', icon: 'search', path: '/tasks' },
+  { title: 'Meine Aufgaben', icon: 'task', path: '/tasks/my' },
   { title: 'Dienstleistungen', icon: 'work', path: '/services' },
   { title: 'Kontakt', icon: 'email', path: '/contact' },
 ]
@@ -81,7 +81,7 @@ const menuItems = [
   <!-- Top Navigation Bar -->
   <v-app-bar app color="#2a403D" dark>
     <v-btn icon @click="drawer = !drawer">
-      <v-icon>{{ drawer ? 'mdi-close' : 'mdi-menu' }}</v-icon>
+      <v-icon>{{ drawer ? 'close' : 'menu' }}</v-icon>
     </v-btn>
 
     <v-toolbar-title class="d-flex align-center brand-link" @click="goHome">

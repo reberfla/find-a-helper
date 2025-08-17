@@ -12,9 +12,7 @@ import * as directives from 'vuetify/directives'
 
 import { loadTranslations, setLanguage } from '@/service/translationService'
 import translationPlugin from '@/plugins/translationPlugin.ts'
-import { aliases } from 'vuetify/iconsets/fa'
-import { md } from 'vuetify/iconsets/md'
-import '@mdi/font/css/materialdesignicons.css'
+import { md, aliases } from 'vuetify/iconsets/md'
 
 await loadTranslations()
 setLanguage('de')
@@ -26,7 +24,7 @@ const vuetify = createVuetify({
   },
   directives,
   icons: {
-    defaultSet: 'mdi',
+    defaultSet: 'md',
     aliases,
     sets: {
       md,
