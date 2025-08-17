@@ -3,7 +3,7 @@
     <Header />
     <v-main>
       <v-container fluid>
-        <router-view />
+        <router-view :key="route.path"></router-view>
       </v-container>
     </v-main>
   </v-app>

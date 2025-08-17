@@ -1,21 +1,24 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { type Task, TaskCategory, TaskInterval, Weekday } from '@/models/TaskModel.ts'
+import { categories, interval, type Task, TaskInterval, Weekday } from '@/models/TaskModel.ts'
 import { translate } from '@/service/translationService.ts'
 import taskService from '@/service/TaskService.ts'
+import TaskEditDialog from '@/components/task/TaskEditDialog.vue'
+import router from '@/router'
 
-const categories = Object.values(TaskCategory).map((category) => ({
-  title: translate(category),
-  value: category,
-}))
-const interval = Object.values(TaskInterval).map((interval) => ({
-  title: translate(interval),
-  value: interval,
-}))
-
+const valid = ref(false)
+const rule = [
+  (value) => {
+    if (!value) {
+      return 'Dieses Feld ist erforderlich'
+    } else {
+      return true
+    }
+  },
+]
 const editTask = ref<Partial<Task>>({})
 
-const updateTask = computed(() => {
+const toUpdateTask = computed(() => {
   return {
     title: editTask.value.title,
     coordinates: editTask.value.coordinates,
@@ -37,13 +40,28 @@ const props = defineProps<{
 
 const date = ref(props.task.deadline ? new Date(props.task.deadline * 1000) : undefined)
 
+async function createTask(this: typeof TaskEditDialog, task: Partial<Task>) {
+  if (!valid.value) {
+    return
+  }
+  await taskService.createTask(task).then(() => {
+    this.emit('close')
+    router.push({ path: '/tasks/my' })
+  })
+}
+
+async function updateTask(this: typeof TaskEditDialog, task: Partial<Task>, id: number) {
+  await taskService.updateTask(task, id)
+  this.emit('close')
+}
+
 onMounted(() => {
   if (props.task) {
     editTask.value = props.task
   }
 })
 
-defineEmits(['close', 'delete'])
+const emit = defineEmits(['close', 'delete'])
 </script>
 
 <template>
@@ -51,49 +69,54 @@ defineEmits(['close', 'delete'])
     <template v-slot:title v-if="props.task">Aufgabe bearbeiten</template>
     <template v-slot:title v-else>Aufgabe erstellen</template>
     <template v-slot:text>
-      <v-form>
+      <v-form
+        @submit.prevent="update ? updateTask(toUpdateTask, task.id) : createTask(editTask)"
+        v-model="valid"
+        class="d-flex flex-column gap-space"
+      >
         <v-text-field
           density="compact"
           name="title"
-          label="Titel"
-          required
+          label="Titel*"
+          :rules="rule"
           v-model="editTask.title"
           variant="outlined"
         ></v-text-field>
         <v-text-field
           density="compact"
           name="coordinates"
-          label="Koordinaten"
-          required
+          label="Koordinaten*"
+          :rules="rule"
           v-model="editTask.coordinates"
           variant="outlined"
         ></v-text-field>
         <v-text-field
           density="compact"
           name="zipCode"
-          label="Postleitzahl"
-          required
+          label="Postleitzahl*"
+          :rules="rule"
           v-model="editTask.zipCode"
           variant="outlined"
         ></v-text-field>
         <v-textarea
           name="description"
-          label="Beschreibung"
-          required
+          label="Beschreibung*"
+          :rules="rule"
           v-model="editTask.description"
           variant="outlined"
         ></v-textarea>
         <v-select
           name="category"
-          label="Kategorie"
+          label="Kategorie*"
+          :rules="rule"
           v-model="editTask.category"
           :items="categories"
           density="compact"
           variant="outlined"
         ></v-select>
         <v-date-input
+          name="deadline"
           label="Deadline"
-          name="asdf"
           v-model="date"
           density="compact"
           variant="outlined"
@@ -113,7 +136,8 @@ defineEmits(['close', 'delete'])
         </v-date-input>
         <v-select
           name="interval"
-          label="Aufgaben wiederholung"
+          label="Aufgaben wiederholung*"
+          :rules="rule"
           v-model="editTask.taskInterval"
           :items="interval"
           density="compact"
@@ -134,32 +158,13 @@ defineEmits(['close', 'delete'])
             selected-class="day-active"
           ></v-chip>
         </v-chip-group>
+        <div class="d-flex justify-end mt-4">
+          <v-btn type="submit" color="success" class="mr-4">Speichern</v-btn>
+          <v-btn @click="$emit('close')" color="error">Abbrechen</v-btn>
+        </div>
       </v-form>
     </template>
-    <template v-slot:actions>
-      <v-btn
-        v-if="!update"
-        @click="
-          () => {
-            taskService.createTask(editTask)
-            $emit('close')
-            this.$router.push({ path: '/tasks/my' })
-          }
-        "
-        >Speichern
-      </v-btn>
-      <v-btn
-        v-if="update"
-        @click="
-          () => {
-            taskService.updateTask(updateTask, task!.id)
-            $emit('close')
-          }
-        "
-        >Speichern
-      </v-btn>
-      <v-btn @click="$emit('close')">Abbrechen</v-btn>
-    </template>
+    <template v-slot:actions></template>
   </v-card>
 </template>
 
@@ -168,5 +173,8 @@ defineEmits(['close', 'delete'])
   background-color: green;
   opacity: 100%;
   color: white;
+}
+.gap-space {
+  row-gap: 8px;
 }
 </style>
