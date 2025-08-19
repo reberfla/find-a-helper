@@ -34,12 +34,12 @@ const router = createRouter({
     {
       path: '/tasks',
       name: 'tasks',
-      component: () => import('../modules/task/ExploreTasksView.vue'),
+      component: () => import('@/modules/task/ExploreTasksView.vue'),
     },
     {
       path: '/tasks/my',
       name: 'my-tasks',
-      component: () => import('../modules/task/MyTasksView.vue'),
+      component: () => import('@/modules/task/MyTasksView.vue'),
     },
   ],
 })

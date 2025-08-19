@@ -10,16 +10,9 @@ import ch.abbts.error.TaskOfOtherUser
 import ch.abbts.utils.logger
 import java.time.Instant
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 
 class TaskRepository {
     val log = logger()

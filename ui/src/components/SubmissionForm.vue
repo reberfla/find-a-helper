@@ -1,21 +1,24 @@
 <script setup lang="ts" generic="T">
 import { ref, watch } from 'vue'
-import type { SubmissionFormConfig } from '@/core/factory/SubmissionFormConfig';
+import type { SubmissionFormConfig } from '@/core/factory/SubmissionFormConfig'
 import { translate as t } from '@/service/translationService'
 
 const props = defineProps<{
   modelValue: boolean
   config: SubmissionFormConfig<T>
   readonly?: boolean
-  context?: any   //  task, offer, assignments
+  context?: any //  task, offer, assignments
 }>()
 const emit = defineEmits(['update:modelValue', 'save'])
 
 const localDialog = ref(props.modelValue)
 const formData = ref<T>(props.config.getInitialData(props.context))
 
-watch(() => props.modelValue, val => localDialog.value = val)
-watch(localDialog, val => emit('update:modelValue', val))
+watch(
+  () => props.modelValue,
+  (val) => (localDialog.value = val),
+)
+watch(localDialog, (val) => emit('update:modelValue', val))
 
 function close() {
   localDialog.value = false
@@ -49,7 +52,7 @@ async function save() {
         </template>
       </v-card-text>
       <v-card-actions>
-        <v-spacer/>
+        <v-spacer />
         <v-btn text @click="close">{{ t('CANCEL_BUTTON') }}</v-btn>
         <v-btn color="primary" v-if="!props.readonly" @click="save">
           {{ t('SAVE_BUTTON') }}

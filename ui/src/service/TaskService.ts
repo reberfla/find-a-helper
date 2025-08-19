@@ -2,8 +2,8 @@ import { getJSON, postJSON, putJSON, BASE_URL, deleteRequest } from '@/service/a
 import { type Task, TaskCategory, TaskInterval } from '@/models/TaskModel'
 // Tasks
 export default {
-  async getTasks(): Promise<Task[]> {
-    return getJSON<Task[]>(`${BASE_URL}/v1/task`)
+  async getTasks(category: string | null = null): Promise<Task[]> {
+    return getJSON<Task[]>(`${BASE_URL}/v1/task${category ? `?category=${category}` : ''}`)
   },
 
   async getFilteredTasks(

@@ -6,4 +6,3 @@ export type ServiceCategory = {
   icon?: string
   image?: string
 }
-

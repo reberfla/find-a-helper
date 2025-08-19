@@ -1,9 +1,8 @@
-
 <script setup lang="ts">
-import {computed, ref} from 'vue'
-import {serviceCategories} from "@/data/serviceCategories.ts";
-import {useNav} from "@/utils/nav.ts";
-import {translate} from "@/service/translationService.ts";
+import { computed, ref } from 'vue'
+import { serviceCategories } from '@/data/serviceCategories.ts'
+import { useNav } from '@/utils/nav.ts'
+import { translate } from '@/service/translationService.ts'
 
 const t = translate
 
@@ -11,11 +10,11 @@ const { toTasksWith } = useNav()
 const services = ref(serviceCategories)
 
 const viewModels = computed(() =>
-  services.value.map(s => ({
+  services.value.map((s) => ({
     ...s,
     title: t(s.titleKey),
     description: t(s.descKey),
-  }))
+  })),
 )
 </script>
 
@@ -23,18 +22,8 @@ const viewModels = computed(() =>
   <div class="services">
     <h1>Unsere Dienstleistungen</h1>
     <v-row class="mb-12">
-      <v-col
-        v-for="value in viewModels"
-        :key="value.slug"
-        cols="12"
-        md="4"
-      >
-        <v-card
-          height="100%"
-          variant="elevated"
-          class="pa-4"
-          @click="toTasksWith(value.slug)"
-        >
+      <v-col v-for="value in viewModels" :key="value.slug" cols="12" md="4">
+        <v-card height="100%" variant="elevated" class="pa-4" @click="toTasksWith(value.slug)">
           <v-card-item class="card-item">
             <v-card-title class="card-title text-h5 mb-2">
               <v-icon class="icon" :icon="value.icon" />
@@ -47,7 +36,7 @@ const viewModels = computed(() =>
         </v-card>
       </v-col>
     </v-row>
-<!--      <div v-for="service in services" :key="service.id" class="service-card">
+    <!--      <div v-for="service in services" :key="service.id" class="service-card">
         <v-card>
           <v-card-item>
             <v-icon size="large" :icon="service.icon" class="service-icon"></v-icon>
@@ -56,7 +45,7 @@ const viewModels = computed(() =>
           </v-card-item>
         </v-card>
       </div>-->
-    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -65,7 +54,7 @@ const viewModels = computed(() =>
 }
 
 v-card {
-  color: #748B6F;
+  color: #748b6f;
   border-radius: 1rem;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
 }
@@ -73,17 +62,16 @@ v-card {
 .services h1 {
   text-align: center;
   margin-bottom: 2rem;
-  color: #748B6F;
+  color: #748b6f;
 }
 
-.card-title{
+.card-title {
   display: grid;
   grid-template-columns: 20% 1fr;
   grid-gap: 5px;
 }
 
-.card-item{
-  height:100%;
+.card-item {
+  height: 100%;
 }
-
 </style>

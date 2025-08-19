@@ -1,11 +1,10 @@
 <script setup lang="ts">
-
-import {ref, onMounted, computed} from 'vue'
-import {translate} from "@/service/translationService.js";
-import UserProfilView from "@/modules/user/UserProfilView.vue";
-import BackHeader from "@/components/header/BackHeader.vue";
-import MyOffers from "@/modules/offer/MyOffers.vue";
-import MyTasksWithOffers from "@/modules/task/MyTasksWithOffers.vue";
+import { ref, onMounted, computed } from 'vue'
+import { translate } from '@/service/translationService.js'
+import UserProfilView from '@/modules/user/UserProfilView.vue'
+import BackHeader from '@/components/header/BackHeader.vue'
+import MyOffers from '@/modules/offer/MyOffers.vue'
+import MyTasksWithOffers from '@/modules/task/MyTasksWithOffers.vue'
 
 const t = translate
 const tab = ref('data')

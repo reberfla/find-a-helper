@@ -6,7 +6,7 @@ import List from '@/components/List.vue'
 import apiService from '@/service/apiService'
 
 const props = defineProps<{ taskId: number }>()
-const emit = defineEmits<{ (e:'changed'): void }>()
+const emit = defineEmits<{ (e: 'changed'): void }>()
 
 provide(ViewFactoryToken, new OfferFactory())
 
@@ -21,7 +21,5 @@ async function onReject(id: number) {
 </script>
 
 <template>
-  <List :context="{ taskId: props.taskId }"
-        @accept="onAccept"
-        @reject="onReject" />
+  <List :context="{ taskId: props.taskId }" @accept="onAccept" @reject="onReject" />
 </template>

@@ -1,8 +1,13 @@
 package ch.abbts.adapter.controller
 
+import ch.abbts.adapter.database.repository.OfferRepository
+import ch.abbts.adapter.database.repository.TaskRepository
+import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.adapter.routes.configureRouting
 import ch.abbts.application.dto.AuthenticationDto
 import ch.abbts.application.dto.UserDto
+import ch.abbts.application.interactor.OfferInteractor
+import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.AuthProvider
 import ch.abbts.error.UserNotFound
@@ -38,7 +43,16 @@ class AuthenticationTest() {
                         .whenever(mock)
                         .updateIssuedTime(eq("mail@example.ch"), any())
                 }
-            configureRouting(mockUserInteractor)
+
+            val offerInteractor =
+                OfferInteractor(OfferRepository(), TaskRepository())
+            val taskInteractor =
+                TaskInteractor(TaskRepository(), UsersRepository())
+            configureRouting(
+                mockUserInteractor,
+                offerInteractor,
+                taskInteractor,
+            )
         }
         val customClient = createClient {
             install(ContentNegotiation) { json() }
@@ -58,7 +72,7 @@ class AuthenticationTest() {
         assertEquals(HttpStatusCode.OK, response.status)
         val responseBody =
             Json.parseToJsonElement(response.bodyAsText()).jsonObject
-        assert(responseBody.containsKey("JWT"))
+        assert(responseBody.containsKey("token"))
 
         val userNotExisting =
             AuthenticationDto(

@@ -88,7 +88,6 @@ const menuItems = [
       <span class="font-weight-bold">Find A Helper</span>
     </v-toolbar-title>
 
-
     <!-- Language Switch -->
     <v-menu offset-y>
       <template #activator="{ props }">
@@ -177,4 +176,3 @@ const menuItems = [
   cursor: pointer;
 }
 </style>
-

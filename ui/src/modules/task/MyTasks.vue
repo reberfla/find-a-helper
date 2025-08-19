@@ -3,10 +3,9 @@ import { provide, ref } from 'vue'
 import { ViewFactoryToken } from '@/core/factory/view-factory.token'
 import List from '@/components/List.vue'
 import type { Task } from '@/models/TaskModel'
-import {TaskFactory} from "@/core/factory/TaskFactory.ts";
-import apiService from "@/service/apiService.ts";
-import SnackBar from "@/components/Snackbar.vue";
-import {translate} from "@/service/translationService.ts";
+import apiService from '@/service/apiService.ts'
+import SnackBar from '@/components/Snackbar.vue'
+import { translate } from '@/service/translationService.ts'
 
 provide(ViewFactoryToken, new TaskFactory())
 
@@ -22,15 +21,14 @@ async function onDelete(id: number) {
   await apiService.deleteOffer(id)
 }
 
-function onSubmitted(task:Task){
+function onSubmitted(task: Task) {
   console.log(task)
   snackBar.value?.show(t('ERROR_OFFER_EXISTS'))
   onOpen(task)
 }
-
 </script>
 
 <template>
-  <List :context="{mine:true}" @action="onSubmitted"  @open="onOpen" @delete="onDelete"/>
+  <List :context="{ mine: true }" @action="onSubmitted" @open="onOpen" @delete="onDelete" />
   <SnackBar ref="snackBar" />
 </template>

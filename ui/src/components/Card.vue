@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { CardAdapter, CardAction, CardChip, CardLine } from '@/core/factory/view-factory.types.ts'
+import type {
+  CardAdapter,
+  CardAction,
+  CardChip,
+  CardLine,
+} from '@/core/factory/view-factory.types.ts'
 
 const props = defineProps<{ item: any; adapter: CardAdapter<any> }>()
-const emit = defineEmits<{ (e: 'action', p: { name:string; id:number; item:any }): void }>()
+const emit = defineEmits<{ (e: 'action', p: { name: string; id: number; item: any }): void }>()
 const img = computed(() => props.adapter.getImage?.(props.item))
 const title = computed(() => props.adapter.getTitle(props.item))
 const subtitle = computed(() => props.adapter.getSubtitle?.(props.item))
@@ -17,8 +22,6 @@ async function onAction(name: string) {
   console.log(name)
   emit('action', { name, id: props.adapter.getId(props.item), item: props.item })
 }
-
-
 </script>
 
 <template>
@@ -48,6 +51,5 @@ async function onAction(name: string) {
         </v-btn>
       </template>
     </v-card-actions>
-
   </v-card>
 </template>

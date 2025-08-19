@@ -2,9 +2,7 @@
 import type { Task } from '@/models/TaskModel.ts'
 import { onMounted, ref } from 'vue'
 import { useAuth } from '@/service/userAuthService.ts'
-import { translate } from '@/service/translationService.ts'
-
-const t = translate
+import offerService from '@/service/OfferService.ts'
 
 const props = defineProps<{ task: Task }>()
 
@@ -16,10 +14,17 @@ const offer = ref<any>({
 })
 
 onMounted(() => {
-  offer.value.userId = useAuth().getCurrentUserId()
+  const user = useAuth().getCurrentUserId()
+  console.log(user)
+  offer.value.userId = user
 })
 
-const emit = defineEmits(['close-offer', 'send-offer'])
+async function sendOffer() {
+  offer.value.userId = useAuth().getCurrentUserId()
+  await offerService.createOffer(offer.value)
+}
+
+const emit = defineEmits(['close-offer'])
 </script>
 <template>
   <v-card>
@@ -42,7 +47,7 @@ const emit = defineEmits(['close-offer', 'send-offer'])
       </div>
     </template>
     <template v-slot:actions>
-      <v-btn @click="$emit('send-offer', offer.value)"> Angebot senden </v-btn>
+      <v-btn @click="sendOffer"> Angebot senden </v-btn>
       <v-btn @click="$emit('close-offer')"> Schliessen </v-btn>
     </template>
   </v-card>

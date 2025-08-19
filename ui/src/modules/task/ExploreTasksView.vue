@@ -6,25 +6,16 @@ import taskService from '@/service/TaskService.ts'
 import { categories, interval, type Task, TaskCategory, TaskInterval } from '@/models/TaskModel.ts'
 import TaskEditDialog from '@/components/task/TaskEditDialog.vue'
 import { green } from 'vuetify/util/colors'
+import { useRouter } from 'vue-router'
 
-const offerDialog = ref(false)
-const offerConfig = ref()
-const offerContext = ref(null)
-const readonlyForm = ref(true)
-const taskDialog = ref(false)
-const taskConfig = ref()
-const taskContext = ref(null)
+const route = useRouter()
 
-provide(ViewFactoryToken, new TaskFactory())
-
-const snackBar = ref<InstanceType<typeof SnackBar> | null>(null)
-const t = translate
-
-function openTask(task: any) {
-  taskContext.value = task
-  taskConfig.value = new TaskFactory().getFormConfig(task)
-  readonlyForm.value = true
-  taskDialog.value = true
+async function loadTasks() {
+  const category = route.currentRoute.value.query['category'] as string | null
+  if (category) {
+    filterCategories.value = [category.toUpperCase() as TaskCategory]
+  }
+  tasks.value = await taskService.getTasks(category)
 }
 
 const searchTerm = ref('')
@@ -122,40 +113,4 @@ onMounted(() => loadTasks())
   width: 300px;
   margin: 10px;
 }
-
-function handleAddOffer(offer: any) {
-  //todo implement add-logik
-}
-
-function onSubmitted(task:Task){
-  snackBar.value?.show(t('ERROR_OFFER_EXISTS'))
-}
-
-</script>
-
-<template>
-  <List @addOffer="newOffer" @open="openTask" @submitted="onSubmitted"/>
-
-  <v-dialog v-model="taskDialog" max-width="600">
-    <SubmissionForm
-      v-if="taskConfig"
-      v-model="taskDialog"
-      :config="taskConfig"
-      :context="taskContext"
-      :readonly="readonlyForm"
-      @save="handleTaskChanges"
-    />
-  </v-dialog>
-
-  <v-dialog v-model="offerDialog" max-width="600">
-    <SubmissionForm
-      v-if="offerConfig"
-      v-model="offerDialog"
-      :config="offerConfig"
-      :context="offerContext"
-      :readonly="readonlyForm"
-      @save="handleAddOffer"
-    />
-  </v-dialog>
-  <SnackBar ref="snackBar" />
-</template>
+</style>

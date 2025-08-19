@@ -18,29 +18,34 @@ async function load() {
   loading.value = true
   try {
     items.value = await factory.loadItems(props.context)
+  } finally {
+    loading.value = false
   }
-  finally { loading.value = false }
 }
 
-watch(() => props.context, () => {
-  title.value = factory.getTitle(props.context)
-  emptyText.value = factory.getEmptyText()
-  adapter.value = factory.getAdapter(props.context)
-  load()
-}, { deep: true })
+watch(
+  () => props.context,
+  () => {
+    title.value = factory.getTitle(props.context)
+    emptyText.value = factory.getEmptyText()
+    adapter.value = factory.getAdapter(props.context)
+    load()
+  },
+  { deep: true },
+)
 
 onMounted(load)
 
 const emit = defineEmits<{
-  (e:'accept', id:number): void
-  (e:'reject', id:number): void
-  (e:'delete', id:number): void
-  (e:'open', p:any): void
-  (e:'addOffer', p:any): void
-  (e:'submitted', p:any): void
+  (e: 'accept', id: number): void
+  (e: 'reject', id: number): void
+  (e: 'delete', id: number): void
+  (e: 'open', p: any): void
+  (e: 'addOffer', p: any): void
+  (e: 'submitted', p: any): void
 }>()
 
-function onAction(e:{name:string; id:number; item:any}) {
+function onAction(e: { name: string; id: number; item: any }) {
   console.log(e)
   if (e.name === 'open') emit('open', e.item)
   else if (e.name === 'accept') emit('accept', e.item)

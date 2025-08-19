@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {provide, ref} from 'vue'
+import { provide, ref } from 'vue'
 import { OfferFactory } from '@/core/factory/OfferFactory'
 import { ViewFactoryToken } from '@/core/factory/view-factory.token'
 import List from '@/components/List.vue'
 import apiService from '@/service/apiService'
-import SubmissionForm from "@/components/SubmissionForm.vue";
+import SubmissionForm from '@/components/SubmissionForm.vue'
 
 provide(ViewFactoryToken, new OfferFactory())
 
@@ -21,7 +21,6 @@ function openOffer(offer: any) {
   offerConfig.value = new OfferFactory().getFormConfig(offer)
   offerDialog.value = true
 }
-
 </script>
 
 <template>

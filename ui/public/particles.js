@@ -398,6 +398,7 @@ var pJS = function (tag_id, params) {
   };
 
   pJS.fn.particle.prototype.draw = function () {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     var p = this;
 
     if (p.radius_bubble != undefined) {

@@ -4,10 +4,10 @@ export interface SubmissionFormConfig<T> {
   fields: {
     key: keyof T | string
     label: string
-    type: 'text' | 'textarea' | 'select' | 'date' | 'image' |'multiselect'
+    type: 'text' | 'textarea' | 'select' | 'date' | 'image' | 'multiselect'
     readonly?: boolean
-    options?: any[],
-    required?:boolean
+    options?: any[]
+    required?: boolean
   }[]
   save: (data: T) => Promise<void> | void
 }

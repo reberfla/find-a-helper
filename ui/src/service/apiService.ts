@@ -1,6 +1,3 @@
-import {useAuth} from "@/service/userAuthService.ts";
-import type { Task } from '@/models/TaskModel.ts'
-
 export const BASE_URL = 'http://localhost:8080'
 
 function getToken(): string | null {
@@ -12,7 +9,7 @@ function buildHeaders(): HeadersInit {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   }
-  const token = useAuth().getCurrentUser()?.token ?? null
+  const token = getToken()
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
   }
@@ -54,7 +51,7 @@ export async function putJSON<T>(url: string, data: any): Promise<T> {
   return await response.json()
 }
 
-async function deleteJSON<T>(url: string): Promise<T> {
+export async function deleteRequest(url: string): Promise<{ message: string }> {
   const response = await fetch(url, {
     method: 'DELETE',
     headers: buildHeaders(),
@@ -66,14 +63,9 @@ async function deleteJSON<T>(url: string): Promise<T> {
 }
 
 export default {
-  // Public API
-  async getAuftrags(lat: string, lng: string) {
-    return getJSON(`${BASE_URL}/auftrags?lat=${lat}&lng=${lng}`);
-  },
-
   // Auth
   async authUser(data: any) {
-    return postJSON(`${BASE_URL}/v1/auth`, data);
+    return postJSON(`${BASE_URL}/v1/auth`, data)
   },
 
   async authUserByToken(token: string) {
@@ -81,23 +73,22 @@ export default {
   },
 
   async validateToken() {
-    return getJSON(`${BASE_URL}/v1/auth/validate`);
+    return getJSON(`${BASE_URL}/v1/auth/validate`)
   },
 
   // User-Profile
   async registerLokalUser(data: any) {
-    return postJSON(`${BASE_URL}/v1/user/register`, data);
+    return postJSON(`${BASE_URL}/v1/user/register`, data)
   },
 
   async updateUser(data: any) {
-    return putJSON(`${BASE_URL}/v1/user/${data.id}`, data);
+    return putJSON(`${BASE_URL}/v1/user/${data.id}`, data)
   },
 
   async getUser(token: string) {
     return getJSON(`${BASE_URL}/v1/user/${token}`)
   },
-
-//Offers
+  //Offers
   async getMyOffers() {
     return getJSON(`${BASE_URL}/v1/offer/my`)
   },
@@ -123,17 +114,6 @@ export default {
   },
 
   async deleteOffer(offerId: number) {
-    return deleteJSON(`${BASE_URL}/v1/offer/${offerId}`)
-  },
-
-
-  // Tasks
-  async getTasks() {
-    return getJSON<Task[]>(`${BASE_URL}/v1/task`)
-  },
-
-  //todo => implement backend
-  async getMyTasks() {
-    return getJSON<Task[]>(`${BASE_URL}/v1/task`)
+    return deleteRequest(`${BASE_URL}/v1/offer/${offerId}`)
   },
 }
