@@ -9,6 +9,9 @@ import {
 } from '@/models/TaskModel.ts'
 import { getIconOfCategory, getColorOfCategory } from '@/models/TaskModel.ts'
 import { green, red } from 'vuetify/util/colors'
+import { useAuth } from '@/service/userAuthService.ts'
+
+const { isLoggedIn } = useAuth()
 
 const props = defineProps<{
   task: Task
@@ -74,7 +77,7 @@ const emit = defineEmits(['open-offer', 'edit-task', 'delete-task'])
       <div class="mb-8"></div>
     </template>
     <v-card-actions class="justify-center position-bottom">
-      <v-btn v-if="!private" @click="$emit('open-offer', task)">Angebot machen</v-btn>
+      <v-btn v-if="!private && isLoggedIn" @click="$emit('open-offer', task)">Angebot machen</v-btn>
       <div v-if="private">
         <v-btn
           variant="elevated"

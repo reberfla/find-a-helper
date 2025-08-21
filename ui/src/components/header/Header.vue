@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import AuthView from '@/modules/auth/AuthView.vue'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { getLanguage, setLanguage, translate } from '@/service/translationService.js'
 import { useAuth } from '@/service/userAuthService.ts'
 import SnackBar from '@/components/Snackbar.vue'
+
 const { isLoggedIn, logout, getCurrentUser, getCurrentUserAvatar } = useAuth()
 import { useRouter } from 'vue-router'
 
@@ -16,6 +17,7 @@ function openAuth(mode: 'login' | 'register') {
   authMode.value = mode
   authDialogVisible.value = true
 }
+
 const router = useRouter()
 const dropdownOpen = ref(false)
 const languageDropdownOpen = ref(false)
@@ -67,14 +69,26 @@ onMounted(() => {})
 
 const drawer = ref(false)
 
-const menuItems = [
+const authorizedMenuItems = [{ title: 'Meine Aufgaben', icon: 'task', path: '/tasks/my' }]
+
+const publicMenuItems = [
   { title: 'Startseite', icon: 'home', path: '/' },
-  { title: 'Über uns', icon: 'info', path: '/about' },
   { title: 'Aufgaben Entdecken', icon: 'search', path: '/tasks' },
-  { title: 'Meine Aufgaben', icon: 'task', path: '/tasks/my' },
   { title: 'Dienstleistungen', icon: 'work', path: '/services' },
+  { title: 'Über uns', icon: 'info', path: '/about' },
   { title: 'Kontakt', icon: 'email', path: '/contact' },
 ]
+
+const menuItems = computed(() => {
+  if (isLoggedIn.value) {
+    return publicMenuItems
+      .slice(0, 2)
+      .concat(authorizedMenuItems)
+      .concat(publicMenuItems.slice(2, publicMenuItems.length))
+  } else {
+    return publicMenuItems
+  }
+})
 </script>
 
 <template>
