@@ -2,7 +2,7 @@
 import type { Task } from '@/models/TaskModel.ts'
 import { onMounted, ref } from 'vue'
 import { useAuth } from '@/service/userAuthService.ts'
-import offerService from '@/service/OfferService.ts'
+// import offerService from '@/service/OfferService.ts'
 
 const props = defineProps<{ task: Task }>()
 
@@ -21,7 +21,8 @@ onMounted(() => {
 
 async function sendOffer() {
   offer.value.userId = useAuth().getCurrentUserId()
-  await offerService.createOffer(offer.value)
+  // TODO: Implement offer creation logic
+  // await offerService.createOffer(offer.value)
 }
 
 const emit = defineEmits(['close-offer'])

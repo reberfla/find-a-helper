@@ -7,15 +7,22 @@ import TaskEditDialog from '@/components/task/TaskEditDialog.vue'
 import router from '@/router'
 
 const valid = ref(false)
-const rule = [
-  (value) => {
-    if (!value) {
-      return 'Dieses Feld ist erforderlich'
-    } else {
-      return true
-    }
-  },
-]
+const required = (value: any) => {
+  if (!value) {
+    return 'Dieses Feld ist erforderlich'
+  } else {
+    return true
+  }
+}
+
+const coordinatesPattern = (value: string) => {
+  const regex = /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/
+  if (!regex.test(value)) {
+    return 'Bitte geben Sie gültige Koordinaten im Format "Breitengrad,Längengrad" ein'
+  }
+  return true
+}
+
 const editTask = ref<Partial<Task>>({})
 
 const toUpdateTask = computed(() => {
@@ -78,7 +85,7 @@ const emit = defineEmits(['close', 'delete'])
           density="compact"
           name="title"
           label="Titel*"
-          :rules="rule"
+          :rules="[required]"
           v-model="editTask.title"
           variant="outlined"
         ></v-text-field>
@@ -86,7 +93,7 @@ const emit = defineEmits(['close', 'delete'])
           density="compact"
           name="coordinates"
           label="Koordinaten*"
-          :rules="rule"
+          :rules="[required, coordinatesPattern]"
           v-model="editTask.coordinates"
           variant="outlined"
         ></v-text-field>
@@ -94,21 +101,21 @@ const emit = defineEmits(['close', 'delete'])
           density="compact"
           name="zipCode"
           label="Postleitzahl*"
-          :rules="rule"
+          :rules="[required]"
           v-model="editTask.zipCode"
           variant="outlined"
         ></v-text-field>
         <v-textarea
           name="description"
           label="Beschreibung*"
-          :rules="rule"
+          :rules="[required]"
           v-model="editTask.description"
           variant="outlined"
         ></v-textarea>
         <v-select
           name="category"
           label="Kategorie*"
-          :rules="rule"
+          :rules="[required]"
           v-model="editTask.category"
           :items="categories"
           density="compact"
@@ -137,7 +144,7 @@ const emit = defineEmits(['close', 'delete'])
         <v-select
           name="interval"
           label="Aufgaben wiederholung*"
-          :rules="rule"
+          :rules="[required]"
           v-model="editTask.taskInterval"
           :items="interval"
           density="compact"
@@ -158,6 +165,7 @@ const emit = defineEmits(['close', 'delete'])
             selected-class="day-active"
           ></v-chip>
         </v-chip-group>
+        <p>*erforderlich</p>
         <div class="d-flex justify-end mt-4">
           <v-btn type="submit" color="success" class="mr-4">Speichern</v-btn>
           <v-btn @click="$emit('close')" color="error">Abbrechen</v-btn>
