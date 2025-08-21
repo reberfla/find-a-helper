@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 import { getLanguage, setLanguage, translate } from '@/service/translationService.js'
 import { useAuth } from '@/service/userAuthService.ts'
 import SnackBar from '@/components/Snackbar.vue'
+import { drawer } from '@/utils/nav.ts'
 
 const { isLoggedIn, logout, getCurrentUser, getCurrentUserAvatar } = useAuth()
 import { useRouter } from 'vue-router'
@@ -66,8 +67,6 @@ function changeLanguage(lang: any) {
 }
 
 onMounted(() => {})
-
-const drawer = ref(false)
 
 const authorizedMenuItems = [{ title: 'Meine Aufgaben', icon: 'task', path: '/tasks/my' }]
 

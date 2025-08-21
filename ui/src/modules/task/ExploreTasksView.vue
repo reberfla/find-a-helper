@@ -8,6 +8,7 @@ import TaskEditDialog from '@/components/task/TaskEditDialog.vue'
 import { green } from 'vuetify/util/colors'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/service/userAuthService.ts'
+import { drawer } from '@/utils/nav.ts'
 
 const route = useRouter()
 const { isLoggedIn } = useAuth()
@@ -64,7 +65,7 @@ onMounted(() => loadTasks())
   <v-dialog v-model="offerDialog" max-width="800">
     <TaskOfferDialog :task="selectedTask" @close-offer="offerDialog = false" />
   </v-dialog>
-  <div class="fixed-header">
+  <div class="fixed-header" :style="{ left: drawer ? '250px' : '0px' }">
     <div class="d-flex w-100 align-top">
       <v-text-field
         density="compact"
@@ -133,7 +134,6 @@ onMounted(() => loadTasks())
 .fixed-header {
   position: fixed;
   top: 60px;
-  left: 0;
   right: 0;
   z-index: 10;
   background: #fff;
