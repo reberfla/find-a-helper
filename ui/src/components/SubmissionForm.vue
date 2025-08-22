@@ -38,13 +38,13 @@ async function save() {
         <template v-for="field in props.config.fields" :key="field.key">
           <v-text-field
             v-if="field.type === 'text'"
-            v-model="formData[field.key]"
+            v-model="formData.value[field.key]"
             :label="t(field.label)"
             :readonly="props.readonly || field.readonly"
           />
           <v-textarea
             v-else-if="field.type === 'textarea'"
-            v-model="formData[field.key]"
+            v-model="formData.value[field.key]"
             :label="t(field.label)"
             :readonly="props.readonly || field.readonly"
             auto-grow
