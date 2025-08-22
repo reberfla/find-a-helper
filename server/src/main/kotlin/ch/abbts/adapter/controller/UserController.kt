@@ -107,8 +107,7 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                                     ?: user.birthdate.toString(),
                             authProvider = user.authProvider,
                             idToken = token,
-                            imgBase64 =
-                                updateUser.imgBase64,
+                            imgBase64 = updateUser.imgBase64,
                         )
 
                     val updatedUserDto =

@@ -1,13 +1,11 @@
 <script setup lang="ts">
-
-import {ref, onMounted, computed, watch} from 'vue'
-import {translate} from "@/service/translationService.js";
-import UserProfilView from "@/modules/user/UserProfilView.vue";
-import BackHeader from "@/components/header/BackHeader.vue";
-import MyOffers from "@/modules/offer/MyOffers.vue";
-import MyTasksWithOffers from "@/modules/task/MyTasksWithOffers.vue";
-import router from "@/router";
-import {useAuth} from "@/service/userAuthService.ts";
+import { ref, onMounted, computed, watch } from 'vue'
+import { translate } from '@/service/translationService.js'
+import UserProfilView from '@/modules/user/UserProfilView.vue'
+import BackHeader from '@/components/header/BackHeader.vue'
+import MyOffers from '@/modules/offer/MyOffers.vue'
+import router from '@/router'
+import { useAuth } from '@/service/userAuthService.ts'
 
 const t = translate
 const tab = ref('data')
@@ -39,10 +37,13 @@ onMounted(async () => {
   hasNewMessages.value = await response.json()
 })
 
-watch(isLoggedIn, (val) => {
-  if (!val) router.push('/')
-}, { immediate: true })
-
+watch(
+  isLoggedIn,
+  (val) => {
+    if (!val) router.push('/')
+  },
+  { immediate: true },
+)
 </script>
 
 <template>

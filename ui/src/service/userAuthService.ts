@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue'
+import router from '@/router'
 
 const user = ref<{
   id: number
@@ -45,6 +46,7 @@ function login(payload: {
 function logout() {
   user.value = null
   localStorage.removeItem('user')
+  router.push('/')
 }
 
 function getCurrentUser() {

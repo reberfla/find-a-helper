@@ -1,3 +1,5 @@
+import { useAuth } from '@/service/userAuthService.ts'
+
 export const BASE_URL = 'http://localhost:8080'
 
 function getToken(): string | null {
@@ -83,7 +85,7 @@ export default {
 
   async updateUser(data: any) {
     const token = useAuth().getCurrentUser()?.token ?? data.token
-    return putJSON(`${BASE_URL}/v1/user/${token}`, data);
+    return putJSON(`${BASE_URL}/v1/user/${token}`, data)
   },
 
   async getUser(token: string) {
