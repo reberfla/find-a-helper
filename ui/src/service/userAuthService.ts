@@ -22,6 +22,7 @@ const isLoggedIn = computed(() => !!user.value?.token)
 
 function login(payload: {
   token: any
+  id: any
   imgBlob: any
   userId: any
   imgUrl: any
@@ -34,7 +35,7 @@ function login(payload: {
 
   user.value = {
     token: payload.token.JWT,
-    id: payload.userId,
+    id: payload.id,
     avatar,
     name: payload.name,
     email: payload.email,
