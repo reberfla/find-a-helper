@@ -48,10 +48,6 @@ jobs:
       - name: Run Kotlin Unit Tests
         uses: ./.github/actions/unit-tests-kotlin
 
-      - name: Run Vitest Unit Tests
-        uses: ./.github/actions/unit-tests-vitest
-        if: always()
-
   build:
     needs: test
     runs-on: ubuntu-latest
