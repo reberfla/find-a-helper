@@ -7,6 +7,7 @@ import ch.abbts.application.dto.UserUpdateDto
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.UserAlreadyExists
+import ch.abbts.error.UserNotFound
 import ch.abbts.error.WebserverError
 import ch.abbts.error.WebserverErrorMessage
 import ch.abbts.utils.LoggerService
@@ -17,6 +18,7 @@ import io.github.tabilzad.ktor.annotations.ResponseEntry
 import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.authenticate
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -77,58 +79,60 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                 }
             }
 
-            put("/{token}") {
-                try {
-                    val token = call.parameters["token"]
-                    if (token == null) {
-                        call.respond(HttpStatusCode.BadRequest, "Missing token")
-                        return@put
-                    }
+            authenticate("jwt-auth") {
+                get("/profile") {
+                    val userId = JWebToken.getUserIdFromCall(call)
+                    val user =
+                        userInteractor.getUserById(userId)
+                            ?: throw UserNotFound()
+                    call.respond(
+                        UserDto(
+                            email = user.email,
+                            name = user.name,
+                            zipCode = user.zipCode,
+                            birthdate = user.birthdate.toString(),
+                            imgBase64 = user.image.toString(),
+                            imageUrl = user.imageUrl,
+                        )
+                    )
+                }
+            }
 
-                    val email = JWebToken.decodeEmailFromToken(token)
-                    val user = userInteractor.getUserByEmail(email)
-                    LoggerService.debugLog(user.toString())
-                    if (user == null) {
-                        call.respond(HttpStatusCode.NotFound, "User not found.")
-                        return@put
-                    }
-                    val updateUser = call.receive<UserUpdateDto>()
-                    LoggerService.debugLog(
-                        "Received JSON: ${Json.encodeToString(updateUser)}"
+            put() {
+                val userId = JWebToken.getUserIdFromCall(call)
+                val user =
+                    userInteractor.getUserById(userId) ?: throw UserNotFound()
+                LoggerService.debugLog(user.toString())
+                val updateUser = call.receiveHandled<UserUpdateDto>()
+                LoggerService.debugLog(
+                    "Received JSON: ${Json.encodeToString(updateUser)}"
+                )
+
+                val updateDto =
+                    UserDto(
+                        email = updateUser.email ?: user.email,
+                        name = updateUser.name ?: user.name,
+                        password = updateUser.password ?: user.passwordHash,
+                        zipCode = updateUser.zipCode ?: user.zipCode,
+                        birthdate =
+                            updateUser.birthdate ?: user.birthdate.toString(),
+                        authProvider = user.authProvider,
+                        imgBase64 = updateUser.imgBase64,
                     )
 
-                    val updateDto =
-                        UserDto(
-                            email = updateUser.email ?: user.email,
-                            name = updateUser.name ?: user.name,
-                            password = updateUser.password ?: user.passwordHash,
-                            zipCode = updateUser.zipCode ?: user.zipCode,
-                            birthdate =
-                                updateUser.birthdate
-                                    ?: user.birthdate.toString(),
-                            authProvider = user.authProvider,
-                            googleToken = token,
-                            imgBase64 = updateUser.imgBase64,
-                        )
+                val updatedUserDto =
+                    userInteractor.updateUser(user.id!!, updateDto)
 
-                    val updatedUserDto =
-                        userInteractor.updateUser(user.id!!, updateDto)
-
-                    val response =
-                        AuthResponseDto(
-                            id = updatedUserDto?.id,
-                            jwt = "dummy",
-                            email = updatedUserDto?.email ?: "",
-                            name = updatedUserDto?.name,
-                            imgUrl = updatedUserDto?.imageUrl,
-                            imgBlob = updatedUserDto?.imgBase64,
-                        )
-
-                    call.respond(HttpStatusCode.OK, response)
-                } catch (e: WebserverError) {
-                    LoggerService.debugLog("❌ PUT /v1/user/{token} error: $e")
-                    call.respond(e.getStatus(), e.getMessage())
-                }
+                val response =
+                    AuthResponseDto(
+                        id = updatedUserDto?.id,
+                        jwt = "dummy",
+                        email = updatedUserDto?.email ?: "",
+                        name = updatedUserDto?.name,
+                        imgUrl = updatedUserDto?.imageUrl,
+                        imgBlob = updatedUserDto?.imgBase64,
+                    )
+                call.respond(HttpStatusCode.OK, response)
             }
         }
     }

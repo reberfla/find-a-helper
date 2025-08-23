@@ -7,7 +7,7 @@ import SnackBar from '@/components/Snackbar.vue'
 import { translate } from '@/service/translationService.ts'
 
 const { getCurrentUser, getCurrentUserAvatar, login } = useAuth()
-const token = getCurrentUser()?.googleToken
+const token = getCurrentUser()?.token
 
 const user = ref<UserModel>(new UserModel('', ''))
 const originalUser = ref<Partial<UserModel>>({})
@@ -21,36 +21,10 @@ const fileInput = ref<HTMLInputElement | null>(null)
 async function loadUserData() {
   if (!token) return
   await apiService
-    .authUserByToken(token)
-    .then((res: any) => {
-      const userData = res
-
-      const loadedUser = new UserModel(
-        userData.email,
-        userData.name,
-        '',
-        userData.id,
-        userData.token,
-        userData.authenticationProvider,
-        userData.zipCode,
-        userData.birthdate,
-        userData.imgBase64,
-        userData.imageUrl,
-        userData.imgBase64,
-      )
-
-      user.value = loadedUser
-      originalUser.value = { ...loadedUser }
-
-      const payload = {
-        token: { JWT: token },
-        imgBlob: userData.imgBase64,
-        userId: userData.id,
-        imgUrl: userData.imgUrl,
-        email: userData.email,
-        name: userData.name,
-      }
-      login(payload)
+    .getUser()
+    .then((userData: UserModel) => {
+      user.value = userData
+      originalUser.value = { ...userData }
     })
     .catch((e: any) => {
       console.error('Fehler beim Laden des Benutzers:', e)

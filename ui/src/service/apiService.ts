@@ -86,13 +86,13 @@ export default {
   },
 
   async updateUser(data: any) {
-    const token = useAuth().getCurrentUser()?.token ?? data.token
-    return putJSON(`${BASE_URL}/v1/user/${token}`, data)
+    return putJSON(`${BASE_URL}/v1/user`, data)
   },
 
-  async getUser(token: string) {
-    return getJSON(`${BASE_URL}/v1/user/${token}`)
+  async getUser(): Promise<UserModel> {
+    return await getJSON(`${BASE_URL}/v1/user/profile`)
   },
+
   //Offers
   async getMyOffers() {
     return getJSON(`${BASE_URL}/v1/offer/my`)

@@ -85,6 +85,10 @@ class UserInteractor(private val userRepository: UsersRepository) {
         return userRepository.getUserByEmail(email)
     }
 
+    fun getUserById(id: Int): UserModel? {
+        return userRepository.getUserById(id)
+    }
+
     fun updateUser(id: Int, dto: UserDto): UserDto? {
         val existing =
             userRepository.getUserByEmail(dto.email) ?: throw UserNotFound()

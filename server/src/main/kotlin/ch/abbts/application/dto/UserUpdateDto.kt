@@ -1,6 +1,5 @@
 package ch.abbts.application.dto
 
-import java.util.*
 import kotlinx.serialization.Serializable
 
 @Serializable
