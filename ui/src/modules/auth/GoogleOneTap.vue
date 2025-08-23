@@ -61,6 +61,7 @@ function initializeGoogleSignIn() {
 }
 
 function handleGoogleLogin(response: any) {
+  console.log(response)
   const token = response.credential
   const payload: any = parseJwt(token)
   console.log(payload)

@@ -28,6 +28,7 @@ let onCancelFn = () => {}
 
 const t = translate
 const dialogVisible = ref(true)
+const googleRegister = ref(false)
 const emit = defineEmits(['logged-in', 'google_user', 'close'])
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/
@@ -140,41 +141,94 @@ function cancelAuth() {
 
 <template>
   <v-dialog v-model="dialogVisible" max-width="400" persistent>
-    <v-card>
+    <v-card v-if="!googleRegister">
       <v-card-title class="d-flex justify-space-between align-center">
         <span>{{ mode === 'register' ? t('LABEL_REGISTRATION') : t('LABEL_LOGIN') }}</span>
         <v-btn icon @click="((dialogVisible = false), emit('close'))">
           <v-icon>close</v-icon>
         </v-btn>
       </v-card-title>
-
       <v-card-text>
         <v-form @submit.prevent="mode === 'register' ? handleRegister() : handleLogin()">
           <v-text-field
             v-model="email"
-            :label="t('LABEL_EMAIL')"
+            label="E-Mail"
             prepend-inner-icon="email"
             required
             type="email"
           ></v-text-field>
-
+          <div v-if="mode === 'register'">
+            <v-text-field
+              v-model="name"
+              label="Name"
+              prepend-inner-icon="account_circle"
+              required
+              type="text"
+            ></v-text-field>
+            <v-text-field
+              v-model="zipCode"
+              label="PLZ Wohnort"
+              prepend-inner-icon="home"
+              required
+              type="text"
+            >
+            </v-text-field>
+            <v-date-input
+              v-model="birthdate"
+              label="Geburtsdatum"
+              prepend-inner-icon="cake"
+              prepend-icon=""
+              required
+              type="date"
+            >
+            </v-date-input>
+          </div>
           <v-text-field
             v-model="password"
-            :label="t('LABEL_PASSWORD')"
+            label="Passwort"
             :rules="mode === 'register' ? passwordRules : []"
             prepend-inner-icon="lock"
             required
             type="password"
           ></v-text-field>
-
           <v-btn block class="mt-3" color="success" type="submit">
-            {{ mode === 'register' ? '📧 ' + t('LABEL_CONTINUE_WITH_EMAIL') : t('LABEL_CONFIRM') }}
+            {{ mode === 'register' ? '📧 ' + 'Registrieren' : 'Anmelden' }}
           </v-btn>
         </v-form>
 
-        <v-divider class="my-4">{{ t('LABEL_OR_CONTINUE_WITH') }}</v-divider>
+        <v-divider class="my-4">oder</v-divider>
 
         <GoogleOneTap :onLogin="handleGoogleLoginSuccess" />
+        <v-btn @click="googleRegister = true">Show Google Registration Finish</v-btn>
+      </v-card-text>
+    </v-card>
+
+    <v-card v-if="googleRegister">
+      <v-card-title class="d-flex justify-center align-center mt-2">
+        <span>Zusätzliche Informationen benötigt</span>
+      </v-card-title>
+      <v-card-text>
+        <v-text-field
+          v-model="zipCode"
+          label="PLZ Wohnort"
+          prepend-inner-icon="home"
+          required
+          type="text"
+        >
+        </v-text-field>
+        <v-date-input
+          v-model="birthdate"
+          label="Geburtsdatum"
+          prepend-inner-icon="cake"
+          prepend-icon=""
+          required
+          type="date"
+        >
+        </v-date-input>
+        <v-btn block class="mt-3" color="success" type="submit"> Registrierung abschließen</v-btn>
+        <v-btn block class="mt-3" color="error" @click="((dialogVisible = false), emit('close'))"
+          >Abbrechen
+        </v-btn>
       </v-card-text>
     </v-card>
   </v-dialog>
