@@ -1,11 +1,16 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 import { translate } from '@/service/translationService.js'
 import apiService from '@/service/apiService.js'
 import GoogleOneTap from '@/modules/auth/GoogleOneTap.vue'
 import SnackBar from '@/components/Snackbar.vue'
 import { useAuth } from '@/service/userAuthService.ts'
-import { UserModel } from '@/models/UserModel.ts'
+import {
+  type AuthProvider,
+  type AuthRequest,
+  type AuthResponse,
+  UserModel,
+} from '@/models/UserModel.ts'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const { login } = useAuth()
@@ -14,9 +19,9 @@ const snackBar = ref<InstanceType<typeof SnackBar> | null>(null)
 
 const props = defineProps<{ mode: 'login' | 'register' }>()
 const mode = ref(props.mode)
-const email = ref('')
-const name = ref('')
-const password = ref('')
+const birthdate = ref(new Date())
+
+const user = ref<Partial<UserModel>>({})
 
 const confirmDialogVisible = ref(false)
 const confirmDialogTitle = ref('')
@@ -34,23 +39,27 @@ const emit = defineEmits(['logged-in', 'google_user', 'close'])
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/
 
 function isPasswordStrong(password: string): boolean {
-  return passwordRegex.test(password)
+  // return passwordRegex.test(password)
+  return true
 }
 
 const passwordRules = [(v: string) => isPasswordStrong(v) || t('ERROR_PASSWORD_WEAK')]
 
-function handleGoogleLoginSuccess(res: any) {
+function handleGoogleLoginSuccess(res: AuthResponse) {
   login(res)
   dialogVisible.value = false
   emit('logged-in', true)
   emit('close')
 }
 
-async function handleLogin() {
-  const user = new UserModel(email.value, name.value, password.value).toAuthenticationDto()
+async function handleLogin(authProvider: AuthProvider) {
   apiService
-    .authUser(user)
-    .then((res: any) => {
+    .authUser({
+      email: user.value.email || '',
+      password: user.value.password || '',
+      authProvider: authProvider || 'LOCAL',
+    } as AuthRequest)
+    .then((res: AuthResponse) => {
       login(res)
       dialogVisible.value = false
       emit('logged-in', true)
@@ -74,15 +83,11 @@ async function handleLogin() {
     })
 }
 
-async function handleRegister() {
-  if (!isPasswordStrong(password.value)) {
-    snackBar.value?.show(t('ERROR_PASSWORD_WEAK'))
-    return
-  }
-  const user = new UserModel(email.value, name.value, password.value).toAuthenticationDto()
+async function handleRegister(authProvider: AuthProvider) {
+  user.value.authProvider = authProvider
   apiService
-    .registerLokalUser(user)
-    .then((res: any) => {
+    .registerUser(user.value)
+    .then((res: AuthResponse) => {
       login(res)
       dialogVisible.value = false
       emit('logged-in', true)
@@ -125,17 +130,20 @@ function showConfirmDialog(
 function confirmLogin() {
   confirmDialogVisible.value = false
   mode.value = 'login'
-  handleLogin()
 }
 
 function confirmRegistration() {
   confirmDialogVisible.value = false
   mode.value = 'register'
-  handleRegister()
 }
 
 function cancelAuth() {
   confirmDialogVisible.value = false
+}
+
+function handleGoogleRegistration(userData: Partial<UserModel>) {
+  user.value = userData
+  googleRegister.value = true
 }
 </script>
 
@@ -143,15 +151,17 @@ function cancelAuth() {
   <v-dialog v-model="dialogVisible" max-width="400" persistent>
     <v-card v-if="!googleRegister">
       <v-card-title class="d-flex justify-space-between align-center">
-        <span>{{ mode === 'register' ? t('LABEL_REGISTRATION') : t('LABEL_LOGIN') }}</span>
+        <span>{{ mode === 'register' ? 'Registrieren' : 'Anmelden' }}</span>
         <v-btn icon @click="((dialogVisible = false), emit('close'))">
           <v-icon>close</v-icon>
         </v-btn>
       </v-card-title>
       <v-card-text>
-        <v-form @submit.prevent="mode === 'register' ? handleRegister() : handleLogin()">
+        <v-form
+          @submit.prevent="mode === 'register' ? handleRegister('LOCAL') : handleLogin('LOCAL')"
+        >
           <v-text-field
-            v-model="email"
+            v-model="user.email"
             label="E-Mail"
             prepend-inner-icon="email"
             required
@@ -159,14 +169,14 @@ function cancelAuth() {
           ></v-text-field>
           <div v-if="mode === 'register'">
             <v-text-field
-              v-model="name"
+              v-model="user.name"
               label="Name"
               prepend-inner-icon="account_circle"
               required
               type="text"
             ></v-text-field>
             <v-text-field
-              v-model="zipCode"
+              v-model="user.zipCode"
               label="PLZ Wohnort"
               prepend-inner-icon="home"
               required
@@ -179,12 +189,16 @@ function cancelAuth() {
               prepend-inner-icon="cake"
               prepend-icon=""
               required
-              type="date"
+              @update:modelValue="
+                () => {
+                  user.birthdate = birthdate.toISOString().split('T')[0]
+                }
+              "
             >
             </v-date-input>
           </div>
           <v-text-field
-            v-model="password"
+            v-model="user.password"
             label="Passwort"
             :rules="mode === 'register' ? passwordRules : []"
             prepend-inner-icon="lock"
@@ -198,7 +212,10 @@ function cancelAuth() {
 
         <v-divider class="my-4">oder</v-divider>
 
-        <GoogleOneTap :onLogin="handleGoogleLoginSuccess" />
+        <GoogleOneTap
+          :onLogin="handleGoogleLoginSuccess"
+          @register-user="handleGoogleRegistration"
+        />
         <v-btn @click="googleRegister = true">Show Google Registration Finish</v-btn>
       </v-card-text>
     </v-card>
@@ -209,7 +226,7 @@ function cancelAuth() {
       </v-card-title>
       <v-card-text>
         <v-text-field
-          v-model="zipCode"
+          v-model="user.zipCode"
           label="PLZ Wohnort"
           prepend-inner-icon="home"
           required
@@ -222,10 +239,23 @@ function cancelAuth() {
           prepend-inner-icon="cake"
           prepend-icon=""
           required
-          type="date"
+          @update:modelValue="
+            () => {
+              user.birthdate = birthdate.toISOString().split('T')[0]
+            }
+          "
         >
         </v-date-input>
-        <v-btn block class="mt-3" color="success" type="submit"> Registrierung abschließen</v-btn>
+        <v-btn
+          block
+          class="mt-3"
+          color="success"
+          type="submit"
+          @click="handleRegister('GOOGLE')"
+          @register-user="handleGoogleRegistration"
+        >
+          Registrierung abschließen
+        </v-btn>
         <v-btn block class="mt-3" color="error" @click="((dialogVisible = false), emit('close'))"
           >Abbrechen
         </v-btn>

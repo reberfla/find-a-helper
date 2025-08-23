@@ -1,9 +1,7 @@
 package ch.abbts.application.interactor
 
 import ch.abbts.adapter.database.repository.UsersRepository
-import ch.abbts.application.dto.AuthenticationDto
 import ch.abbts.application.dto.UserDto
-import ch.abbts.domain.model.AuthProvider
 import ch.abbts.domain.model.UserModel
 import ch.abbts.error.*
 import ch.abbts.utils.Log
@@ -21,24 +19,12 @@ class UserInteractor(private val userRepository: UsersRepository) {
 
     companion object : Log()
 
-    fun createLocalUser(dto: AuthenticationDto): UserDto? {
+    fun createUser(dto: UserDto): UserDto? {
         val existing = userRepository.getUserByEmail(dto.email)
         if (existing != null) {
             throw UserAlreadyExists()
         }
-        val newUserDto =
-            UserDto(
-                null,
-                dto.name,
-                dto.email,
-                dto.password,
-                dto.zipCode,
-                authProvider = dto.authenticationProvider,
-                birthdate = dto.birthdate,
-            )
-        LoggerService.debugLog(newUserDto)
-        LoggerService.debugLog(newUserDto.toModel())
-        val newUserModel = userRepository.createUser(newUserDto.toModel())
+        val newUserModel = userRepository.createUser(dto.toModel())
         LoggerService.debugLog(newUserModel.toString())
         return newUserModel?.let { UserDto.toDTO(it) }
     }
@@ -72,20 +58,7 @@ class UserInteractor(private val userRepository: UsersRepository) {
         val picture = payload["picture"] as? String
 
         val user: UserModel =
-            userRepository.getUserByEmail(email)
-                ?: run {
-                    val newUser =
-                        UserModel(
-                            email = email,
-                            authProvider = AuthProvider.GOOGLE,
-                            birthdate = LocalDate.parse("1991-01-01"),
-                            name = name,
-                            imageUrl = picture,
-                        )
-
-                    userRepository.createUser(newUser)
-                        ?: throw Exception("User creation failed for $email")
-                }
+            userRepository.getUserByEmail(email) ?: throw UserNotFound()
 
         if (Instant.now().epochSecond < (user.lockedUntil ?: 0L)) {
             throw UserIsLocked()

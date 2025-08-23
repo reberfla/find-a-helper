@@ -9,7 +9,7 @@ object UsersTable : Table("users") {
     val name = varchar("name", 255)
     val email = varchar("email", 255)
     val password_hash = varchar("password_hash", 255).nullable()
-    val zipCode = integer("zip_code").nullable()
+    val zipCode = varchar("zip_code", 10).nullable()
     val imageUrl = varchar("image_url", 255).nullable()
     val image = blob("image").nullable()
     val active = bool("active").nullable()

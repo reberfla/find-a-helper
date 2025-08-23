@@ -7,7 +7,7 @@ import SnackBar from '@/components/Snackbar.vue'
 import { translate } from '@/service/translationService.ts'
 
 const { getCurrentUser, getCurrentUserAvatar, login } = useAuth()
-const token = getCurrentUser()?.token
+const token = getCurrentUser()?.googleToken
 
 const user = ref<UserModel>(new UserModel('', ''))
 const originalUser = ref<Partial<UserModel>>({})
@@ -95,7 +95,7 @@ function onImageSelected(event: Event) {
 async function saveChanges() {
   changedFields.value.id = user.value.id
 
-  const { id, token, imageUrl, authenticationProvider, ...rest } = toRaw(changedFields.value)
+  const { id, googleToken, imageUrl, authProvider, ...rest } = toRaw(changedFields.value)
 
   if (rest.zipCode !== undefined && rest.zipCode !== null) {
     rest.zipCode = Number(rest.zipCode)

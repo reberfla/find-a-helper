@@ -13,6 +13,7 @@ import ch.abbts.error.MissingPassword
 import ch.abbts.error.WebserverError
 import ch.abbts.error.WebserverErrorMessage
 import ch.abbts.utils.LoggerService
+import ch.abbts.utils.receiveHandled
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
 import io.github.tabilzad.ktor.annotations.ResponseEntry
@@ -44,76 +45,59 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                 a JWT from the server for subsequent api calls."""",
             )
             post("/auth") {
-                try {
-                    val user = call.receive<AuthenticationDto>()
-                    val verifiedUser =
-                        when (user.authenticationProvider) {
-                            AuthProvider.GOOGLE -> {
-                                user.token?.let {
-                                    userInteractor.verifyGoogleUser(it)
-                                } ?: throw MissingGoogleToken()
-                            }
-
-                            AuthProvider.LOCAL -> {
-                                user.password?.let {
-                                    userInteractor.verifyLocalUser(
-                                        user.email,
-                                        it,
-                                    )
-                                } ?: throw MissingPassword()
-                            }
+                val user = call.receiveHandled<AuthenticationDto>()
+                val verifiedUser =
+                    when (user.authProvider) {
+                        AuthProvider.GOOGLE -> {
+                            user.googleToken?.let {
+                                userInteractor.verifyGoogleUser(it)
+                            } ?: throw MissingGoogleToken()
                         }
 
-                    LoggerService.debugLog(verifiedUser)
-
-                    if (verifiedUser.id != null) {
-                        val token =
-                            JWebToken(verifiedUser.email, verifiedUser.id)
-                        userInteractor.updateIssuedTime(
-                            verifiedUser.email,
-                            token.body.iat,
-                        )
-                        val jwt =
-                            JWebToken.generateToken(token.header, token.body)
-
-                        val response =
-                            AuthResponseDto(
-                                id = verifiedUser.id,
-                                token = jwt,
-                                email = verifiedUser.email,
-                                name = verifiedUser.name,
-                                imgUrl = verifiedUser.imageUrl,
-                                imgBlob = verifiedUser.imgBase64,
-                            )
-                        call.respond(HttpStatusCode.OK, response)
+                        AuthProvider.LOCAL -> {
+                            user.password?.let {
+                                userInteractor.verifyLocalUser(user.email, it)
+                            } ?: throw MissingPassword()
+                        }
                     }
-                } catch (e: WebserverError) {
-                    LoggerService.debugLog("❌: ${e}")
-                    call.respond(e.getStatus(), e.getMessage())
+
+                LoggerService.debugLog(verifiedUser)
+
+                if (verifiedUser.id != null) {
+                    val token = JWebToken(verifiedUser.email, verifiedUser.id)
+                    userInteractor.updateIssuedTime(
+                        verifiedUser.email,
+                        token.body.iat,
+                    )
+                    val jwt = JWebToken.generateToken(token.header, token.body)
+
+                    val response =
+                        AuthResponseDto(
+                            id = verifiedUser.id,
+                            jwt = jwt.jwt,
+                            email = verifiedUser.email,
+                            name = verifiedUser.name,
+                            imgUrl = verifiedUser.imageUrl,
+                            imgBlob = verifiedUser.imgBase64,
+                        )
+                    call.respond(HttpStatusCode.OK, response)
                 }
             }
 
             get("auth/{token}") {
-                try {
-                    val token = call.parameters["token"]
-                    if (token == null) {
-
-                        call.respond(HttpStatusCode.BadRequest)
-                        return@get
-                    }
-
-                    val email = JWebToken.decodeEmailFromToken(token)
-                    val user = userInteractor.getUserByEmail(email)
-                    if (user == null) {
-                        call.respond(HttpStatusCode.NotFound)
-                        return@get
-                    }
-
-                    call.respond(HttpStatusCode.OK, UserDto.toDTO(user))
-                } catch (e: WebserverError) {
-                    LoggerService.debugLog("❌ GET /user/{id} error: ${e}")
-                    call.respond(e.getStatus(), e.getMessage())
+                val token = call.parameters["token"]
+                if (token == null) {
+                    call.respond(HttpStatusCode.BadRequest)
+                    return@get
                 }
+
+                val email = JWebToken.decodeEmailFromToken(token)
+                val user = userInteractor.getUserByEmail(email)
+                if (user == null) {
+                    call.respond(HttpStatusCode.NotFound)
+                    return@get
+                }
+                call.respond(HttpStatusCode.OK, UserDto.toDTO(user))
             }
 
             authenticate("jwt-auth") {

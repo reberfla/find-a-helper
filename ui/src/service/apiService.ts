@@ -1,4 +1,5 @@
 import { useAuth } from '@/service/userAuthService.ts'
+import type { AuthRequest, AuthResponse, UserModel } from '@/models/UserModel.ts'
 
 export const BASE_URL = 'http://localhost:8080'
 
@@ -66,7 +67,7 @@ export async function deleteRequest(url: string): Promise<{ message: string }> {
 
 export default {
   // Auth
-  async authUser(data: any) {
+  async authUser(data: any): Promise<AuthResponse> {
     return postJSON(`${BASE_URL}/v1/auth`, data)
   },
 
@@ -79,7 +80,8 @@ export default {
   },
 
   // User-Profile
-  async registerLokalUser(data: any) {
+  async registerUser(data: Partial<UserModel>): Promise<AuthResponse> {
+    console.log(data)
     return postJSON(`${BASE_URL}/v1/user/register`, data)
   },
 

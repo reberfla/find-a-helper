@@ -13,13 +13,13 @@ data class UserDto(
     val name: String? = null,
     val email: String,
     val password: String? = null,
-    val zipCode: Int? = -1,
+    val zipCode: String? = null,
     val imageUrl: String? = null,
     val imgBase64: String? = null,
     val active: Boolean? = true,
     val authProvider: AuthProvider? = null,
     val birthdate: String?, // format: "yyyy-MM-dd"
-    val idToken: String? = null,
+    val googleToken: String? = null,
 ) : DTO<UserModel> {
 
     override fun toModel(): UserModel {
@@ -51,7 +51,7 @@ data class UserDto(
                     user.image
                         ?.takeIf { it.isNotEmpty() }
                         ?.let { Base64.getEncoder().encodeToString(it) },
-                zipCode = user.zipCode,
+                zipCode = user.zipCode ?: "",
                 active = user.active,
                 birthdate = user.birthdate.format(dateFormatter),
             )

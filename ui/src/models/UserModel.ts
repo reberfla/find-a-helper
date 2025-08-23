@@ -4,8 +4,8 @@ export class UserModel {
     public name: string,
     public password?: string,
     public id?: number,
-    public token?: string,
-    public authenticationProvider?: string,
+    public googleToken?: string,
+    public authProvider?: AuthProvider,
     public zipCode?: number,
     public birthdate?: string,
     public image?: File,
@@ -26,8 +26,8 @@ export class UserModel {
   toAuthenticationDto(): {
     email: string
     password?: string | null
-    token?: string
-    authenticationProvider: string
+    googleToken?: string
+    authProvider: string
     name?: string
     zipCode?: number
     birthdate?: string
@@ -35,11 +35,29 @@ export class UserModel {
     return {
       email: this.email,
       password: this.password ?? null,
-      token: this.token ?? '',
-      authenticationProvider: this.authenticationProvider ?? 'LOCAL',
+      googleToken: this.googleToken ?? '',
+      authProvider: this.authProvider ?? 'LOCAL',
       name: this.name ?? 'User',
       zipCode: this.zipCode ?? -1,
       birthdate: this.birthdate ?? '1970-01-01',
     }
   }
+}
+
+export type AuthProvider = 'LOCAL' | 'GOOGLE'
+
+export interface AuthResponse {
+  id: number
+  jwt: string
+  email: string
+  name: string
+  imgUrl: string | null
+  imgBlob: string | null
+}
+
+export interface AuthRequest {
+  email: string
+  googleToken?: string
+  password?: string
+  authProvider: AuthProvider
 }

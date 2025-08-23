@@ -61,8 +61,7 @@ class AuthenticationTest() {
             AuthenticationDto(
                 email = "mail@example.ch",
                 password = "1234",
-                name = "Bob Builder",
-                authenticationProvider = AuthProvider.LOCAL,
+                authProvider = AuthProvider.LOCAL,
             )
         val response =
             customClient.post("/v1/auth") {
@@ -72,14 +71,13 @@ class AuthenticationTest() {
         assertEquals(HttpStatusCode.OK, response.status)
         val responseBody =
             Json.parseToJsonElement(response.bodyAsText()).jsonObject
-        assert(responseBody.containsKey("token"))
+        assert(responseBody.containsKey("jwt"))
 
         val userNotExisting =
             AuthenticationDto(
                 email = "mailb@example.ch",
                 password = "1234",
-                name = "BobBuilder",
-                authenticationProvider = AuthProvider.LOCAL,
+                authProvider = AuthProvider.LOCAL,
             )
         val responseNotExisting =
             customClient.post("/v1/auth") {

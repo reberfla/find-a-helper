@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import router from '@/router'
+import type { AuthResponse } from '@/models/UserModel.ts'
 
 const user = ref<{
   id: number
@@ -20,27 +21,18 @@ if (storedUser) {
 
 const isLoggedIn = computed(() => !!user.value?.token)
 
-function login(payload: {
-  token: any
-  id: any
-  imgBlob: any
-  userId: any
-  imgUrl: any
-  email: any
-  name: any
-}) {
+function login(payload: AuthResponse) {
   const avatar = payload.imgBlob
     ? `data:image/png;base64,${payload.imgBlob}`
     : payload.imgUrl || 'https://www.gravatar.com/avatar?d=mp'
 
   user.value = {
-    token: payload.token.JWT,
+    token: payload.jwt,
     id: payload.id,
     avatar,
     name: payload.name,
     email: payload.email,
   }
-
   localStorage.setItem('user', JSON.stringify(user.value))
 }
 

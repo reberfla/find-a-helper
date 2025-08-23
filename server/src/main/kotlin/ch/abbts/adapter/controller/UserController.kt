@@ -1,7 +1,6 @@
 package ch.abbts.adapter.controller
 
 import ch.abbts.application.dto.AuthResponseDto
-import ch.abbts.application.dto.AuthenticationDto
 import ch.abbts.application.dto.SuccessMessage
 import ch.abbts.application.dto.UserDto
 import ch.abbts.application.dto.UserUpdateDto
@@ -11,6 +10,7 @@ import ch.abbts.error.UserAlreadyExists
 import ch.abbts.error.WebserverError
 import ch.abbts.error.WebserverErrorMessage
 import ch.abbts.utils.LoggerService
+import ch.abbts.utils.receiveHandled
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
 import io.github.tabilzad.ktor.annotations.ResponseEntry
@@ -42,9 +42,9 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
             )
             post("/register") {
                 try {
-                    val dto = call.receive<AuthenticationDto>()
+                    val dto = call.receiveHandled<UserDto>()
                     LoggerService.debugLog("DTO OK: $dto")
-                    val newUser = userInteractor.createLocalUser(dto)
+                    val newUser = userInteractor.createUser(dto)
                     LoggerService.debugLog(newUser.toString())
                     if (newUser?.id != null) {
                         val token = JWebToken(newUser.email, newUser.id)
@@ -57,7 +57,7 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                         val response =
                             AuthResponseDto(
                                 id = newUser.id,
-                                token = jwt,
+                                jwt = jwt.jwt,
                                 email = newUser.email,
                                 name = newUser.name,
                                 imgUrl = newUser.imageUrl,
@@ -70,6 +70,7 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                         when (e) {
                             is UserAlreadyExists ->
                                 HttpStatusCode.Conflict to e.getMessage()
+
                             else -> e.getStatus() to e.getMessage()
                         }
                     call.respond(status, response)
@@ -106,7 +107,7 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                                 updateUser.birthdate
                                     ?: user.birthdate.toString(),
                             authProvider = user.authProvider,
-                            idToken = token,
+                            googleToken = token,
                             imgBase64 = updateUser.imgBase64,
                         )
 
@@ -116,7 +117,7 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                     val response =
                         AuthResponseDto(
                             id = updatedUserDto?.id,
-                            token = null,
+                            jwt = "dummy",
                             email = updatedUserDto?.email ?: "",
                             name = updatedUserDto?.name,
                             imgUrl = updatedUserDto?.imageUrl,

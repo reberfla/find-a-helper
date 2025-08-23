@@ -10,7 +10,7 @@ data class UserModel(
     val name: String,
     val email: String,
     val passwordHash: String? = null,
-    val zipCode: Int? = -1,
+    val zipCode: String? = "",
     val imageUrl: String? = "",
     val image: ByteArray? = null,
     val active: Boolean? = true,

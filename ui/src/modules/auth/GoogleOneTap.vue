@@ -2,7 +2,7 @@
 import apiService from '@/service/apiService.js'
 import { onMounted } from 'vue'
 import { translate } from '@/service/translationService.js'
-import { UserModel } from '@/models/UserModel.ts'
+import { type AuthRequest, UserModel } from '@/models/UserModel.ts'
 
 declare global {
   interface Window {
@@ -13,6 +13,8 @@ declare global {
 const props = defineProps({
   onLogin: Function,
 })
+
+const emit = defineEmits(['register-user'])
 
 const clientId = '1030506683349-po5p0i1593ap5vlur6ffivpcfefka4d7.apps.googleusercontent.com'
 const t = translate
@@ -65,24 +67,31 @@ function handleGoogleLogin(response: any) {
   const token = response.credential
   const payload: any = parseJwt(token)
   console.log(payload)
-
-  const user = new UserModel(
-    payload?.email,
-    payload?.name,
-    '',
-    -1,
-    token,
-    'GOOGLE',
-  ).toAuthenticationDto()
+  const authRequestBody: AuthRequest = {
+    email: payload?.email,
+    authProvider: 'GOOGLE',
+    googleToken: token,
+  }
   apiService
-    .authUser(user)
-    .then((res: any) => {
+    .authUser(authRequestBody)
+    .then((res) => {
       if (props.onLogin) {
         props.onLogin(res)
       }
     })
     .catch((e: any) => {
-      console.error(e)
+      console.log(e)
+      if (e?.status === 404) {
+        const user: Partial<UserModel> = {
+          email: payload?.email,
+          name: payload?.name,
+          authProvider: 'GOOGLE',
+          googleToken: token,
+        }
+        emit('register-user', user)
+      } else {
+        console.error('Authentication error:', e)
+      }
     })
 }
 
