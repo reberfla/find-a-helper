@@ -1,6 +1,7 @@
 package ch.abbts.application.dto
 
 import kotlinx.serialization.Serializable
+import ch.abbts.domain.model.AssignmentModel
 
 
 @Serializable
@@ -14,8 +15,7 @@ data class AssignementDto(
     ) {
     fun toModel(userID: Int): AssignmentModel {
         return AssignmentModel(
-            null,
-            userID,
+            id = requireNotNull(id),
             taskId,
             offerId,
             createdAt,
