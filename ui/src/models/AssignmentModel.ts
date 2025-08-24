@@ -4,8 +4,8 @@ import type { OfferModel } from '@/models/OfferModel.ts'
 
 export interface AssignmentModel {
   id: number
-  taskCreatorUser: UserModel
-  offerCreatorUser: UserModel
+  taskCreatorUser: Partial<UserModel>
+  offerCreatorUser: Partial<UserModel>
   task: Task
   offer: OfferModel
   createdAt: number
