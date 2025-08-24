@@ -1,28 +1,26 @@
 package ch.abbts.config
 
-import ch.abbts.adapter.database.table.User
+import ch.abbts.adapter.database.table.UsersTable
 import com.typesafe.config.ConfigFactory
 import org.jetbrains.exposed.sql.Database
- import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object DatabaseConfig {
     fun init() {
         val fileConfig = ConfigFactory.load()
         val dbUrl = fileConfig.getString("database.url")
-        val user =fileConfig.getString("database.user")
-        val password =  fileConfig.getString("database.password")
-        val driver =  fileConfig.getString("database.driver")
+        val user = fileConfig.getString("database.user")
+        val password = fileConfig.getString("database.password")
+        val driver = fileConfig.getString("database.driver")
 
         Database.connect(
             url = dbUrl,
             driver = driver,
             user = user,
-            password = password
+            password = password,
         )
 
-        transaction {
-            SchemaUtils.create(User)
-         }
+        transaction { SchemaUtils.create(UsersTable) }
     }
 }

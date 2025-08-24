@@ -1,67 +1,133 @@
 package ch.abbts.adapter.controller
 
+import ch.abbts.application.dto.AuthResponseDto
 import ch.abbts.application.dto.AuthenticationDto
-import ch.abbts.application.interactor.UsersInteractor
+import ch.abbts.application.dto.SuccessMessage
+import ch.abbts.application.dto.UserDto
+import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.AuthProvider
 import ch.abbts.domain.model.JWT
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.MissingGoogleToken
 import ch.abbts.error.MissingPassword
+import ch.abbts.error.WebserverError
+import ch.abbts.error.WebserverErrorMessage
+import ch.abbts.utils.LoggerService
+import ch.abbts.utils.receiveHandled
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
 import io.github.tabilzad.ktor.annotations.ResponseEntry
 import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.http.*
-import io.ktor.server.auth.authenticate
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 
 @Tag(["Authentication"])
-fun Route.authenticationRoutes(usersInteractor: UsersInteractor) {
-    route("/v1") {
-        @KtorResponds(mapping = [ResponseEntry("200", JWT::class)])
-        @KtorDescription(
-            summary = "Authenticate to receive a JWT Token",
-            description =
-                """ This api verifies a users credential or token from google and returns
-                a JWT from the server for subsequent api calls.""""
-        )
-        post("/auth") {
-            val user = call.receive<AuthenticationDto>()
-            val success =
-                when (user.authenticationProvider) {
-                    AuthProvider.GOOGLE -> if (user.token != null) {
-                        usersInteractor.verifyGoogleUser(user.token)
-                    } else {
-                        throw MissingGoogleToken()
+fun Application.authenticationRoutes(userInteractor: UserInteractor) {
+    routing {
+        route("/v1") {
+            @KtorResponds(
+                mapping =
+                    [
+                        ResponseEntry("200", JWT::class),
+                        ResponseEntry("401", WebserverErrorMessage::class),
+                        ResponseEntry("400", WebserverErrorMessage::class),
+                        ResponseEntry("500", WebserverErrorMessage::class),
+                    ]
+            )
+            @KtorDescription(
+                summary = "Authenticate to receive a JWT Token",
+                description =
+                    """ This api verifies a users credential or token from google and returns
+                a JWT from the server for subsequent api calls."""",
+            )
+            post("/auth") {
+                val user = call.receiveHandled<AuthenticationDto>()
+                val verifiedUser =
+                    when (user.authProvider) {
+                        AuthProvider.GOOGLE -> {
+                            user.googleToken?.let {
+                                userInteractor.verifyGoogleUser(it)
+                            } ?: throw MissingGoogleToken()
+                        }
+
+                        AuthProvider.LOCAL -> {
+                            user.password?.let {
+                                userInteractor.verifyLocalUser(user.email, it)
+                            } ?: throw MissingPassword()
+                        }
                     }
 
-                    AuthProvider.LOCAL -> if (user.password != null) {
-                        usersInteractor.verifyLocalUser(user.email, user.password)
-                    } else {
-                        throw MissingPassword()
+                LoggerService.debugLog(verifiedUser)
+
+                if (verifiedUser.id != null) {
+                    val token = JWebToken(verifiedUser.email, verifiedUser.id)
+                    userInteractor.updateIssuedTime(
+                        verifiedUser.email,
+                        token.body.iat,
+                    )
+                    val jwt = JWebToken.generateToken(token.header, token.body)
+
+                    val response =
+                        AuthResponseDto(
+                            id = verifiedUser.id,
+                            jwt = jwt.jwt,
+                            email = verifiedUser.email,
+                            name = verifiedUser.name,
+                            imgUrl = verifiedUser.imageUrl,
+                            imgBlob = verifiedUser.imgBase64,
+                        )
+                    call.respond(HttpStatusCode.OK, response)
+                }
+            }
+
+            get("auth/{token}") {
+                val token = call.parameters["token"]
+                if (token == null) {
+                    call.respond(HttpStatusCode.BadRequest)
+                    return@get
+                }
+
+                val email = JWebToken.decodeEmailFromToken(token)
+                val user = userInteractor.getUserByEmail(email)
+                if (user == null) {
+                    call.respond(HttpStatusCode.NotFound)
+                    return@get
+                }
+                call.respond(HttpStatusCode.OK, UserDto.toDTO(user))
+            }
+
+            authenticate("jwt-auth") {
+                @KtorResponds(
+                    mapping =
+                        [
+                            ResponseEntry("200", SuccessMessage::class),
+                            ResponseEntry("401", WebserverErrorMessage::class),
+                            ResponseEntry("400", WebserverErrorMessage::class),
+                            ResponseEntry("500", WebserverErrorMessage::class),
+                        ]
+                )
+                @KtorDescription(
+                    summary = "API to verify if a JWT token is valid",
+                    description =
+                        "This is a debug route to verify if a token is valid",
+                )
+                get("/validate") {
+                    try {
+                        val dto = call.receive<UserDto>()
+                        LoggerService.debugLog(dto)
+                        dto.password?.let {
+                            userInteractor.verifyLocalUser(dto.email, it)
+                        }
+                        call.respond(HttpStatusCode.OK)
+                    } catch (e: WebserverError) {
+                        LoggerService.debugLog("❌: ${e}")
+                        call.respond(e.getStatus(), e.getMessage())
                     }
                 }
-            if (success) {
-                val token = JWebToken(user.email)
-                println("updating timestamp to ${token.body.iat}")
-                usersInteractor.updateIssuedTime(user.email, token.body.iat)
-                call.respond(JWebToken.generateToken(token.header, token.body))
-            }
-            call.respond(HttpStatusCode.Unauthorized, buildJsonObject {
-                put("message", "authorization failed")
-            })
-        }
-        authenticate("jwt-auth") {
-            @KtorDescription(
-                summary = "API to verify if a JWT token is valid",
-                description = "This is a debug route to verify if a token is valid"
-            )
-            get("/validate") {
-                call.respond(buildJsonObject { put("message", "validation successful") })
             }
         }
     }

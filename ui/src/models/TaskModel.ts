@@ -1,0 +1,163 @@
+export interface Task {
+  id: number
+  name?: string
+  email?: string
+  zipCode: string
+  coordinates?: string
+  title: string
+  description: string
+  category: TaskCategory
+  status: TaskStatus
+  active: boolean
+  deadline?: number | null
+  taskInterval: TaskInterval
+  weekdays: Weekday[]
+  createdAt: number
+}
+
+export enum TaskCategory {
+  SHOPPING = 'SHOPPING',
+  TRANSPORT = 'TRANSPORT',
+  CLEANING = 'CLEANING',
+  PETCARE = 'PETCARE',
+  GARDENING = 'GARDENING',
+  TUTORING = 'TUTORING',
+  TECHHELP = 'TECHHELP',
+  CHILDCARE = 'CHILDCARE',
+  LANGUAGETANDEM = 'LANGUAGETANDEM',
+  HOMEWORK = 'HOMEWORK',
+  REPAIRS = 'REPAIRS',
+  OTHERS = 'OTHERS',
+}
+
+export const categoryMap = new Map<TaskCategory, string>([
+  [TaskCategory.SHOPPING, 'Einkaufen'],
+  [TaskCategory.TRANSPORT, 'Transport'],
+  [TaskCategory.CLEANING, 'Reinigung'],
+  [TaskCategory.PETCARE, 'Haustierpflege'],
+  [TaskCategory.GARDENING, 'Gartenarbeit'],
+  [TaskCategory.TUTORING, 'Nachhilfe'],
+  [TaskCategory.TECHHELP, 'Technikhilfe'],
+  [TaskCategory.CHILDCARE, 'Kinderbetreuung'],
+  [TaskCategory.LANGUAGETANDEM, 'Sprachtandem'],
+  [TaskCategory.HOMEWORK, 'Hausaufgaben'],
+  [TaskCategory.REPAIRS, 'Reparaturen'],
+  [TaskCategory.OTHERS, 'Sonstiges'],
+])
+
+export const categories = Object.values(TaskCategory).map((category) => ({
+  title: categoryMap.get(category),
+  value: category,
+}))
+
+export enum TaskStatus {
+  OPEN = 'OPEN',
+  ASSIGNED = 'ASSIGNED',
+  COMPLETED = 'COMPLETED',
+}
+
+export const statusMap = new Map<TaskStatus, string>([
+  [TaskStatus.OPEN, 'Offen'],
+  [TaskStatus.ASSIGNED, 'Zugewiesen'],
+  [TaskStatus.COMPLETED, 'Abgeschlossen'],
+])
+
+export const status = Object.values(TaskStatus).map((status) => ({
+  title: statusMap.get(status),
+  value: status,
+}))
+
+export enum TaskInterval {
+  CONTINUOUS = 'CONTINUOUS',
+  RECURRING = 'RECURRING',
+  ONE_TIME = 'ONE_TIME',
+}
+
+export const intervalMap = new Map<TaskInterval, string>([
+  [TaskInterval.CONTINUOUS, 'Kontinuierlich'],
+  [TaskInterval.RECURRING, 'Wiederkehrend'],
+  [TaskInterval.ONE_TIME, 'Einmalig'],
+])
+
+export const interval = Object.values(TaskInterval).map((interval) => ({
+  title: intervalMap.get(interval),
+  value: interval,
+}))
+
+export enum Weekday {
+  MONDAY = 'MONDAY',
+  TUESDAY = 'TUESDAY',
+  WEDNESDAY = 'WEDNESDAY',
+  THURSDAY = 'THURSDAY',
+  FRIDAY = 'FRIDAY',
+  SATURDAY = 'SATURDAY',
+  SUNDAY = 'SUNDAY',
+}
+
+export const weekdayMap = new Map<Weekday, string>([
+  [Weekday.MONDAY, 'Mo'],
+  [Weekday.TUESDAY, 'Di'],
+  [Weekday.WEDNESDAY, 'Mi'],
+  [Weekday.THURSDAY, 'Do'],
+  [Weekday.FRIDAY, 'Fr'],
+  [Weekday.SATURDAY, 'Sa'],
+  [Weekday.SUNDAY, 'So'],
+])
+
+export function getIconOfCategory(category: TaskCategory): string {
+  switch (category) {
+    case TaskCategory.SHOPPING:
+      return 'shopping_basket'
+    case TaskCategory.TRANSPORT:
+      return 'local_shipping'
+    case TaskCategory.CLEANING:
+      return 'cleaning_services'
+    case TaskCategory.PETCARE:
+      return 'pets'
+    case TaskCategory.GARDENING:
+      return 'grass'
+    case TaskCategory.TUTORING:
+      return 'school'
+    case TaskCategory.TECHHELP:
+      return 'computer'
+    case TaskCategory.CHILDCARE:
+      return 'child_care'
+    case TaskCategory.LANGUAGETANDEM:
+      return 'translate'
+    case TaskCategory.HOMEWORK:
+      return 'menu_book'
+    case TaskCategory.REPAIRS:
+      return 'build'
+    default:
+      return 'more_horiz'
+  }
+}
+
+export function getColorOfCategory(category: TaskCategory): string {
+  switch (category) {
+    case TaskCategory.SHOPPING:
+      return '#FF9800'
+    case TaskCategory.TRANSPORT:
+      return '#2196F3'
+    case TaskCategory.CLEANING:
+      return '#4CAF50'
+    case TaskCategory.PETCARE:
+      return '#FFEB3B'
+    case TaskCategory.GARDENING:
+      return '#8BC34A'
+    case TaskCategory.TUTORING:
+      return '#9C27B0'
+    case TaskCategory.TECHHELP:
+      return '#3F51B5'
+    case TaskCategory.CHILDCARE:
+      return '#E91E63'
+    case TaskCategory.LANGUAGETANDEM:
+      return '#00BCD4'
+    case TaskCategory.HOMEWORK:
+      return '#FF5722'
+    case TaskCategory.REPAIRS:
+      return '#607D8B'
+    default:
+      return '#9E9E9E'
+  }
+}

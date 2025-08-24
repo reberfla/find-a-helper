@@ -1,8 +1,8 @@
 package ch.abbts.application.dto
 
-interface DTO <T> {
+interface DTO<T> {
 
-    fun toModel():T
+    fun toModel(): T
 
-    companion object{}
+    companion object {}
 }

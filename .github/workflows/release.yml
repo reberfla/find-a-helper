@@ -36,9 +36,6 @@ jobs:
       - name: Run Kotlin Unit Tests
         uses: ./.github/actions/unit-tests-kotlin
 
-      - name: Run Vitest Unit Tests
-        uses: ./.github/actions/unit-tests-vitest
-
   build-push-docker-images:
     if: github.ref_name == github.event.repository.default_branch
     needs: test

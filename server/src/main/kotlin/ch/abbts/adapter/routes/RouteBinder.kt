@@ -1,50 +1,66 @@
 package ch.abbts.adapter.routes
 
 import ch.abbts.adapter.controller.authenticationRoutes
+import ch.abbts.adapter.controller.offerRoutes
+import ch.abbts.adapter.controller.taskRoutes
 import ch.abbts.adapter.controller.userRoutes
-import ch.abbts.application.interactor.UsersInteractor
+import ch.abbts.application.interactor.OfferInteractor
+import ch.abbts.application.interactor.TaskInteractor
+import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.JWebToken
-import ch.abbts.error.AuthenticationException
-import ch.abbts.error.MissingGoogleToken
-import ch.abbts.error.MissingPassword
+import ch.abbts.error.WebserverError
+import ch.abbts.utils.LoggerService
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import org.slf4j.LoggerFactory
 
 fun Application.configureRouting(
-    usersInteractor: UsersInteractor,
+    userInteractor: UserInteractor,
+    offerInteractor: OfferInteractor,
+    taskInteractor: TaskInteractor,
 ) {
+    val log = LoggerFactory.getLogger(object {}::class.java.`package`.name)
     install(StatusPages) {
-        exception<Throwable> { call, cause ->
-            when (cause) {
-                is MissingPassword -> call.respond(status = HttpStatusCode.BadRequest, buildJsonObject { put("message", cause.message) })
-                is MissingGoogleToken -> call.respond(status = HttpStatusCode.BadRequest, buildJsonObject { put("message", cause.message) })
-                is AuthenticationException ->
-                        call.respond(status = HttpStatusCode.Unauthorized, buildJsonObject{
-                            put("message", cause.message)
-                        })
-                else ->
-                        call.respond(
-                            status = HttpStatusCode.InternalServerError,
-                                buildJsonObject {
-                                put("message", "something went wrong")}
-                        )
+        exception<Throwable> { call, error ->
+            when (error) {
+                is WebserverError -> {
+                    log.info("${error.message}")
+                    call.respond(status = error.getStatus(), error.getMessage())
+                }
+                else -> {
+                    log.error("${error.message}")
+                    call.respond(
+                        status = HttpStatusCode.InternalServerError,
+                        message =
+                            buildJsonObject {
+                                put("message", "something went wrong")
+                            },
+                    )
+                }
             }
         }
     }
+    install(ContentNegotiation) { json() }
     authentication {
         bearer("jwt-auth") {
             realm = "Access to protected routes"
             authenticate { jwt ->
+                LoggerService.debugLog(jwt)
                 JWebToken.validateToken(jwt.token)
                 JWebToken.verifyToken(jwt.token)
             }
         }
     }
-    routing { userRoutes(usersInteractor) }
-    routing { authenticationRoutes(usersInteractor) }
+    routing { userRoutes(userInteractor) }
+    routing { authenticationRoutes(userInteractor) }
+    routing { offerRoutes(offerInteractor, userInteractor, taskInteractor) }
+    routing { taskRoutes(taskInteractor) }
 }

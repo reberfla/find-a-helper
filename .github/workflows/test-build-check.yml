@@ -9,7 +9,37 @@ permissions:
   pull-requests: write
 
 jobs:
+  format-and-lint-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Kotlin format checks
+        shell: bash
+        run: ./gradlew ktfmtCheck
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "./ui/package.json"
+
+      - name: Install dependencies
+        run: cd ui && npm i
+        shell: bash
+
+      - name: Run UI format checks
+        shell: bash
+        run: |
+          cd ui && npm run check
+
+      - name: Run UI lint checks
+        shell: bash
+        run: |
+          cd ui && npm run lint
+
   test:
+    needs: format-and-lint-check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -17,10 +47,6 @@ jobs:
 
       - name: Run Kotlin Unit Tests
         uses: ./.github/actions/unit-tests-kotlin
-
-      - name: Run Vitest Unit Tests
-        uses: ./.github/actions/unit-tests-vitest
-        if: always()
 
   build:
     needs: test

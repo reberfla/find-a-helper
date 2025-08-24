@@ -1,10 +1,8 @@
+DROP DATABASE IF EXISTS findahelper;
+CREATE DATABASE IF NOT EXISTS findahelper DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 CREATE USER IF NOT EXISTS 'dev'@'%' IDENTIFIED BY 'dev';
 GRANT ALL PRIVILEGES ON findahelper.* TO 'dev'@'%';
 FLUSH PRIVILEGES;
-
-DROP DATABASE IF EXISTS findahelper;
-
-CREATE DATABASE IF NOT EXISTS findahelper DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 USE findahelper;
 
@@ -25,7 +23,8 @@ CREATE TABLE assignments (
 CREATE TABLE offers (
   user_id int(11) NOT NULL,
   task_id int(11) NOT NULL,
-  message text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  text text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  title varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   status enum('SUBMITTED','ACCEPTED','REJECTED') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'SUBMITTED',
   created_at datetime DEFAULT current_timestamp(),
   active tinyint(1) NOT NULL DEFAULT 1,
@@ -51,17 +50,17 @@ CREATE TABLE ratings (
 CREATE TABLE tasks (
   id int(11) NOT NULL AUTO_INCREMENT,
   user_id int(11) NOT NULL,
-  zip_code varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  coordinates text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  zip_code varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  coordinates text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   title varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   description text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   category enum('SHOPPING','TRANSPORT','CLEANING','PETCARE','GARDENING','TUTORING','TECHHELP','CHILDCARE','LANGUAGETANDEM','HOMEWORK','REPAIRS','OTHERS') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'OTHERS',
   status enum('OPEN','ASSIGNED','COMPLETED') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'OPEN',
   active tinyint(1) NOT NULL DEFAULT 1,
-  deadline datetime DEFAULT NULL,
+  deadline bigint DEFAULT NULL,
   task_interval enum('CONTINUOUS','RECURRING','ONE_TIME') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'ONE_TIME',
-  weekdays blob DEFAULT NULL,
-  created_at datetime NOT NULL DEFAULT current_timestamp(),
+  weekdays text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  created_at bigint DEFAULT NULL,
   CONSTRAINT task_pk PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
