@@ -211,7 +211,6 @@ function handleGoogleRegistration(userData: Partial<UserModel>) {
           :onLogin="handleGoogleLoginSuccess"
           @register-user="handleGoogleRegistration"
         />
-        <v-btn @click="googleRegister = true">Show Google Registration Finish</v-btn>
       </v-card-text>
     </v-card>
 
