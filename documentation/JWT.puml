@@ -1,0 +1,25 @@
+@startuml
+participant API
+participant JWT
+participant Datenbank
+
+API -> JWT: validiere Token
+JWT -> JWT: Signatur generieren und vergleichen
+alt Signatur ungültig
+    JWT -> API: Signatur ungültig
+else Signatur gültig
+    JWT -> User: Userdetails abfragen
+    User -> JWT: Userdetails
+    JWT -> JWT: Wurde ein neuerer JWT erstellt ?
+    alt JWT veraltet
+        JWT -> API: JWT veraltet
+    else JWT aktuell
+        JWT -> JWT: Ist der JWT abgelaufen
+        alt JWT abgelaufen
+            JWT -> API: JWT abgelaufen
+        else JWT gültig
+            JWT -> API: JWT ist gültig
+        end
+    end
+end
+@enduml
