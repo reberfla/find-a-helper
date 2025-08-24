@@ -44,6 +44,13 @@ onMounted(() => {
       @delete-task="deleteTask"
     />
   </div>
+
+  <div v-if="tasks.length === 0" class="no-offers-banner">
+    <v-alert type="info" color="blue">
+      Sie haben noch keinen Auftrag erstellt.
+    </v-alert>
+  </div>
+
 </template>
 
 <style scoped>

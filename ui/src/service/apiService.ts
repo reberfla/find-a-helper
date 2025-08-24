@@ -63,32 +63,4 @@ export async function deleteRequest(url: string): Promise<{ message: string }> {
 }
 
 export default {
-  //Offers
-  async getMyOffers() {
-    return getJSON(`${BASE_URL}/v1/offer/my`)
-  },
-
-  async getOfferById(id: number) {
-    return getJSON(`${BASE_URL}/v1/offer/${id}`)
-  },
-
-  async getOffersForTask(taskId: number) {
-    return getJSON(`${BASE_URL}/v1/offer/task/${taskId}`)
-  },
-
-  async submitOffer(data: any) {
-    return postJSON(`${BASE_URL}/v1/offer`, data)
-  },
-
-  async acceptOffer(offerId: number) {
-    return putJSON(`${BASE_URL}/v1/offer/accept/${offerId}`, null)
-  },
-
-  async rejectOffer(offerId: number) {
-    return putJSON(`${BASE_URL}/v1/offer/reject/${offerId}`, null)
-  },
-
-  async deleteOffer(offerId: number) {
-    return deleteRequest(`${BASE_URL}/v1/offer/${offerId}`)
-  },
 }
