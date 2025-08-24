@@ -18,15 +18,19 @@ data class OfferDto(
     val validUntil: String? = null,
 ) : DTO<OfferModel> {
     override fun toModel(): OfferModel {
+        val parsedValidUntil = validUntil
+            ?.takeIf { it.isNotBlank() }
+            ?.let { LocalDate.parse(it, dateFormatter) }
+
         return OfferModel(
-            null,
-            userId,
-            taskId,
-            status,
-            active,
-            text,
-            title,
-            LocalDate.parse(validUntil),
+            id = null,
+            userId = userId,
+            taskId = taskId,
+            status = status,
+            active = active,
+            text = text,
+            title = title,
+            validUntil = parsedValidUntil,   // <-- jetzt nullable
         )
     }
 

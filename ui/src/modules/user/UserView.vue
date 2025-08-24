@@ -3,7 +3,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { translate } from '@/service/translationService.js'
 import UserProfilView from '@/modules/user/UserProfilView.vue'
 import BackHeader from '@/components/header/BackHeader.vue'
-import MyOffers from '@/modules/offer/MyOffers.vue'
+import MyOffers from '@/modules/offer/MyOffersView.vue'
 import router from '@/router'
 import { useAuth } from '@/service/userAuthService.ts'
 
@@ -15,8 +15,6 @@ const { isLoggedIn } = useAuth()
 const menuItems = [
   { value: 'data', label: 'PROFILE_DATA' },
   { value: 'messages', label: 'MESSAGES' },
-  { value: 'offers', label: 'MY_OFFERS' },
-  { value: 'orders', label: 'MY_ORDERS' },
 ]
 
 const currentComponent = computed(() => {
@@ -25,8 +23,6 @@ const currentComponent = computed(() => {
       return UserProfilView
     case 'messages':
       return UserProfilView
-    case 'offers':
-      return MyOffers
     default:
       return null
   }
