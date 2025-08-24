@@ -8,8 +8,8 @@ JWT -> JWT: Signatur generieren und vergleichen
 alt Signatur ungültig
     JWT -> API: Signatur ungültig
 else Signatur gültig
-    JWT -> User: Userdetails abfragen
-    User -> JWT: Userdetails
+    JWT -> Datenbank: Userdetails abfragen
+    Datenbank -> JWT: Userdetails
     JWT -> JWT: Wurde ein neuerer JWT erstellt ?
     alt JWT veraltet
         JWT -> API: JWT veraltet
