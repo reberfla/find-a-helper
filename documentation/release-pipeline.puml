@@ -1,0 +1,27 @@
+@startuml
+title Release
+
+start
+:Manueller Start mit Inputs: major, minor, patch, pre-release;
+
+partition "Job: Testen" {
+  :Checkout Repository;
+  :Run Kotlin Unit Tests;
+  :Run Vitest Unit Tests;
+}
+
+partition "Job: Docker Image erstellen und hochladen" {
+  :Matrix: platform = linux/amd64, linux/arm64;
+  :Setze Release-Version (mit/ohne pre-release);
+  :Checkout Repository;
+  :Build & Push Docker Images (ghcr.io);
+}
+
+partition "Job: Release erstellen" {
+  :Checkout mit voller Historie & Tags;
+  :Setze Release-Version (mit/ohne pre-release);
+  :GitHub Release erstellen;
+}
+
+stop
+@enduml

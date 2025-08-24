@@ -1,0 +1,28 @@
+@startuml
+title Arbeitsumgebung (.dev Ordner)
+
+start
+if ("Datenbank zurücksetzen?") then ("Ja")
+  :Docker Volume entfernen;
+  :Schema & Dummy-Daten werden erneut erstellt;
+else ("Nein")
+endif
+
+:Entwickler startet das Start-Skript;
+
+if ("Flag -r gesetzt?") then ("Ja")
+  :Docker-Images neu bauen;
+else ("Nein")
+endif
+
+if ("Flag -f oder -b?") then ("-b")
+  :MySQL-Container starten;
+  :Ktor Webservice im Entwicklungsmodus starten;
+else ("-f")
+  :MySQL-Container starten;
+  :Ktor Webservice als Container starten;
+  :Vue Applikation im Entwicklungsmodus starten;
+endif
+
+stop
+@enduml
