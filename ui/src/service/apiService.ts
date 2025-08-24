@@ -1,9 +1,7 @@
-import type { AuthRequest, AuthResponse, UserModel } from '@/models/UserModel.ts'
-
 export const BASE_URL = 'http://localhost:8080'
 
 function getToken(): string | null {
-  const user = localStorage.getItem('user')
+  const user = sessionStorage.getItem('user')
   return user ? JSON.parse(user).token : null
 }
 
