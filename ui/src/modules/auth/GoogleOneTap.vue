@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import apiService from '@/service/apiService.js'
 import { onMounted } from 'vue'
-import { translate } from '@/service/translationService.js'
 import { type AuthRequest, UserModel } from '@/models/UserModel.ts'
+import UserService from '@/service/UserService.ts'
 
 declare global {
   interface Window {
@@ -17,7 +16,6 @@ const props = defineProps({
 const emit = defineEmits(['register-user'])
 
 const clientId = '1030506683349-po5p0i1593ap5vlur6ffivpcfefka4d7.apps.googleusercontent.com'
-const t = translate
 
 defineExpose({
   triggerPrompt,
@@ -63,20 +61,19 @@ function initializeGoogleSignIn() {
 }
 
 function handleGoogleLogin(response: any) {
-  console.log(response)
   const token = response.credential
   const payload: any = parseJwt(token)
-  console.log(payload)
   const authRequestBody: AuthRequest = {
     email: payload?.email,
     authProvider: 'GOOGLE',
     googleToken: token,
   }
-  apiService
-    .authUser(authRequestBody)
+  UserService.authUser(authRequestBody)
     .then((res) => {
       if (props.onLogin) {
         props.onLogin(res)
+      } else {
+        console.log(props)
       }
     })
     .catch((e: any) => {

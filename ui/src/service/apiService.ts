@@ -1,4 +1,3 @@
-import { useAuth } from '@/service/userAuthService.ts'
 import type { AuthRequest, AuthResponse, UserModel } from '@/models/UserModel.ts'
 
 export const BASE_URL = 'http://localhost:8080'
@@ -66,33 +65,6 @@ export async function deleteRequest(url: string): Promise<{ message: string }> {
 }
 
 export default {
-  // Auth
-  async authUser(data: any): Promise<AuthResponse> {
-    return postJSON(`${BASE_URL}/v1/auth`, data)
-  },
-
-  async authUserByToken(token: string) {
-    return getJSON(`${BASE_URL}/v1/auth/${token}`)
-  },
-
-  async validateToken() {
-    return getJSON(`${BASE_URL}/v1/auth/validate`)
-  },
-
-  // User-Profile
-  async registerUser(data: Partial<UserModel>): Promise<AuthResponse> {
-    console.log(data)
-    return postJSON(`${BASE_URL}/v1/user/register`, data)
-  },
-
-  async updateUser(data: any) {
-    return putJSON(`${BASE_URL}/v1/user`, data)
-  },
-
-  async getUser(): Promise<UserModel> {
-    return await getJSON(`${BASE_URL}/v1/user/profile`)
-  },
-
   //Offers
   async getMyOffers() {
     return getJSON(`${BASE_URL}/v1/offer/my`)

@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import { ref, shallowRef } from 'vue'
-import { translate } from '@/service/translationService.js'
-import apiService from '@/service/apiService.js'
+import { ref } from 'vue'
 import GoogleOneTap from '@/modules/auth/GoogleOneTap.vue'
 import SnackBar from '@/components/Snackbar.vue'
 import { useAuth } from '@/service/userAuthService.ts'
@@ -12,6 +10,7 @@ import {
   UserModel,
 } from '@/models/UserModel.ts'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import UserService from '@/service/UserService.ts'
 
 const { login } = useAuth()
 
@@ -31,7 +30,6 @@ const confirmDialogCancelLabel = ref('')
 let onConfirmFn = () => {}
 let onCancelFn = () => {}
 
-const t = translate
 const dialogVisible = ref(true)
 const googleRegister = ref(false)
 const emit = defineEmits(['logged-in', 'google_user', 'close'])
@@ -39,11 +37,10 @@ const emit = defineEmits(['logged-in', 'google_user', 'close'])
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/
 
 function isPasswordStrong(password: string): boolean {
-  // return passwordRegex.test(password)
-  return true
+  return passwordRegex.test(password)
 }
 
-const passwordRules = [(v: string) => isPasswordStrong(v) || t('ERROR_PASSWORD_WEAK')]
+const passwordRules = [(v: string) => isPasswordStrong(v) || 'Passwort ist zu schwach']
 
 function handleGoogleLoginSuccess(res: AuthResponse) {
   login(res)
@@ -53,12 +50,11 @@ function handleGoogleLoginSuccess(res: AuthResponse) {
 }
 
 async function handleLogin(authProvider: AuthProvider) {
-  apiService
-    .authUser({
-      email: user.value.email || '',
-      password: user.value.password || '',
-      authProvider: authProvider || 'LOCAL',
-    } as AuthRequest)
+  UserService.authUser({
+    email: user.value.email || '',
+    password: user.value.password || '',
+    authProvider: authProvider || 'LOCAL',
+  } as AuthRequest)
     .then((res: AuthResponse) => {
       login(res)
       dialogVisible.value = false
@@ -70,23 +66,22 @@ async function handleLogin(authProvider: AuthProvider) {
       if (e?.status === 404) {
         mode.value = 'register'
         showConfirmDialog(
-          t('CONFIRM_REGISTER_TITLE'),
-          t('CONFIRM_REGISTER_MESSAGE'),
-          t('YES'),
-          t('CANCEL'),
+          'Benutzer nicht gefunden',
+          'Es wurde kein Benutzer mit dieser E-Mail gefunden',
+          'Ja',
+          'Abbrechen',
           confirmRegistration,
           cancelAuth,
         )
       } else {
-        snackBar.value?.show(t('ERROR_AUTHENTIFICATION_ERROR'))
+        snackBar.value?.show('Authentifizierung fehlgeschlagen')
       }
     })
 }
 
 async function handleRegister(authProvider: AuthProvider) {
   user.value.authProvider = authProvider
-  apiService
-    .registerUser(user.value)
+  UserService.registerUser(user.value)
     .then((res: AuthResponse) => {
       login(res)
       dialogVisible.value = false
@@ -97,15 +92,15 @@ async function handleRegister(authProvider: AuthProvider) {
       console.error(e)
       if (e.status === 409) {
         showConfirmDialog(
-          t('CONFIRM_LOGIN_TITLE'),
-          t('CONFIRM_LOGIN_MESSAGE'),
-          t('YES'),
-          t('CANCEL'),
+          'Benutzer bereits vorhanden',
+          'Ein Benutzer mit dieser E-Mail existiert bereits. Möchten Sie sich stattdessen einloggen?',
+          'Ja',
+          'Abbrechen',
           confirmLogin,
           cancelAuth,
         )
       } else {
-        snackBar.value?.show(t('ERROR_REGISTRATION_FAILED'))
+        snackBar.value?.show('Registrierung fehlgeschlagen')
       }
     })
 }

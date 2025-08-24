@@ -10,7 +10,7 @@ const user = ref<{
   avatar: string
 } | null>(null)
 
-const storedUser = localStorage.getItem('user')
+const storedUser = sessionStorage.getItem('user')
 if (storedUser) {
   try {
     user.value = JSON.parse(storedUser)
@@ -22,9 +22,7 @@ if (storedUser) {
 const isLoggedIn = computed(() => !!user.value?.token)
 
 function login(payload: AuthResponse) {
-  const avatar = payload.imgBlob
-    ? `data:image/png;base64,${payload.imgBlob}`
-    : payload.imgUrl || 'https://www.gravatar.com/avatar?d=mp'
+  const avatar = payload.imgUrl || 'https://www.gravatar.com/avatar?d=mp'
 
   user.value = {
     token: payload.jwt,
@@ -33,12 +31,12 @@ function login(payload: AuthResponse) {
     name: payload.name,
     email: payload.email,
   }
-  localStorage.setItem('user', JSON.stringify(user.value))
+  sessionStorage.setItem('user', JSON.stringify(user.value))
 }
 
 function logout() {
   user.value = null
-  localStorage.removeItem('user')
+  sessionStorage.removeItem('user')
   router.push('/')
 }
 

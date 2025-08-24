@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref, toRaw, watch } from 'vue'
-import apiService from '@/service/apiService.js'
 import { useAuth } from '@/service/userAuthService.ts'
 import { UserModel } from '@/models/UserModel.ts'
 import SnackBar from '@/components/Snackbar.vue'
 import { translate } from '@/service/translationService.ts'
+import UserService from '@/service/UserService.ts'
 
 const { getCurrentUser, getCurrentUserAvatar, login } = useAuth()
 const token = getCurrentUser()?.token
@@ -20,8 +20,7 @@ const fileInput = ref<HTMLInputElement | null>(null)
 
 async function loadUserData() {
   if (!token) return
-  await apiService
-    .getUser()
+  await UserService.getUser()
     .then((userData: UserModel) => {
       user.value = userData
       originalUser.value = { ...userData }
@@ -77,9 +76,8 @@ async function saveChanges() {
     delete rest.zipCode
   }
 
-  apiService
-    .updateUser(rest)
-    .then(async (res: any) => {
+  UserService.updateUser(rest)
+    .then(async () => {
       editMode.value = false
       snackBar.value?.show(t('SAVE_SUCESS'), 'info')
       changedFields.value = {}
