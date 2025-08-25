@@ -1,23 +1,23 @@
 {
   "particles": {
     "number": {
-      "value": 5,
+      "value": 4,
       "density": {
         "enable": true,
-        "value_area": 10
+        "value_area": 15
       }
     },
     "color": {
-      "value": "#C0C0C0"
+      "value": "#2a3f3d"
     },
     "shape": {
       "type": "circle",
       "stroke": {
-        "width":0.5,
-        "color": "#C0C0C0"
+        "width":1,
+        "color": "#2a3f3d"
       },
       "polygon": {
-        "nb_sides": 2
+        "nb_sides": 10
       },
       "image": {
         "src": "img/github.svg",
@@ -26,43 +26,43 @@
       }
     },
     "opacity": {
-      "value": 1,
+      "value": 0.2,
       "random": true,
       "anim": {
         "enable": true,
         "speed": 1,
-        "opacity_min": 0.5,
+        "opacity_min": 0.1,
         "sync": true
       }
     },
     "size": {
-      "value": 1,
+      "value": 0.5,
       "random": true,
       "anim": {
         "enable": true,
-        "speed": 1,
+        "speed": 0.5,
         "size_min": 2,
-        "sync": false
+        "sync": true
       }
     },
     "line_linked": {
       "enable": true,
-      "distance": 100,
-      "color": "#C0C0C0",
-      "opacity": 1,
-      "width": 0.5
+      "distance": 220,
+      "color": "#2a3f3d",
+      "opacity": 0.4,
+      "width": 1.8
     },
     "move": {
       "enable": true,
-      "speed": 1,
+      "speed": 0.8,
       "direction": "none",
-      "random": false,
+      "random": true,
       "straight": false,
       "out_mode": "bounce",
       "attract": {
-        "enable": false,
-        "rotateX": 200,
-        "rotateY": 300
+        "enable": true,
+        "rotateX": -100,
+        "rotateY": -100
       }
     }
   },
@@ -81,13 +81,13 @@
     },
     "modes": {
       "grab": {
-        "distance": 10,
+        "distance": 300,
         "line_linked": {
           "opacity": 1
         }
       },
       "bubble": {
-        "distance": 90,
+        "distance": 100,
         "size": 400,
         "duration": 2,
         "opacity": 12,

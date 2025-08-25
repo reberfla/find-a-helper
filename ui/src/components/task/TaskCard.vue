@@ -18,6 +18,7 @@ const props = defineProps<{
   task: Task
   private: boolean,
   hasOffer?:boolean
+  canOffer?: boolean
 }>()
 
 const actionsLocked = computed(() => props.hasOffer)
@@ -80,7 +81,13 @@ const emit = defineEmits(['open-offer', 'edit-task', 'delete-task'])
       <div class="mb-8"></div>
     </template>
     <v-card-actions  class="justify-center position-bottom">
-      <v-btn v-if="!private && isLoggedIn" @click="$emit('open-offer', task)">Angebot machen</v-btn>
+      <v-btn v-if="!private && isLoggedIn && canOffer" @click="$emit('open-offer', task)">Angebot machen</v-btn>
+      <v-chip
+        class="ml-2"
+        v-if="!canOffer"
+        :disabled="true"
+        :text="'Angebot eingereicht'"
+      ></v-chip>
       <div v-if="private">
         <v-btn
           variant="elevated"

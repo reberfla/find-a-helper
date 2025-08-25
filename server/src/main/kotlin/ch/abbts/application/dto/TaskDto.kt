@@ -7,6 +7,7 @@ import ch.abbts.domain.model.TaskStatus
 import ch.abbts.domain.model.Weekdays
 import kotlinx.serialization.Serializable
 
+
 @Serializable
 data class TaskDto(
     val zipCode: String,
@@ -37,3 +38,22 @@ data class TaskDto(
         )
     }
 }
+
+@Serializable
+data class TaskWithOfferUsersDto(
+    val task: TaskPublicDto,
+    val offerUserIds: List<Int>
+)
+@Serializable
+data class TaskWithOfferUsersModel(
+    val task: TaskModel,
+    val offerUserIds: List<Int>
+) {
+    fun toPublicDto(): TaskWithOfferUsersDto {
+        return TaskWithOfferUsersDto(
+            task = task.toPublicDto(),
+            offerUserIds = offerUserIds
+        )
+    }
+}
+

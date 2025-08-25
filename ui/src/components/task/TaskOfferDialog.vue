@@ -4,7 +4,9 @@ import { onMounted, ref } from 'vue'
 import { useAuth } from '@/service/userAuthService.ts'
 import offerService from "@/service/OfferService.ts";
 import type {Offer, OfferDto} from "@/models/OfferModel.ts";
+
 const props = defineProps<{ task: Task }>()
+const emit = defineEmits(['close-offer'])
 
 const offer = ref<Offer>({
   taskId: props.task.id,
@@ -27,9 +29,9 @@ async function sendOffer() {
     text: offer.value.text
   }
   await offerService.createOffer(payload)
+  emit("close-offer")
 }
 
-const emit = defineEmits(['close-offer'])
 </script>
 <template>
   <v-card>

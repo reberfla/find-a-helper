@@ -9,9 +9,13 @@ import { green } from 'vuetify/util/colors'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/service/userAuthService.ts'
 import { drawer } from '@/utils/nav.ts'
+import SnackBar from "@/components/Snackbar.vue";
+import offerService from "@/service/OfferService.ts";
 
 const route = useRouter()
-const { isLoggedIn } = useAuth()
+const snackBar = ref<InstanceType<typeof SnackBar> | null>(null)
+
+const { isLoggedIn, getCurrentUserId } = useAuth()
 
 async function loadTasks() {
   const category = route.currentRoute.value.query['category'] as string | null
@@ -19,6 +23,15 @@ async function loadTasks() {
     filterCategories.value = [category.toUpperCase() as TaskCategory]
   }
   tasks.value = await taskService.getTasks(category)
+}
+
+function canOffer(task: Task & { offerUserIds?: number[] }): boolean {
+  const userId = getCurrentUserId()
+  if (!isLoggedIn.value || !userId) return false
+  console.log(task)
+  console.log(userId)
+  console.log(task.offerUserIds?.includes(userId))
+  return !(task.offerUserIds ?? []).includes(userId)
 }
 
 const searchTerm = ref('')
@@ -53,10 +66,12 @@ const displayTasks = computed(() => {
 
 function openOffer(task: Task) {
   selectedTask.value = task
+  snackBar.value?.show("Angebot erfolgreich abgegeben", 'info')
   offerDialog.value = true
 }
 
 onMounted(() => loadTasks())
+
 </script>
 <template>
   <v-dialog v-model="createTaskDialog" max-width="800">
@@ -119,10 +134,14 @@ onMounted(() => loadTasks())
       class="task"
       v-bind:key="task.id"
       :task="task"
+      :can-offer="canOffer(task)"
       :private="false"
       @open-offer="openOffer"
     />
   </v-container>
+
+  <snackBar ref="snackBar" />
+
 </template>
 
 <style scoped>
