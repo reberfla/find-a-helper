@@ -1,10 +1,11 @@
 package ch.abbts.adapter.database.table
 
+import ch.abbts.domain.model.AssignmentStatus
 import org.jetbrains.exposed.sql.CustomFunction
 import org.jetbrains.exposed.sql.LongColumnType
 import org.jetbrains.exposed.sql.Table
 
-object AssignementTable : Table("assignments") {
+object AssignmentTable : Table("assignments") {
     val id = integer("id").autoIncrement()
     val taskId = integer("task_id")
     val userId = integer("user_id")

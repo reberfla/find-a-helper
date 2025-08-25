@@ -5,7 +5,7 @@ import ch.abbts.domain.model.AssignmentModel
 
 
 @Serializable
-data class AssignementDto(
+data class AssignmentDto(
     val id: Int,
     val taskId: Int,
     val offerId: Int,
