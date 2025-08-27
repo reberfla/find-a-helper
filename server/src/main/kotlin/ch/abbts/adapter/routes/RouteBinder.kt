@@ -4,6 +4,7 @@ import ch.abbts.adapter.controller.authenticationRoutes
 import ch.abbts.adapter.controller.offerRoutes
 import ch.abbts.adapter.controller.taskRoutes
 import ch.abbts.adapter.controller.userRoutes
+import ch.abbts.application.interactor.AssignmentInteractor
 import ch.abbts.application.interactor.OfferInteractor
 import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.application.interactor.UserInteractor
@@ -26,6 +27,7 @@ fun Application.configureRouting(
     userInteractor: UserInteractor,
     offerInteractor: OfferInteractor,
     taskInteractor: TaskInteractor,
+    assignmentInteractor: AssignmentInteractor,
 ) {
     val log = LoggerFactory.getLogger(object {}::class.java.`package`.name)
     install(StatusPages) {
@@ -63,4 +65,5 @@ fun Application.configureRouting(
     routing { authenticationRoutes(userInteractor) }
     routing { offerRoutes(offerInteractor, userInteractor, taskInteractor) }
     routing { taskRoutes(taskInteractor) }
+    routing { assignmentRoutes(assignmentInteractor) }
 }

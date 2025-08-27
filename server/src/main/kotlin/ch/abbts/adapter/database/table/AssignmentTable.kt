@@ -10,7 +10,7 @@ object AssignmentTable : Table("assignments") {
     val taskId = integer("task_id")
     val userId = integer("user_id")
     val offerId = integer("offer_id")
-    val status = varchar("status", 255)
+    val status = enumerationByName("status", 255, AssignmentStatus::class)
     val active = bool("active")
     val createdAt =
         long("created_at")

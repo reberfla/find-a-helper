@@ -7,15 +7,17 @@ import ch.abbts.domain.model.AssignmentModel
 @Serializable
 data class AssignmentDto(
     val id: Int,
+    val userId: Int,
     val taskId: Int,
     val offerId: Int,
     val createdAt: Long,
     val status: String,
-    val active: Boolean, = true,
-    ) {
-    fun toModel(userID: Int): AssignmentModel {
+    val active: Boolean = true,
+    ) : DTO<AssignmentModel> {
+    override fun toModel(): AssignmentModel {
         return AssignmentModel(
-            id = requireNotNull(id),
+            null,
+            userId,
             taskId,
             offerId,
             createdAt,

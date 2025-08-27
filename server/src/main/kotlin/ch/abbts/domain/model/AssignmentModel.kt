@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AssignmentModel(
     val id: Int? = null,
+    val userId: Int,
     val taskId: Int,
     val offerId: Int,
     val createdAt: Long,
