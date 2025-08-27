@@ -57,6 +57,16 @@ const router = createRouter({
         }
       },
     },
+    {
+      path: '/assignments/my',
+      name: 'my-assignments',
+      component: () => import('@/modules/assignment/MyAssignmentsView.vue'),
+      beforeEnter: () => {
+        if (!useAuth().isLoggedIn.value) {
+          return { name: 'home' }
+        }
+      },
+    },
   ],
 })
 
