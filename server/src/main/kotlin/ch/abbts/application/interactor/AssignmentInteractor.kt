@@ -4,6 +4,7 @@ import ch.abbts.adapter.database.repository.AssignmentRepository
 import ch.abbts.adapter.database.repository.TaskRepository
 import ch.abbts.application.dto.AssignmentDto
 import ch.abbts.application.dto.AssignmentUpdateDto
+import ch.abbts.error.AssignmentUpdateNotAllowed
 import ch.abbts.utils.logger
 
 class AssignmentInteractor(
@@ -18,8 +19,16 @@ class AssignmentInteractor(
 
     fun updateAssignment(
         assignmentUpdateDto: AssignmentUpdateDto,
-        id: Int,
+        assignmentId: Int,
+        userId: Int,
     ): Unit {
-        return assignmentRepository.updateAssignment(assignmentUpdateDto, id)
+        val existing = assignmentRepository.getUserIdOfAssignment(assignmentId)
+        if (existing != userId) {
+            throw AssignmentUpdateNotAllowed()
+        }
+        return assignmentRepository.updateAssignment(
+            assignmentUpdateDto,
+            assignmentId,
+        )
     }
 }

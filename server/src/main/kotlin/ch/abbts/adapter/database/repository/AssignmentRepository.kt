@@ -22,6 +22,14 @@ class AssignmentRepository {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
+    fun getAssignmentById(id: Int): AssignmentModel {
+        return transaction {
+            AssignmentTable.select { AssignmentTable.id eq id }
+                .singleOrNull()
+                ?.toModel() ?: throw AssignmentNotFound(id)
+        }
+    }
+
     fun createAssignment(assignment: AssignmentModel): AssignmentModel {
         val timeStamp = Instant.now().epochSecond
         val id = transaction {
@@ -143,14 +151,6 @@ class AssignmentRepository {
         }
     }
 
-    private fun getAssignmentById(id: Int): AssignmentModel {
-        return transaction {
-            AssignmentTable.select { AssignmentTable.id eq id }
-                .singleOrNull()
-                ?.toModel() ?: throw AssignmentNotFound(id)
-        }
-    }
-
     private fun ResultRow.toModel(): AssignmentModel {
         return AssignmentModel(
             id = this[AssignmentTable.id],
@@ -160,5 +160,22 @@ class AssignmentRepository {
             active = this[AssignmentTable.active],
             createdAt = this[AssignmentTable.createdAt],
         )
+    }
+
+    fun getUserIdOfAssignment(assignmentId: Int): Int {
+        val join =
+            AssignmentTable.join(
+                TasksTable,
+                JoinType.INNER,
+                AssignmentTable.taskId,
+                TasksTable.id,
+            )
+        return transaction {
+            join
+                .select { AssignmentTable.id eq assignmentId }
+                .singleOrNull()
+                ?.get(TasksTable.userId)
+                ?: throw AssignmentNotFound(assignmentId)
+        }
     }
 }

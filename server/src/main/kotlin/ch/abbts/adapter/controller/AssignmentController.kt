@@ -1,9 +1,13 @@
 package ch.abbts.adapter.controller
 
 import ch.abbts.application.dto.AssignmentDto
+import ch.abbts.application.dto.AssignmentUpdateDto
+import ch.abbts.application.dto.SuccessMessage
 import ch.abbts.application.interactor.AssignmentInteractor
 import ch.abbts.domain.model.JWebToken
+import ch.abbts.error.InvalidPathParamInt
 import ch.abbts.error.WebserverErrorMessage
+import ch.abbts.utils.receiveHandled
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
 import io.github.tabilzad.ktor.annotations.ResponseEntry
@@ -20,7 +24,7 @@ fun Route.assignmentRoutes(assignmentInteractor: AssignmentInteractor) {
     val log = LoggerFactory.getLogger("AssignmentController")
 
     authenticate("jwt-auth") {
-        route("v1/assignments") {
+        route("v1/assignment") {
             @KtorDescription("Gibt ein Assignment nach User ID zurück")
             @KtorResponds(
                 [
@@ -82,7 +86,29 @@ fun Route.assignmentRoutes(assignmentInteractor: AssignmentInteractor) {
                     ),
                 ]
             )
-            put("/{id}") { TODO() }
+            put("/{id}") {
+                val userId = JWebToken.getUserIdFromCall(call)
+                val assignmentId = call.parameters["id"]
+                if (assignmentId != null) {
+                    val assignment = call.receiveHandled<AssignmentUpdateDto>()
+                    log.info(
+                        "${call.route} updating properties $assignment for assignment with id = $assignmentId"
+                    )
+                    val intId =
+                        assignmentId.toIntOrNull()
+                            ?: throw InvalidPathParamInt("id", assignmentId)
+                    val updatedTask =
+                        assignmentInteractor.updateAssignment(
+                            assignment,
+                            intId,
+                            userId,
+                        )
+                    log.info(
+                        "${call.route} updated properties $assignment for task with id = $assignmentId"
+                    )
+                    call.respond(SuccessMessage())
+                }
+            }
         }
     }
 }
