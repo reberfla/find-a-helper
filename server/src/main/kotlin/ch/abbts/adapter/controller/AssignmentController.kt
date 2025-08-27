@@ -97,12 +97,11 @@ fun Route.assignmentRoutes(assignmentInteractor: AssignmentInteractor) {
                     val intId =
                         assignmentId.toIntOrNull()
                             ?: throw InvalidPathParamInt("id", assignmentId)
-                    val updatedTask =
-                        assignmentInteractor.updateAssignment(
-                            assignment,
-                            intId,
-                            userId,
-                        )
+                    assignmentInteractor.updateAssignment(
+                        assignment,
+                        intId,
+                        userId,
+                    )
                     log.info(
                         "${call.route} updated properties $assignment for task with id = $assignmentId"
                     )
