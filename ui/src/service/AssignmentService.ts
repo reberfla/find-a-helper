@@ -12,6 +12,14 @@ export default {
     return await putJSON<AssignmentModel>(`/assignments/${assignmentId}`, update)
   },
 
+  async createAssignment(){
+    return true;
+  },
+
+  async revertOffer(){
+    return true
+  },
+
   async getAssignmentFromUser(): Promise<AssignmentModel[]> {
     return MOCK_ASSIGNMENTS
     //return await getJSON<AssignmentModel[]>(`/assignment/my`)

@@ -14,9 +14,15 @@ export interface OfferDto {
   id?: number | null;
   userId: number | null;
   taskId: number | null;
-  status?: 'SUBMITTED' | 'REJECTED' | 'ACCEPTED'; // optional beim Create
-  active?: boolean; // wird serverseitig gesetzt
+  status?: OfferStatus;
+  active?: boolean;
   text: string;
   title?: string | null;
   validUntil?: string | null;
+}
+
+export enum OfferStatus {
+  SUBMITTED = 'SUBMITTED',
+  REJECTED = 'REJECTED',
+  ACCEPTED = 'ACCEPTED',
 }

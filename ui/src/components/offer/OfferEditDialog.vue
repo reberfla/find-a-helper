@@ -20,8 +20,11 @@ const toUpdateOffer = computed<OfferDto>(() => ({
 
 const props = defineProps<{
   offer?: Offer
-  update: boolean
+  readonly : boolean
 }>()
+const isRO = computed(() => props.readonly)
+const rulesOrEmpty = computed(() => (isRO.value ? [] : [required]))
+
 function toDateFromYMD(s?: string | null): Date | null {
   if (!s) return null
   const d = new Date(`${s}T00:00:00`)
@@ -59,8 +62,11 @@ const emit = defineEmits(['close'])
 
 <template>
   <v-card>
-    <template #title v-if="props.offer">Angebot bearbeiten</template>
-    <template #title v-else>Angebot erstellen</template>
+    <template #title>
+      <span v-if="isRO">Angebot ansehen</span>
+      <span v-else-if="props.offer">Angebot bearbeiten</span>
+      <span v-else>Angebot erstellen</span>
+    </template>
 
     <template #text>
       <v-form
@@ -72,17 +78,22 @@ const emit = defineEmits(['close'])
           density="compact"
           name="title"
           label="Titel*"
-          :rules="[required]"
+          :rules="rulesOrEmpty"
           v-model="editOffer.title"
           variant="outlined"
+          :readonly="isRO"
+          :disabled="isRO"
         />
 
         <v-textarea
           name="text"
           label="Text*"
-          :rules="[required]"
+          :rules="rulesOrEmpty"
           v-model="editOffer.text"
           variant="outlined"
+          :readonly="isRO"
+          :disabled="isRO"
+          auto-grow
         />
 
         <v-date-input
@@ -91,15 +102,19 @@ const emit = defineEmits(['close'])
           v-model="date"
           density="compact"
           variant="outlined"
-          clearable
+          :readonly="isRO"
+          :disabled="isRO"
+          :clearable="!isRO"
           @click:clear="() => { date = null }"
         />
 
-        <p>*erforderlich</p>
+        <p v-if="!isRO">*erforderlich</p>
 
         <div class="d-flex justify-end mt-4">
-          <v-btn type="submit" color="success" class="mr-4">Speichern</v-btn>
-          <v-btn @click="$emit('close')" color="error">Abbrechen</v-btn>
+          <v-btn v-if="!isRO" type="submit" color="success" class="mr-4">Speichern</v-btn>
+          <v-btn @click="$emit('close')" :color="isRO ? 'primary' : 'error'">
+            {{ isRO ? 'Schließen' : 'Abbrechen' }}
+          </v-btn>
         </div>
       </v-form>
     </template>

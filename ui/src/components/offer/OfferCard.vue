@@ -1,10 +1,16 @@
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Offer } from '@/models/OfferModel'
+import {
+  type Task,
+  intervalMap,
+  getIconOfCategory,
+  getColorOfCategory,
+} from '@/models/TaskModel'
 
 const props = defineProps<{
   offer: Offer
+  task?: Task | null
   taskTitle?: string
   private?: boolean
 }>()
@@ -21,26 +27,33 @@ const validUntilText = computed(() => {
   return isNaN(+d) ? s : d.toLocaleDateString()
 })
 
-// Status-Label & -Farbe
+enum OfferStatusLocal { SUBMITTED='SUBMITTED', REJECTED='REJECTED', ACCEPTED='ACCEPTED' }
 const statusLabel = computed(() => {
   switch (props.offer.status) {
-    case 'ACCEPTED': return 'Angenommen'
-    case 'REJECTED': return 'Abgelehnt'
+    case OfferStatusLocal.ACCEPTED: return 'Angenommen'
+    case OfferStatusLocal.REJECTED: return 'Abgelehnt'
     default: return 'Eingereicht'
   }
 })
 const statusColor = computed(() => {
   switch (props.offer.status) {
-    case 'ACCEPTED': return 'green'
-    case 'REJECTED': return 'red'
+    case OfferStatusLocal.ACCEPTED: return 'green'
+    case OfferStatusLocal.REJECTED: return 'red'
     default: return 'blue'
   }
 })
-
 const activeLabel = computed(() => props.offer.active ? 'Aktiv' : 'Inaktiv')
 const activeColor = computed(() => props.offer.active ? 'teal' : 'grey')
+const canDelete   = computed(() => props.offer.status !== OfferStatusLocal.ACCEPTED)
 
-const canDelete = computed(() => props.offer.status !== 'ACCEPTED')
+const taskData    = computed<Task | null>(() => props.task ?? null)
+const borderColor = computed(() => taskData.value ? getColorOfCategory(taskData.value.category) : '#ddd')
+const headerIcon  = computed(() => taskData.value ? getIconOfCategory(taskData.value.category) : 'description')
+const cardTitle   = computed(() => props.offer.taskId)
+const deadlineText = computed(() => {
+  const dl = taskData.value?.deadline
+  return dl ? new Date(dl * 1000).toLocaleDateString() : 'nicht angegeben'
+})
 </script>
 
 <template>
@@ -48,11 +61,13 @@ const canDelete = computed(() => props.offer.status !== 'ACCEPTED')
     variant="elevated"
     class="offer-card"
     elevation="5"
+    :style="{ border: `2px solid ${borderColor}` }"
     @click="emit('open-task', offer)"
   >
     <template #title>
       <div class="d-flex justify-space-between align-center">
-        <span>{{ props.taskTitle ?? `Auftrag #${offer.taskId}` }}</span>
+          <span>{{"Angebot für " + cardTitle }}</span>
+          <v-icon class="mr-2" small>{{ headerIcon }}</v-icon>
       </div>
     </template>
 
@@ -65,8 +80,34 @@ const canDelete = computed(() => props.offer.status !== 'ACCEPTED')
 
     <template #text>
       <div class="mb-2"><strong>Gültig bis:</strong> {{ validUntilText }}</div>
-      <div class="mb-2"><strong>Text:</strong> {{ offer.text }}</div>
-      <div v-if="offer.title"><strong>Titel:</strong> {{ offer.title }}</div>
+      <div class="mb-2"><strong>Angebot text:</strong> {{ offer.text }}</div>
+      <div v-if="offer.title"><strong>Angebot titel:</strong> {{ offer.title }}</div>
+
+      <v-divider class="my-3" />
+
+      <template v-if="taskData">
+        <div class="mb-2"><strong>Auftragstitel:</strong> {{ taskData.title }}</div>
+        <div class="mb-2"><strong>Beschreibung:</strong> {{ taskData.description }}</div>
+
+        <div class="d-flex flex-wrap align-center" style="gap:8px; margin:8px 0;">
+          <v-chip size="small" variant="tonal" label>
+            <strong class="mr-1">Zu erledigen bis:</strong>
+            {{ deadlineText }}
+          </v-chip>
+
+          <v-chip size="small" variant="tonal" label>
+            <strong class="mr-1">Wiederholung:</strong>
+            {{ taskData.taskInterval ? intervalMap.get(taskData.taskInterval) : 'Nicht angegeben' }}
+          </v-chip>
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="text-medium-emphasis">
+          Zugehöriger Auftrag wurde nicht übergeben (Task-ID: {{ offer.taskId ?? '—' }}).
+        </div>
+      </template>
+
       <div class="mb-8"></div>
     </template>
 
@@ -86,10 +127,6 @@ const canDelete = computed(() => props.offer.status !== 'ACCEPTED')
 
 <style scoped>
 .offer-card { position: relative; }
-.position-bottom {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  z-index: 1;
-}
+.position-bottom { position: absolute; bottom: 0; left: 0; right: 0; z-index: 1; }
 .gap-2 { gap: 8px; }
 </style>

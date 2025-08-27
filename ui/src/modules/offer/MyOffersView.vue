@@ -1,28 +1,33 @@
 <script setup lang="ts">
-import { onMounted, ref, shallowRef } from 'vue'
-import { useRouter } from 'vue-router'
+import {computed, onMounted, ref, shallowRef} from 'vue'
 import offerService from '@/service/OfferService.ts'
-import type { Offer } from '@/models/OfferModel.ts'
+import {type Offer, OfferStatus} from '@/models/OfferModel.ts'
 import OfferCard from '@/components/offer/OfferCard.vue'
 import OfferEditDialog from '@/components/offer/OfferEditDialog.vue'
+import taskService from "@/service/TaskService.ts";
+import {type Task} from "@/models/TaskModel.ts";
 
 const offers = ref<Offer[]>([])
 const selectedOffer = ref<Offer | null>(null)
-const editDialog = shallowRef(false)
-const router = useRouter()
+const showOfferDialog = shallowRef(false)
+const tasks = ref<Task[]>([])
 
 async function loadMyOffers() {
-  offers.value = await offerService.getMyOffers()
+  offers.value = await offerService.getMyOffers().then((r)=>{
+    return r.filter((o=>o.status !== OfferStatus.ACCEPTED))
+  })
+}
+function getTaskById(taskId:number | null):Task {
+  console.log(tasks.value.filter((t=>t.id== taskId))[0])
+    return  tasks.value.filter(t => t.id == taskId)[0]
+}
+
+async function loadTasks() {
+  tasks.value = await taskService.getTasks()
 }
 
 function canEdit(o: Offer) {
-  return o.active !== false && o.status === 'SUBMITTED' // nur solange noch eingereicht
-}
-
-function editOffer(o: Offer) {
-  if (!canEdit(o)) return
-  selectedOffer.value = o
-  editDialog.value = true
+  return o.active !== false && o.status === OfferStatus.SUBMITTED
 }
 
 function deleteOffer(id: number) {
@@ -34,19 +39,12 @@ function deleteOffer(id: number) {
   })
 }
 
-// Auf Task klicken -> Task-Detail öffnen
-function openTask(o: Offer) {
-  router.push({ name: 'task-detail', params: { id: o.taskId } })
-}
-
-onMounted(loadMyOffers)
+onMounted(async () => {
+  await Promise.all([loadTasks(), loadMyOffers()])
+})
 </script>
 
 <template>
-  <v-dialog v-model="editDialog" class="dialog">
-    <OfferEditDialog :offer="selectedOffer || undefined" @close="editDialog = false" :update="true" />
-  </v-dialog>
-
   <div v-if="offers.length === 0" class="no-offers-banner">
     <v-alert type="info" color="blue">
       Sie haben noch kein Angebot abgegeben.
@@ -59,13 +57,17 @@ onMounted(loadMyOffers)
       :key="offer.id"
       class="offer"
       :offer="offer"
+      :task="getTaskById(offer.taskId) ?? null"
       :private="true"
-      :can-edit="canEdit(offer)"
-    @edit-offer="editOffer"
+      :can-edit="false"
     @delete-offer="deleteOffer"
-    @open-task="openTask"
+    @click="showOfferDialog = true"
     />
   </div>
+
+  <v-dialog v-model="showOfferDialog" class="dialog">
+    <OfferEditDialog :readonly="true" :offer="selectedOffer || undefined" @close="showOfferDialog = false" />
+  </v-dialog>
 </template>
 
 <style scoped>
