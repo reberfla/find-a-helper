@@ -1,138 +1,132 @@
 <script setup lang="ts">
-import { type AssignmentModel, AssignmentStatus } from '@/models/AssignmentModel.ts'
+import { computed } from 'vue'
+import { getIconOfCategory, getColorOfCategory } from '@/models/TaskModel'
 import {
-  categoryMap,
-  getColorOfCategory,
-  getIconOfCategory,
   intervalMap,
-  TaskCategory,
+  type Task,
   TaskInterval,
-  TaskStatus,
   Weekday,
   weekdayMap,
-} from '@/models/TaskModel.ts'
+} from '@/models/TaskModel'
+import type { AssignmentModel } from '@/models/AssignmentModel'
 
-const mockAssignment: AssignmentModel = {
-  id: 1,
-  taskCreatorUser: {
-    id: 101,
-    name: 'Anna Müller',
-    email: 'anna.mueller@example.de',
-  },
-  offerCreatorUser: {
-    id: 202,
-    name: 'Max Schmidt',
-    email: 'max.schmidt@example.de',
-  },
-  task: {
-    id: 301,
-    title: 'Datenbank aktualisieren',
-    description: 'Bitte aktualisieren Sie die Kundendatenbank bis Ende der Woche.',
-    category: TaskCategory.TECHHELP,
-    zipCode: '1234',
-    coordinates: '12,34',
-    status: TaskStatus.ASSIGNED,
-    active: true,
-    taskInterval: TaskInterval.ONE_TIME,
-    weekdays: [],
-    createdAt: 1756065384,
-  },
-  offer: {
-    id: 401,
-    title: 'Datenbank-Update-Service',
-    text: 'Ich kann die Aktualisierung bis Freitag erledigen.',
-    active: true,
-    validUntil: 1756065384,
-    createdAt: 1756065384,
-    taskId: 301,
-    userId: 202,
-    status: 'ACCEPTED',
-    task: '',
-  },
-  createdAt: Date.now(),
-  status: AssignmentStatus.IN_PROGRESS,
-  active: true,
+const props = defineProps<{
+  assignment: AssignmentModel
+  canEdit?: boolean
+  private?: boolean
+}>()
+
+const task = computed(() => props.assignment?.task as Task | undefined)
+const offer = computed(() => props.assignment?.offer)
+
+const boardColor = computed(() => (task.value ? getColorOfCategory(task.value.category) : '#ddd'))
+const headerIcon = computed(() => (task.value ? getIconOfCategory(task.value.category) : 'description'))
+
+function toDateStringSec(ts?: number | null) {
+  if (!ts) return '—'
+  try { return new Date(ts * 1000).toLocaleDateString() } catch { return '—' }
 }
+
 </script>
 
 <template>
   <v-card
     variant="elevated"
-    :style="{ border: `2px solid ${getColorOfCategory(mockAssignment.task.category)}` }"
+    :style="{ border: `2px solid ${boardColor}` }"
     elevation="5"
+    class="offer-card"
   >
-    <template v-slot:title>
+    <template #title>
       <div class="d-flex justify-space-between align-center">
-        <span>{{ mockAssignment.task.title }}</span>
-        <v-icon class="mr-2" small>{{ getIconOfCategory(mockAssignment.task.category) }}</v-icon>
+        <div class="d-flex align-center">
+          <v-icon class="mr-2" small>{{ headerIcon }}</v-icon>
+          <span class="font-weight-medium">
+            {{ `Vertrag für ${task?.title ?? 'Auftrag'}` }}
+          </span>
+        </div>
       </div>
     </template>
-    <template v-slot:text>
-      <h3>Assignment</h3>
-      <div><strong>Status:</strong> {{ mockAssignment.status }}</div>
-      <div>
-        <strong>Zugewiesen am:</strong>
-        {{ new Date(mockAssignment.createdAt).toLocaleDateString() }}
-      </div>
-      <div>
-        <strong>Zu erledigen bis:</strong> {{ new Date(mockAssignment.createdAt).toDateString() }}
-      </div>
-      <v-divider class="my-2"></v-divider>
 
-      <h3 class="mt-4">Task</h3>
-      <div>
-        <strong>Erstellt von:</strong> {{ mockAssignment.taskCreatorUser.name }} ({{
-          mockAssignment.taskCreatorUser.email
-        }})
-      </div>
-      <div><strong>Titel:</strong> {{ mockAssignment.task.title }}</div>
-      <div><strong>Beschreibung:</strong> {{ mockAssignment.task.description }}</div>
-      <div><strong>Kategorie:</strong> {{ categoryMap.get(mockAssignment.task.category) }}</div>
-      <div><strong>PLZ:</strong> {{ mockAssignment.task.zipCode }}</div>
-      <div><strong>Koordinaten:</strong> {{ mockAssignment.task.coordinates }}</div>
-      <div><strong>Status:</strong> {{ mockAssignment.task.status }}</div>
-      <div><strong>Intervall:</strong> {{ intervalMap.get(mockAssignment.task.taskInterval) }}</div>
-      <div>
-        <strong>Erstellt am:</strong>
-        {{ new Date(mockAssignment.task.createdAt * 1000).toLocaleDateString() }}
-      </div>
-      <div>
-        <strong>Zu erledigen bis:</strong>
-        {{
-          mockAssignment.task.deadline
-            ? new Date(mockAssignment.task.deadline * 1000).toLocaleDateString()
-            : 'nicht angegeben'
-        }}
-      </div>
-      <div v-if="mockAssignment.task.taskInterval == TaskInterval.RECURRING">
-        <strong>Wochentage:</strong>
-        <v-chip-group multiple column>
-          <v-chip
-            v-for="day in Weekday"
-            v-bind:class="{ 'day-active': mockAssignment.task.weekdays.includes(day) }"
-            :disabled="true"
-            :text="weekdayMap.get(day)"
-            :key="day"
-          ></v-chip>
-        </v-chip-group>
-      </div>
-      <v-divider class="my-2"></v-divider>
+    <div class="chip">
+      <v-chip style="margin-bottom: 6px;" size="small" variant="tonal" label>
+        <strong class="mr-1">Zu erledigen bis:</strong>
+        {{ toDateStringSec(task?.deadline) ?? 'nicht angegeben' }}
+      </v-chip>
 
-      <h3 class="mt-4">Offer</h3>
-      <div><strong>Titel:</strong> {{ mockAssignment.offer.title }}</div>
-      <div><strong>Text:</strong> {{ mockAssignment.offer.text }}</div>
-      <div>
-        <strong>Erstellt von:</strong> {{ mockAssignment.offerCreatorUser.name }} ({{
-          mockAssignment.offerCreatorUser.email
-        }})
-      </div>
-      <div><strong>Status:</strong> {{ mockAssignment.offer.status }}</div>
-      <div>
-        <strong>Erstellt am:</strong>
-        {{ new Date(mockAssignment.offer.createdAt * 1000).toLocaleDateString() }}
-      </div>
-    </template>
+      <v-chip size="small" variant="tonal" label>
+        <strong class="mr-1">Wiederholung:</strong>
+        {{ task?.taskInterval ? intervalMap.get(task.taskInterval) : 'Nicht angegeben' }}
+      </v-chip>
+    </div>
+
+    <div style="margin-left:16px" v-if="task?.taskInterval === TaskInterval.RECURRING" class="mt-2">
+      <strong>Wochentage:</strong>
+      <v-chip-group multiple column class="mt-1">
+        <v-chip
+          v-for="day in Weekday"
+          :key="day"
+          :text="weekdayMap.get(day)"
+          :class="{ 'day-active': task?.weekdays?.includes(day) }"
+          :disabled="true"
+          size="small"
+          variant="tonal"
+        />
+      </v-chip-group>
+    </div>
+
+    <v-divider class="my-3" />
+
+    <v-expansion-panels multiple>
+      <v-expansion-panel>
+        <v-expansion-panel-title>
+          <div class="d-flex align-center">
+            <v-icon class="mr-2">{{ headerIcon }}</v-icon>
+            Details über Auftrag
+          </div>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text>
+          <div v-if="task">
+            <div><strong>Beschreibung: </strong>{{ task.description }}</div>
+            <div><strong>PLZ: </strong>{{ task.zipCode }}</div>
+            <div><strong>Koordinaten: </strong>{{ task.coordinates }}</div>
+            <div><strong>Erstellt am: </strong>{{ toDateStringSec(task.createdAt) }}</div>
+          </div>
+          <div v-else class="text-medium-emphasis">
+            Zugehöriger Auftrag-Datensatz ist nicht geladen.
+          </div>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
+        <v-expansion-panel-title>
+          <div class="d-flex align-center">
+            <v-icon class="mr-2">request_quote</v-icon>
+            Mein Angebot
+          </div>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text>
+          <div v-if="offer">
+            <div><strong>Titel: </strong>{{ offer.title }}</div>
+            <div class="mb-2"><strong>Text: </strong>{{ offer.text }}</div>
+            <div><strong>Erstellt am: </strong>{{ toDateStringSec(offer.createdAt) }}</div>
+          </div>
+          <div v-else class="text-medium-emphasis">
+            Angebot ist nicht geladen.
+          </div>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+    </v-expansion-panels>
   </v-card>
 </template>
 
-<style scoped></style>
+<style scoped>
+.offer-card { overflow: hidden; width: 100% }
+.chip{
+  display:flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin:16px;
+  justify-self: flex-start;
+}
+.day-active { background-color: #2e7d32; color: white; }
+</style>

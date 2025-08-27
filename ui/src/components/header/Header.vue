@@ -71,7 +71,7 @@ onMounted(() => {})
 const authorizedMenuItems = [
   { title: 'Meine Aufgaben', icon: 'task', path: '/tasks/my' },
   { title: 'Meine Verträge', icon: 'assignment', path: '/assignments/my' },
-  { title: 'Meine Angeboten', icon: 'offer', path: '/offers/my' }
+  { title: 'Meine Angeboten', icon: 'local_offer', path: '/offers/my' }
 
 ]
 

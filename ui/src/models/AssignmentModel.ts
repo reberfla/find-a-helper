@@ -1,13 +1,13 @@
 import type { UserModel } from '@/models/UserModel.ts'
 import type { Task } from '@/models/TaskModel.ts'
-import type { OfferModel } from '@/models/OfferModel.ts'
+import type { Offer } from '@/models/OfferModel.ts'
 
 export interface AssignmentModel {
   id: number
   taskCreatorUser: Partial<UserModel>
   offerCreatorUser: Partial<UserModel>
   task: Task
-  offer: OfferModel
+  offer: Offer
   createdAt: number
   status: AssignmentStatus
   active: boolean

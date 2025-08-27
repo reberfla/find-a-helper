@@ -84,7 +84,7 @@ const emit = defineEmits(['open-offer', 'edit-task', 'delete-task'])
       <v-btn v-if="!private && isLoggedIn && canOffer" @click="$emit('open-offer', task)">Angebot machen</v-btn>
       <v-chip
         class="ml-2"
-        v-if="!canOffer"
+        v-if="!canOffer && !private && isLoggedIn"
         :disabled="true"
         :text="'Angebot eingereicht'"
       ></v-chip>
