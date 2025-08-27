@@ -67,7 +67,7 @@ class TaskRepository {
         return transaction {
             TasksTable.select { TasksTable.id eq taskId }
                 .singleOrNull()
-                ?.let { it.toModel() } ?: throw TaskNotFound(taskId)
+                ?.toModel() ?: throw TaskNotFound(taskId)
         }
     }
 

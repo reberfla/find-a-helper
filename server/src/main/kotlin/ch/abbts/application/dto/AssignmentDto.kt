@@ -1,28 +1,16 @@
 package ch.abbts.application.dto
 
+import ch.abbts.domain.model.AssignmentStatus
 import kotlinx.serialization.Serializable
-import ch.abbts.domain.model.AssignmentModel
-
 
 @Serializable
 data class AssignmentDto(
     val id: Int,
-    val userId: Int,
-    val taskId: Int,
-    val offerId: Int,
+    val taskCreatorUser: UserDto,
+    val offerCreatorUser: UserDto,
+    val task: TaskPublicDto,
+    val offer: OfferDto,
     val createdAt: Long,
-    val status: String,
+    val status: AssignmentStatus,
     val active: Boolean = true,
-    ) : DTO<AssignmentModel> {
-    override fun toModel(): AssignmentModel {
-        return AssignmentModel(
-            null,
-            userId,
-            taskId,
-            offerId,
-            createdAt,
-            status,
-            active,
-        )
-    }
-}
+)

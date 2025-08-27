@@ -1,5 +1,6 @@
 package ch.abbts.adapter.routes
 
+import ch.abbts.adapter.controller.assignmentRoutes
 import ch.abbts.adapter.controller.authenticationRoutes
 import ch.abbts.adapter.controller.offerRoutes
 import ch.abbts.adapter.controller.taskRoutes
