@@ -51,8 +51,10 @@ fun Route.assignmentRoutes(assignmentInteractor: AssignmentInteractor) {
                 ]
             )
             get("/my") {
-                val id = JWebToken.getUserIdFromCall(call)
-                val assignments = assignmentInteractor.getAssignmentByUserId(id)
+                val userId = JWebToken.getUserIdFromCall(call)
+                log.info("${call.route} for userId = $userId")
+                val assignments =
+                    assignmentInteractor.getAssignmentByUserId(userId)
                 call.respond(assignments)
             }
 
@@ -103,7 +105,7 @@ fun Route.assignmentRoutes(assignmentInteractor: AssignmentInteractor) {
                         userId,
                     )
                     log.info(
-                        "${call.route} updated properties $assignment for task with id = $assignmentId"
+                        "${call.route} updated properties $assignment for assignment with id = $assignmentId"
                     )
                     call.respond(SuccessMessage())
                 }

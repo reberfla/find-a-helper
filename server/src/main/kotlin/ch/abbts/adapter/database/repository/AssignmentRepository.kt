@@ -60,6 +60,7 @@ class AssignmentRepository {
 
     fun createAssignment(assignment: AssignmentModel): AssignmentDto {
         val timeStamp = Instant.now().epochSecond
+        log.debug("${assignment}")
         return transaction {
             val id =
                 AssignmentTable.insert {

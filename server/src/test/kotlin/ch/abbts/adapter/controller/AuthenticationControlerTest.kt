@@ -47,7 +47,11 @@ class AuthenticationTest() {
                 }
 
             val offerInteractor =
-                OfferInteractor(OfferRepository(), TaskRepository())
+                OfferInteractor(
+                    OfferRepository(),
+                    TaskRepository(),
+                    AssignmentRepository(),
+                )
             val taskInteractor =
                 TaskInteractor(TaskRepository(), UsersRepository())
             val assignmentInteractor =

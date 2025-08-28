@@ -47,7 +47,12 @@ fun Application.main() {
     DatabaseConfig.init()
 
     val userInteractor = UserInteractor(UsersRepository())
-    val offerInteractor = OfferInteractor(OfferRepository(), TaskRepository())
+    val offerInteractor =
+        OfferInteractor(
+            OfferRepository(),
+            TaskRepository(),
+            AssignmentRepository(),
+        )
     val taskInteractor = TaskInteractor(TaskRepository(), UsersRepository())
     val assignmentInteractor =
         AssignmentInteractor(AssignmentRepository(), TaskRepository())

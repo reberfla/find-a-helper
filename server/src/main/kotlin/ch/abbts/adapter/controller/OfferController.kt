@@ -16,6 +16,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.slf4j.LoggerFactory
 
 @Tag(["Offer"])
 fun Application.offerRoutes(
@@ -23,6 +24,7 @@ fun Application.offerRoutes(
     userInteractor: UserInteractor,
     taskInteractor: TaskInteractor,
 ) {
+    val log = LoggerFactory.getLogger("ch.abbts.adapter.controller")
     routing {
         route("/v1/offer") {
             authenticate("jwt-auth") {
@@ -55,8 +57,10 @@ fun Application.offerRoutes(
                         val token = call.request.authorization()!!.split(" ")[1]
                         val email = JWebToken.decodeEmailFromToken(token)
                         val user = userInteractor.getUserByEmail(email)
+                        log.debug("user of dto: ${dto.userId}")
+                        log.debug("user of request: ${user?.id}")
 
-                        if (user?.id != dto.userId) {
+                        if (user!!.id != dto.userId) {
                             throw OfferForbidden()
                         }
 
@@ -85,19 +89,16 @@ fun Application.offerRoutes(
 
                 put("/accept/{id}") {
                     val offerId = call.parameters["id"]!!.toInt()
-                    val offer = offerInteractor.getOfferById(offerId)
-                    call.respond(
-                        offerInteractor.acceptOffer(offerId, offer.userId)
-                    )
+                    val userId = JWebToken.getUserIdFromCall(call)
+                    call.respond(offerInteractor.acceptOffer(offerId, userId))
                 }
 
                 put("/reject/{id}") {
                     val offerId = call.parameters["id"]!!.toInt()
-                    val offer = offerInteractor.getOfferById(offerId)
+                    offerInteractor.getOfferById(offerId)
                     call.respond(
                         offerInteractor.setOfferStatus(
                             offerId,
-                            offer.userId,
                             OfferStatus.REJECTED,
                         )
                     )

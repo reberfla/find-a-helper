@@ -48,7 +48,7 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
                     call.respond(taskInteractor.getTasks())
                 } else {
                     val params = TaskQueryParams(call.queryParameters)
-                    log.info("${call.route} with query = ${params.toString()}")
+                    log.info("${call.route} with query = $params")
                     call.respond(
                         taskInteractor.getTasks(params).map { it.toPublicDto() }
                     )
