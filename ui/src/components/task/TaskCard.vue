@@ -10,14 +10,14 @@ import {
 import { getIconOfCategory, getColorOfCategory } from '@/models/TaskModel.ts'
 import { green, red } from 'vuetify/util/colors'
 import { useAuth } from '@/service/userAuthService.ts'
-import {computed} from "vue";
+import { computed } from 'vue'
 
 const { isLoggedIn } = useAuth()
 
 const props = defineProps<{
   task: Task
-  private: boolean,
-  hasOffer?:boolean
+  private: boolean
+  hasOffer?: boolean
   canOffer?: boolean
 }>()
 
@@ -80,8 +80,10 @@ const emit = defineEmits(['open-offer', 'edit-task', 'delete-task'])
       </div>
       <div class="mb-8"></div>
     </template>
-    <v-card-actions  class="justify-center position-bottom">
-      <v-btn v-if="!private && isLoggedIn && canOffer" @click="$emit('open-offer', task)">Angebot machen</v-btn>
+    <v-card-actions class="justify-center position-bottom">
+      <v-btn v-if="!private && isLoggedIn && canOffer" @click="$emit('open-offer', task)"
+        >Angebot machen</v-btn
+      >
       <v-chip
         class="ml-2"
         v-if="!canOffer && !private && isLoggedIn"
@@ -108,7 +110,7 @@ const emit = defineEmits(['open-offer', 'edit-task', 'delete-task'])
         </v-btn>
       </div>
     </v-card-actions>
-      <slot name="offers" />
+    <slot name="offers" />
   </v-card>
 </template>
 
@@ -118,5 +120,4 @@ const emit = defineEmits(['open-offer', 'edit-task', 'delete-task'])
   opacity: 100%;
   color: white;
 }
-
 </style>

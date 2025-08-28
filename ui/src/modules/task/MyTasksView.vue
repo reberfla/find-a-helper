@@ -2,11 +2,11 @@
 import TaskCard from '@/components/task/TaskCard.vue'
 import taskService from '@/service/TaskService.ts'
 import offerService from '@/service/OfferService.ts'
-import {onMounted, ref, shallowRef} from 'vue'
-import { type Task, TaskStatus} from '@/models/TaskModel.ts'
-import {type Offer, OfferStatus} from '@/models/OfferModel.ts'
+import { onMounted, ref, shallowRef } from 'vue'
+import { type Task, TaskStatus } from '@/models/TaskModel.ts'
+import { type Offer, OfferStatus } from '@/models/OfferModel.ts'
 import TaskEditDialog from '@/components/task/TaskEditDialog.vue'
-import OfferEditDialog from "@/components/offer/OfferEditDialog.vue";
+import OfferEditDialog from '@/components/offer/OfferEditDialog.vue'
 
 const offersByTask = ref<Record<number, Offer[]>>({})
 const tasks = ref<Task[]>([])
@@ -37,17 +37,17 @@ onMounted(() => {
 })
 
 function offersFor(taskId: number): Offer[] {
-  return (offersByTask.value[taskId] ?? []).filter(o => o.status !== OfferStatus.REJECTED)
+  return (offersByTask.value[taskId] ?? []).filter((o) => o.status !== OfferStatus.REJECTED)
 }
 
 function hasAcceptedOffer(taskId: number): boolean {
   const list = offersByTask.value[taskId] ?? []
-  return list.some(o => o.status === OfferStatus.ACCEPTED)
+  return list.some((o) => o.status === OfferStatus.ACCEPTED)
 }
 
 async function loadMyTasks() {
-  tasks.value = await taskService.getMyTasks().then((r)=>{
-    return r.filter((t =>t.status === TaskStatus.OPEN ))
+  tasks.value = await taskService.getMyTasks().then((r) => {
+    return r.filter((t) => t.status === TaskStatus.OPEN)
   })
 
   const pairs = await Promise.all(
@@ -58,7 +58,7 @@ async function loadMyTasks() {
       } catch {
         return [t.id, [] as Offer[]]
       }
-    })
+    }),
   )
 
   const map: Record<number, Offer[]> = {}
@@ -67,19 +67,18 @@ async function loadMyTasks() {
 }
 
 function acceptOffer(offer: Offer) {
-  if(offer.id){
+  if (offer.id) {
     offerService.acceptOffer(offer.id)
     loadMyTasks()
   }
 }
 
 function rejectOffer(offer: Offer) {
-  if(offer.id){
+  if (offer.id) {
     offerService.revertOffer(offer.id)
     loadMyTasks()
   }
 }
-
 </script>
 
 <template>
@@ -100,7 +99,7 @@ function rejectOffer(offer: Offer) {
           <v-expansion-panels variant="accordion" density="compact" class="mt-2">
             <v-expansion-panel>
               <v-expansion-panel-title>
-                 <v-chip
+                <v-chip
                   v-if="!hasAcceptedOffer(task.id)"
                   size="x-small"
                   class="ml-2"
@@ -120,9 +119,9 @@ function rejectOffer(offer: Offer) {
                 </v-chip>
               </v-expansion-panel-title>
 
-              <v-expansion-panel-text :style="{padding:'6px'}">
+              <v-expansion-panel-text :style="{ padding: '6px' }">
                 <template v-if="offersFor(task.id).length">
-                  <div class="d-flex flex-column" style="gap:12px;">
+                  <div class="d-flex flex-column" style="gap: 12px">
                     <v-card
                       style="display: flex; flex-direction: column"
                       v-for="offer in offersFor(task.id)"
@@ -130,29 +129,50 @@ function rejectOffer(offer: Offer) {
                       variant="tonal"
                       class="pa-0"
                     >
-                      <div class="d-flex justify-space-between" @click="openOfferReadonly(offer, task)" style="gap:12px; flex-direction: column">
-                        <div style="background-color: #ffffff; padding:6px;" clasS="flex-grow-1">
+                      <div
+                        class="d-flex justify-space-between"
+                        @click="openOfferReadonly(offer, task)"
+                        style="gap: 12px; flex-direction: column"
+                      >
+                        <div style="background-color: #ffffff; padding: 6px" clasS="flex-grow-1">
                           <div class="text-subtitle-2 font-weight-medium">
                             {{ offer.title || 'Angebot' }}
                           </div>
-                          <div class="text-body-2 mt-1" style="white-space: normal; word-break: break-word;">
+                          <div
+                            class="text-body-2 mt-1"
+                            style="white-space: normal; word-break: break-word"
+                          >
                             {{ offer.text }}
                           </div>
                         </div>
                       </div>
-                      <div v-if="offer.status !== OfferStatus.ACCEPTED" class="d-flex flex-row" style="width: 100%">
+                      <div
+                        v-if="offer.status !== OfferStatus.ACCEPTED"
+                        class="d-flex flex-row"
+                        style="width: 100%"
+                      >
                         <v-btn
-                          style="width:50%;border-bottom-right-radius: 0;border-top-right-radius: 0;border-top-left-radius: 0"
+                          style="
+                            width: 50%;
+                            border-bottom-right-radius: 0;
+                            border-top-right-radius: 0;
+                            border-top-left-radius: 0;
+                          "
                           color="success"
                           variant="elevated"
                           size="small"
                           :disabled="offer.status === 'ACCEPTED'"
                           @click="acceptOffer(offer)"
                         >
-                           Akzeptieren
+                          Akzeptieren
                         </v-btn>
                         <v-btn
-                          style="width:50%;border-bottom-left-radius: 0;border-top-right-radius: 0; border-top-left-radius: 0"
+                          style="
+                            width: 50%;
+                            border-bottom-left-radius: 0;
+                            border-top-right-radius: 0;
+                            border-top-left-radius: 0;
+                          "
                           color="error"
                           variant="elevated"
                           size="small"
@@ -180,9 +200,7 @@ function rejectOffer(offer: Offer) {
   </div>
 
   <div v-if="tasks.length === 0" class="no-offers-banner">
-    <v-alert type="info" color="blue">
-      Sie haben noch keinen Auftrag erstellt.
-    </v-alert>
+    <v-alert type="info" color="blue"> Sie haben noch keinen Auftrag erstellt. </v-alert>
   </div>
 
   <v-dialog v-model="showOfferDialog" max-width="700">
@@ -204,5 +222,8 @@ function rejectOffer(offer: Offer) {
   max-width: 1000px;
   width: 100%;
 }
-.task-wrapper { width: 420px; margin: 10px; }
+.task-wrapper {
+  width: 420px;
+  margin: 10px;
+}
 </style>

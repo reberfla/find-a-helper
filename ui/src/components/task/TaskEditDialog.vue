@@ -68,7 +68,7 @@ onMounted(() => {
   }
 })
 
-const emit = defineEmits(['save','update', 'close', 'delete'])
+const emit = defineEmits(['save', 'update', 'close', 'delete'])
 </script>
 
 <template>

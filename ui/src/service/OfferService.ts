@@ -1,5 +1,5 @@
 import { getJSON, postJSON, putJSON, BASE_URL, deleteRequest } from '@/service/apiService.ts'
-import type {Offer, OfferDto} from "@/models/OfferModel.ts";
+import type { Offer, OfferDto } from '@/models/OfferModel.ts'
 
 export default {
   async getOffers(category: string | null = null): Promise<Offer[]> {
@@ -26,11 +26,11 @@ export default {
     return deleteRequest(`${BASE_URL}/v1/offer/${offerId}`)
   },
 
-  async revertOffer(offerId:number){
+  async revertOffer(offerId: number) {
     return putJSON(` ${BASE_URL}/v1/offer/revert/${offerId}`, offerId)
   },
 
-  async acceptOffer(offerId:number){
+  async acceptOffer(offerId: number) {
     return putJSON(` ${BASE_URL}/v1/offer/accept/${offerId}`, offerId)
-  }
+  },
 }

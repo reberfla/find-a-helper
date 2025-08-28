@@ -62,5 +62,4 @@ export async function deleteRequest(url: string): Promise<{ message: string }> {
   return await response.json()
 }
 
-export default {
-}
+export default {}

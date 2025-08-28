@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Offer } from '@/models/OfferModel'
-import {
-  type Task,
-  intervalMap,
-  getIconOfCategory,
-  getColorOfCategory,
-} from '@/models/TaskModel'
+import { type Task, intervalMap, getIconOfCategory, getColorOfCategory } from '@/models/TaskModel'
 
 const props = defineProps<{
   offer: Offer
@@ -27,29 +22,43 @@ const validUntilText = computed(() => {
   return isNaN(+d) ? s : d.toLocaleDateString()
 })
 
-enum OfferStatusLocal { SUBMITTED='SUBMITTED', REJECTED='REJECTED', ACCEPTED='ACCEPTED' }
+enum OfferStatusLocal {
+  SUBMITTED = 'SUBMITTED',
+  REJECTED = 'REJECTED',
+  ACCEPTED = 'ACCEPTED',
+}
 const statusLabel = computed(() => {
   switch (props.offer.status) {
-    case OfferStatusLocal.ACCEPTED: return 'Angenommen'
-    case OfferStatusLocal.REJECTED: return 'Abgelehnt'
-    default: return 'Eingereicht'
+    case OfferStatusLocal.ACCEPTED:
+      return 'Angenommen'
+    case OfferStatusLocal.REJECTED:
+      return 'Abgelehnt'
+    default:
+      return 'Eingereicht'
   }
 })
 const statusColor = computed(() => {
   switch (props.offer.status) {
-    case OfferStatusLocal.ACCEPTED: return 'green'
-    case OfferStatusLocal.REJECTED: return 'red'
-    default: return 'blue'
+    case OfferStatusLocal.ACCEPTED:
+      return 'green'
+    case OfferStatusLocal.REJECTED:
+      return 'red'
+    default:
+      return 'blue'
   }
 })
-const activeLabel = computed(() => props.offer.active ? 'Aktiv' : 'Inaktiv')
-const activeColor = computed(() => props.offer.active ? 'teal' : 'grey')
-const canDelete   = computed(() => props.offer.status !== OfferStatusLocal.ACCEPTED)
+const activeLabel = computed(() => (props.offer.active ? 'Aktiv' : 'Inaktiv'))
+const activeColor = computed(() => (props.offer.active ? 'teal' : 'grey'))
+const canDelete = computed(() => props.offer.status !== OfferStatusLocal.ACCEPTED)
 
-const taskData    = computed<Task | null>(() => props.task ?? null)
-const borderColor = computed(() => taskData.value ? getColorOfCategory(taskData.value.category) : '#ddd')
-const headerIcon  = computed(() => taskData.value ? getIconOfCategory(taskData.value.category) : 'description')
-const cardTitle   = computed(() => props.offer.taskId)
+const taskData = computed<Task | null>(() => props.task ?? null)
+const borderColor = computed(() =>
+  taskData.value ? getColorOfCategory(taskData.value.category) : '#ddd',
+)
+const headerIcon = computed(() =>
+  taskData.value ? getIconOfCategory(taskData.value.category) : 'description',
+)
+const cardTitle = computed(() => props.offer.taskId)
 const deadlineText = computed(() => {
   const dl = taskData.value?.deadline
   return dl ? new Date(dl * 1000).toLocaleDateString() : 'nicht angegeben'
@@ -66,15 +75,19 @@ const deadlineText = computed(() => {
   >
     <template #title>
       <div class="d-flex justify-space-between align-center">
-          <span>{{"Angebot für " + cardTitle }}</span>
-          <v-icon class="mr-2" small>{{ headerIcon }}</v-icon>
+        <span>{{ 'Angebot für ' + cardTitle }}</span>
+        <v-icon class="mr-2" small>{{ headerIcon }}</v-icon>
       </div>
     </template>
 
     <template #subtitle>
       <div class="d-flex align-center gap-2">
-        <v-chip size="small" :color="statusColor" class="text-white" label>{{ statusLabel }}</v-chip>
-        <v-chip size="small" :color="activeColor" class="text-white" label>{{ activeLabel }}</v-chip>
+        <v-chip size="small" :color="statusColor" class="text-white" label>{{
+          statusLabel
+        }}</v-chip>
+        <v-chip size="small" :color="activeColor" class="text-white" label>{{
+          activeLabel
+        }}</v-chip>
       </div>
     </template>
 
@@ -89,7 +102,7 @@ const deadlineText = computed(() => {
         <div class="mb-2"><strong>Auftragstitel:</strong> {{ taskData.title }}</div>
         <div class="mb-2"><strong>Beschreibung:</strong> {{ taskData.description }}</div>
 
-        <div class="d-flex flex-wrap align-center" style="gap:8px; margin:8px 0;">
+        <div class="d-flex flex-wrap align-center" style="gap: 8px; margin: 8px 0">
           <v-chip size="small" variant="tonal" label>
             <strong class="mr-1">Zu erledigen bis:</strong>
             {{ deadlineText }}
@@ -126,7 +139,17 @@ const deadlineText = computed(() => {
 </template>
 
 <style scoped>
-.offer-card { position: relative; }
-.position-bottom { position: absolute; bottom: 0; left: 0; right: 0; z-index: 1; }
-.gap-2 { gap: 8px; }
+.offer-card {
+  position: relative;
+}
+.position-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+.gap-2 {
+  gap: 8px;
+}
 </style>

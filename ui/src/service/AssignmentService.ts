@@ -1,10 +1,9 @@
-import {BASE_URL, getJSON} from '@/service/apiService.ts'
+import { BASE_URL, getJSON } from '@/service/apiService.ts'
 import type { AssignmentModel } from '@/models/AssignmentModel.ts'
 import { AssignmentStatus } from '@/models/AssignmentModel'
 import { TaskCategory, TaskInterval, TaskStatus, Weekday } from '@/models/TaskModel'
 
 export default {
-
   async getMyAssignment(): Promise<AssignmentModel[]> {
     return getJSON<AssignmentModel[]>(`${BASE_URL}/v1/assignment/my`)
   },

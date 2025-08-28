@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { getIconOfCategory, getColorOfCategory } from '@/models/TaskModel'
-import {
-  intervalMap,
-  type Task,
-  TaskInterval,
-  Weekday,
-  weekdayMap,
-} from '@/models/TaskModel'
+import { intervalMap, type Task, TaskInterval, Weekday, weekdayMap } from '@/models/TaskModel'
 import type { AssignmentModel } from '@/models/AssignmentModel'
 
 const props = defineProps<{
@@ -20,13 +14,18 @@ const task = computed(() => props.assignment?.task as Task | undefined)
 const offer = computed(() => props.assignment?.offer)
 
 const boardColor = computed(() => (task.value ? getColorOfCategory(task.value.category) : '#ddd'))
-const headerIcon = computed(() => (task.value ? getIconOfCategory(task.value.category) : 'description'))
+const headerIcon = computed(() =>
+  task.value ? getIconOfCategory(task.value.category) : 'description',
+)
 
 function toDateStringSec(ts?: number | null) {
   if (!ts) return '—'
-  try { return new Date(ts * 1000).toLocaleDateString() } catch { return '—' }
+  try {
+    return new Date(ts * 1000).toLocaleDateString()
+  } catch {
+    return '—'
+  }
 }
-
 </script>
 
 <template>
@@ -48,7 +47,7 @@ function toDateStringSec(ts?: number | null) {
     </template>
 
     <div class="chip">
-      <v-chip style="margin-bottom: 6px;" size="small" variant="tonal" label>
+      <v-chip style="margin-bottom: 6px" size="small" variant="tonal" label>
         <strong class="mr-1">Zu erledigen bis:</strong>
         {{ toDateStringSec(task?.deadline) ?? 'nicht angegeben' }}
       </v-chip>
@@ -59,7 +58,11 @@ function toDateStringSec(ts?: number | null) {
       </v-chip>
     </div>
 
-    <div style="margin-left:16px" v-if="task?.taskInterval === TaskInterval.RECURRING" class="mt-2">
+    <div
+      style="margin-left: 16px"
+      v-if="task?.taskInterval === TaskInterval.RECURRING"
+      class="mt-2"
+    >
       <strong>Wochentage:</strong>
       <v-chip-group multiple column class="mt-1">
         <v-chip
@@ -110,9 +113,7 @@ function toDateStringSec(ts?: number | null) {
             <div class="mb-2"><strong>Text: </strong>{{ offer.text }}</div>
             <div><strong>Erstellt am: </strong>{{ toDateStringSec(offer.createdAt) }}</div>
           </div>
-          <div v-else class="text-medium-emphasis">
-            Angebot ist nicht geladen.
-          </div>
+          <div v-else class="text-medium-emphasis">Angebot ist nicht geladen.</div>
         </v-expansion-panel-text>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -120,13 +121,19 @@ function toDateStringSec(ts?: number | null) {
 </template>
 
 <style scoped>
-.offer-card { overflow: hidden; width: 100% }
-.chip{
-  display:flex;
+.offer-card {
+  overflow: hidden;
+  width: 100%;
+}
+.chip {
+  display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  margin:16px;
+  margin: 16px;
   justify-self: flex-start;
 }
-.day-active { background-color: #2e7d32; color: white; }
+.day-active {
+  background-color: #2e7d32;
+  color: white;
+}
 </style>

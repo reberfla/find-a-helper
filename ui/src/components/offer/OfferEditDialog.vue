@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type {Offer, OfferDto} from '@/models/OfferModel.ts'
+import type { Offer, OfferDto } from '@/models/OfferModel.ts'
 import offerService from '@/service/OfferService.ts'
 import router from '@/router'
-import {useAuth} from "@/service/userAuthService.ts";
+import { useAuth } from '@/service/userAuthService.ts'
 
 const valid = ref(false)
 const required = (value: any) => (!!value ? true : 'Dieses Feld ist erforderlich')
@@ -15,12 +15,12 @@ const toUpdateOffer = computed<OfferDto>(() => ({
   taskId: Number(editOffer.value.taskId!),
   title: editOffer.value.title ?? null,
   text: String(editOffer.value.text ?? ''),
-  validUntil: toYMD(date.value)
+  validUntil: toYMD(date.value),
 }))
 
 const props = defineProps<{
   offer?: Offer
-  readonly : boolean
+  readonly: boolean
 }>()
 const isRO = computed(() => props.readonly)
 const rulesOrEmpty = computed(() => (isRO.value ? [] : [required]))
@@ -56,7 +56,6 @@ onMounted(() => {
   }
 })
 
-
 const emit = defineEmits(['close'])
 </script>
 
@@ -69,11 +68,7 @@ const emit = defineEmits(['close'])
     </template>
 
     <template #text>
-      <v-form
-        v-model="valid"
-        class="d-flex flex-column gap-space"
-        @submit.prevent="createOffer()"
-      >
+      <v-form v-model="valid" class="d-flex flex-column gap-space" @submit.prevent="createOffer()">
         <v-text-field
           density="compact"
           name="title"
@@ -105,7 +100,11 @@ const emit = defineEmits(['close'])
           :readonly="isRO"
           :disabled="isRO"
           :clearable="!isRO"
-          @click:clear="() => { date = null }"
+          @click:clear="
+            () => {
+              date = null
+            }
+          "
         />
 
         <p v-if="!isRO">*erforderlich</p>

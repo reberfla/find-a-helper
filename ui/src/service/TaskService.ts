@@ -3,14 +3,18 @@ import { type Task, TaskCategory, TaskInterval } from '@/models/TaskModel'
 // Tasks
 export default {
   async getTasks(category: string | null = null): Promise<Task[]> {
-    const res= await getJSON<[{
-      task: Task,
-      offerUserIds: number[]
-    }]>(`${BASE_URL}/v1/task${category ? `?category=${category}` : ''}`)
-    return res.map((entry: { task: Task, offerUserIds: number[] }) => {
+    const res = await getJSON<
+      [
+        {
+          task: Task
+          offerUserIds: number[]
+        },
+      ]
+    >(`${BASE_URL}/v1/task${category ? `?category=${category}` : ''}`)
+    return res.map((entry: { task: Task; offerUserIds: number[] }) => {
       return {
         ...entry.task,
-        offerUserIds: entry.offerUserIds
+        offerUserIds: entry.offerUserIds,
       }
     })
   },

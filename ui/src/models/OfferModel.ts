@@ -5,20 +5,20 @@ export interface Offer {
   task?: any
   text: any
   active?: boolean
-  validUntil?: string|null
+  validUntil?: string | null
   createdAt?: number
-  taskId: number|null
-  userId: number|null
+  taskId: number | null
+  userId: number | null
 }
 export interface OfferDto {
-  id?: number | null;
-  userId: number | null;
-  taskId: number | null;
-  status?: OfferStatus;
-  active?: boolean;
-  text: string;
-  title?: string | null;
-  validUntil?: string | null;
+  id?: number | null
+  userId: number | null
+  taskId: number | null
+  status?: OfferStatus
+  active?: boolean
+  text: string
+  title?: string | null
+  validUntil?: string | null
 }
 
 export enum OfferStatus {
