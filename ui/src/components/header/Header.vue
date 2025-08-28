@@ -68,7 +68,12 @@ function changeLanguage(lang: any) {
 
 onMounted(() => {})
 
-const authorizedMenuItems = [{ title: 'Meine Aufgaben', icon: 'task', path: '/tasks/my' }]
+const authorizedMenuItems = [
+  { title: 'Meine Aufgaben', icon: 'task', path: '/tasks/my' },
+  { title: 'Meine Verträge', icon: 'assignment', path: '/assignments/my' },
+  { title: 'Meine Angeboten', icon: 'local_offer', path: '/offers/my' }
+
+]
 
 const publicMenuItems = [
   { title: 'Startseite', icon: 'home', path: '/' },

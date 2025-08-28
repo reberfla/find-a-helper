@@ -47,6 +47,26 @@ const router = createRouter({
         }
       },
     },
+    {
+      path: '/offers/my',
+      name: 'my-offers',
+      component: () => import('@/modules/offer/MyOffersView.vue'),
+      beforeEnter: () => {
+        if (!useAuth().isLoggedIn.value) {
+          return { name: 'home' }
+        }
+      },
+    },
+    {
+      path: '/assignments/my',
+      name: 'my-assignments',
+      component: () => import('@/modules/assignment/MyAssignmentsView.vue'),
+      beforeEnter: () => {
+        if (!useAuth().isLoggedIn.value) {
+          return { name: 'home' }
+        }
+      },
+    },
   ],
 })
 

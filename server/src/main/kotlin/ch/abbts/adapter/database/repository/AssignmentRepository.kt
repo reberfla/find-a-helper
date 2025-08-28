@@ -11,8 +11,8 @@ import ch.abbts.application.dto.TaskPublicDto
 import ch.abbts.application.dto.UserDto
 import ch.abbts.domain.model.AssignmentModel
 import ch.abbts.error.AssignmentNotFound
+import ch.abbts.utils.LoggerService
 import ch.abbts.utils.logger
-import java.time.Instant
 import java.time.format.DateTimeFormatter
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -59,16 +59,14 @@ class AssignmentRepository {
     }
 
     fun createAssignment(assignment: AssignmentModel): AssignmentDto {
-        val timeStamp = Instant.now().epochSecond
-        log.debug("${assignment}")
+        LoggerService.debugLog(assignment)
         return transaction {
             val id =
                 AssignmentTable.insert {
-                    it[AssignmentTable.taskId] = assignment.taskId
-                    it[AssignmentTable.offerId] = assignment.offerId
-                    it[AssignmentTable.status] = assignment.status
-                    it[AssignmentTable.active] = assignment.active
-                    it[AssignmentTable.createdAt] = timeStamp
+                    it[taskId] = assignment.taskId
+                    it[offerId] = assignment.offerId
+                    it[status] = assignment.status
+                    it[active] = assignment.active
                 } get AssignmentTable.id
 
             joinDto.select { AssignmentTable.id eq id }.single().toDto()
@@ -91,9 +89,9 @@ class AssignmentRepository {
         transaction {
             val existingAssignment = getAssignmentById(id)
             AssignmentTable.update({ AssignmentTable.id eq id }) {
-                it[AssignmentTable.status] =
+                it[status] =
                     updateAssignment.status ?: existingAssignment.status
-                it[AssignmentTable.active] =
+                it[active] =
                     updateAssignment.active ?: existingAssignment.active
             }
         }
@@ -130,7 +128,6 @@ class AssignmentRepository {
     fun ResultRow.toDto(): AssignmentDto {
         return AssignmentDto(
             id = this[AssignmentTable.id],
-            createdAt = this[AssignmentTable.createdAt],
             status = this[AssignmentTable.status],
             active = this[AssignmentTable.active],
             taskCreatorUser =

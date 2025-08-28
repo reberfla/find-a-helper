@@ -11,7 +11,6 @@ import ch.abbts.domain.model.OfferStatus
 import ch.abbts.error.*
 import ch.abbts.utils.Log
 import ch.abbts.utils.LoggerService
-import java.time.Instant
 
 class OfferInteractor(
     private val offerRepo: OfferRepository,
@@ -106,6 +105,8 @@ class OfferInteractor(
     fun acceptOffer(offerId: Int, currentUserId: Int): AssignmentDto {
         val offer = getOfferById(offerId)
         val task = taskRepo.getTaskById(offer.taskId)
+        LoggerService.debugLog(offer.toString())
+        LoggerService.debugLog(task.toString())
 
         if (task.userId != currentUserId) {
             throw OfferForbidden()
@@ -120,14 +121,18 @@ class OfferInteractor(
                 offerRepo.setOfferStatus(other.id!!, OfferStatus.REJECTED)
             }
 
+        LoggerService.debugLog("here")
+
         val assignment =
             AssignmentModel(
                 taskId = task.id!!,
                 offerId = offer.id!!,
                 status = AssignmentStatus.OPEN,
                 active = true,
-                createdAt = Instant.now().epochSecond,
             )
+
+        LoggerService.debugLog("here")
+
         return assignmentRepo.createAssignment(assignment)
     }
 }

@@ -10,7 +10,6 @@ data class AssignmentDto(
     val offerCreatorUser: UserDto,
     val task: TaskPublicDto,
     val offer: OfferDto,
-    val createdAt: Long,
     val status: AssignmentStatus,
     val active: Boolean = true,
 )

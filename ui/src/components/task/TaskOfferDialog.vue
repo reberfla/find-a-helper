@@ -2,30 +2,36 @@
 import type { Task } from '@/models/TaskModel.ts'
 import { onMounted, ref } from 'vue'
 import { useAuth } from '@/service/userAuthService.ts'
-// import offerService from '@/service/OfferService.ts'
+import offerService from "@/service/OfferService.ts";
+import type {Offer, OfferDto} from "@/models/OfferModel.ts";
 
 const props = defineProps<{ task: Task }>()
+const emit = defineEmits(['close-offer'])
 
-const offer = ref<any>({
+const offer = ref<Offer>({
   taskId: props.task.id,
-  userId: undefined,
+  userId:null,
   title: '',
   text: '',
 })
 
 onMounted(() => {
   const user = useAuth().getCurrentUserId()
-  console.log(user)
   offer.value.userId = user
 })
 
 async function sendOffer() {
   offer.value.userId = useAuth().getCurrentUserId()
-  // TODO: Implement offer creation logic
-  // await offerService.createOffer(offer.value)
+  const payload:OfferDto = {
+    userId: offer.value.userId,
+    taskId: offer.value.taskId,
+    title: offer.value.title || null,
+    text: offer.value.text
+  }
+  await offerService.createOffer(payload)
+  emit("close-offer")
 }
 
-const emit = defineEmits(['close-offer'])
 </script>
 <template>
   <v-card>

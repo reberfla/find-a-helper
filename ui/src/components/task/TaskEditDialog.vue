@@ -52,14 +52,14 @@ async function createTask(this: typeof TaskEditDialog, task: Partial<Task>) {
     return
   }
   await taskService.createTask(task).then(() => {
-    this.emit('close')
     router.push({ path: '/tasks/my' })
+    this.emit('save')
   })
 }
 
 async function updateTask(this: typeof TaskEditDialog, task: Partial<Task>, id: number) {
   await taskService.updateTask(task, id)
-  this.emit('close')
+  this.emit('update')
 }
 
 onMounted(() => {
@@ -68,7 +68,7 @@ onMounted(() => {
   }
 })
 
-const emit = defineEmits(['close', 'delete'])
+const emit = defineEmits(['save','update', 'close', 'delete'])
 </script>
 
 <template>

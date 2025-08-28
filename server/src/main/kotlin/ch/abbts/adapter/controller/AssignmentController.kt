@@ -7,6 +7,7 @@ import ch.abbts.application.interactor.AssignmentInteractor
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.InvalidPathParamInt
 import ch.abbts.error.WebserverErrorMessage
+import ch.abbts.utils.LoggerService
 import ch.abbts.utils.receiveHandled
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
@@ -55,6 +56,7 @@ fun Route.assignmentRoutes(assignmentInteractor: AssignmentInteractor) {
                 log.info("${call.route} for userId = $userId")
                 val assignments =
                     assignmentInteractor.getAssignmentByUserId(userId)
+                LoggerService.debugLog(assignments.toString())
                 call.respond(assignments)
             }
 
@@ -90,6 +92,8 @@ fun Route.assignmentRoutes(assignmentInteractor: AssignmentInteractor) {
             )
             put("/{id}") {
                 val userId = JWebToken.getUserIdFromCall(call)
+
+                LoggerService.debugLog(userId)
                 val assignmentId = call.parameters["id"]
                 if (assignmentId != null) {
                     val assignment = call.receiveHandled<AssignmentUpdateDto>()

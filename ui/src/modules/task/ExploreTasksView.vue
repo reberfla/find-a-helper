@@ -9,9 +9,13 @@ import { green } from 'vuetify/util/colors'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/service/userAuthService.ts'
 import { drawer } from '@/utils/nav.ts'
+import SnackBar from "@/components/Snackbar.vue";
+import offerService from "@/service/OfferService.ts";
 
 const route = useRouter()
-const { isLoggedIn } = useAuth()
+const snackBar = ref<InstanceType<typeof SnackBar> | null>(null)
+
+const { isLoggedIn, getCurrentUserId } = useAuth()
 
 async function loadTasks() {
   const category = route.currentRoute.value.query['category'] as string | null
@@ -19,6 +23,12 @@ async function loadTasks() {
     filterCategories.value = [category.toUpperCase() as TaskCategory]
   }
   tasks.value = await taskService.getTasks(category)
+}
+
+function canOffer(task: Task & { offerUserIds?: number[] }): boolean {
+  const userId = getCurrentUserId()
+  if (!isLoggedIn.value || !userId) return false
+  return !(task.offerUserIds ?? []).includes(userId)
 }
 
 const searchTerm = ref('')
@@ -56,11 +66,18 @@ function openOffer(task: Task) {
   offerDialog.value = true
 }
 
+function onSaveOrUpdate($event:'save'|'update'){
+  console.log($event)
+  createTaskDialog.value = false
+  snackBar.value?.show(`Angebot erfolgreich ${$event == 'save' ? 'abgegeben' : 'geändert'}`, 'info')
+}
+
 onMounted(() => loadTasks())
+
 </script>
 <template>
   <v-dialog v-model="createTaskDialog" max-width="800">
-    <TaskEditDialog :task="{} as Task" @close="createTaskDialog = false" :update="false" />
+    <TaskEditDialog :task="{} as Task" @save="onSaveOrUpdate($event)" @update="onSaveOrUpdate($event)" @close="createTaskDialog = false" :update="false" />
   </v-dialog>
   <v-dialog v-model="offerDialog" max-width="800">
     <TaskOfferDialog :task="selectedTask" @close-offer="offerDialog = false" />
@@ -119,10 +136,14 @@ onMounted(() => loadTasks())
       class="task"
       v-bind:key="task.id"
       :task="task"
+      :can-offer="canOffer(task)"
       :private="false"
       @open-offer="openOffer"
     />
   </v-container>
+
+  <snackBar ref="snackBar" />
+
 </template>
 
 <style scoped>

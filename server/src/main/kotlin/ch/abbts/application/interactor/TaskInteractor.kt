@@ -5,6 +5,7 @@ import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.application.dto.TaskPrivateDto
 import ch.abbts.application.dto.TaskQueryParams
 import ch.abbts.application.dto.TaskUpdateDto
+import ch.abbts.application.dto.TaskWithOfferUsersModel
 import ch.abbts.domain.model.TaskModel
 import ch.abbts.error.TaskOfOtherUser
 import ch.abbts.utils.logger
@@ -33,12 +34,11 @@ class TaskInteractor(
         return toUpdateTask.toPrivateDto(user.name, user.email)
     }
 
-    fun getTasks(filterQuery: TaskQueryParams? = null): List<TaskModel> {
-        if (filterQuery == null) {
-            return taskRepository.getAllTasks() ?: listOf<TaskModel>()
-        } else {
-            return taskRepository.getTasks(filterQuery) ?: listOf<TaskModel>()
-        }
+    fun getTasks(
+        filterQuery: TaskQueryParams? = null
+    ): List<TaskWithOfferUsersModel> {
+        return taskRepository.getAllTasksWithOfferUsers(filterQuery)
+            ?: listOf<TaskWithOfferUsersModel>()
     }
 
     fun getTasksByCreator(userId: Int): List<TaskPrivateDto> {

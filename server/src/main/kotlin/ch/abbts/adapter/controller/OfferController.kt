@@ -9,6 +9,8 @@ import ch.abbts.domain.model.JWebToken
 import ch.abbts.domain.model.OfferStatus
 import ch.abbts.error.OfferForbidden
 import ch.abbts.error.WebserverError
+import ch.abbts.utils.LoggerService
+import ch.abbts.utils.receiveHandled
 import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -16,7 +18,6 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.slf4j.LoggerFactory
 
 @Tag(["Offer"])
 fun Application.offerRoutes(
@@ -24,7 +25,6 @@ fun Application.offerRoutes(
     userInteractor: UserInteractor,
     taskInteractor: TaskInteractor,
 ) {
-    val log = LoggerFactory.getLogger("ch.abbts.adapter.controller")
     routing {
         route("/v1/offer") {
             authenticate("jwt-auth") {
@@ -53,49 +53,40 @@ fun Application.offerRoutes(
 
                 post {
                     try {
-                        val dto = call.receive<OfferDto>()
-                        val token = call.request.authorization()!!.split(" ")[1]
-                        val email = JWebToken.decodeEmailFromToken(token)
-                        val user = userInteractor.getUserByEmail(email)
-                        log.debug("user of dto: ${dto.userId}")
-                        log.debug("user of request: ${user?.id}")
+                        val dto = call.receiveHandled<OfferDto>()
+                        LoggerService.debugLog(dto)
+                        val userId = JWebToken.getUserIdFromCall(call)
 
-                        if (user!!.id != dto.userId) {
+                        if (userId != dto.userId) {
                             throw OfferForbidden()
                         }
 
                         val createdOffer = offerInteractor.createOffer(dto)
-
-                        val response =
-                            createdOffer?.id?.let {
-                                OfferDto(
-                                    id = createdOffer.id,
-                                    userId = createdOffer.userId,
-                                    taskId = createdOffer.taskId,
-                                    status = OfferStatus.SUBMITTED,
-                                    active = true,
-                                    text = createdOffer.text,
-                                    title = createdOffer.title,
-                                )
-                            }
-
-                        if (response != null) {
-                            call.respond(HttpStatusCode.Created, response)
-                        }
+                        LoggerService.debugLog("created")
+                        LoggerService.debugLog(createdOffer.toString())
+                        call.respond(
+                            HttpStatusCode.Created,
+                            createdOffer as OfferDto,
+                        )
                     } catch (e: WebserverError) {
                         call.respond(e.getStatus(), e.getMessage())
                     }
                 }
 
                 put("/accept/{id}") {
+                    LoggerService.debugLog("here")
                     val offerId = call.parameters["id"]!!.toInt()
-                    val userId = JWebToken.getUserIdFromCall(call)
-                    call.respond(offerInteractor.acceptOffer(offerId, userId))
+                    val currentUserId = JWebToken.getUserIdFromCall(call)
+                    call.respond(
+                        offerInteractor.acceptOffer(offerId, currentUserId)
+                    )
                 }
 
                 put("/reject/{id}") {
+                    LoggerService.debugLog("here")
+
                     val offerId = call.parameters["id"]!!.toInt()
-                    offerInteractor.getOfferById(offerId)
+                    val offer = offerInteractor.getOfferById(offerId)
                     call.respond(
                         offerInteractor.setOfferStatus(
                             offerId,
