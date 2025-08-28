@@ -44,47 +44,61 @@ class OfferControllerTest {
     }
 
     @Test
-    fun `POST create offer returns 403 when dto_userId != JWT userId`() = testApplication {
-        lateinit var mockUserInteractor: UserInteractor
-        lateinit var mockOfferInteractor: OfferInteractor
-        val taskInteractor = TaskInteractor(TaskRepository(), UsersRepository())
-        val assignmentInteractor = AssignmentInteractor(AssignmentRepository(), TaskRepository())
+    fun `POST create offer returns 403 when dto_userId != JWT userId`() =
+        testApplication {
+            lateinit var mockUserInteractor: UserInteractor
+            lateinit var mockOfferInteractor: OfferInteractor
+            val taskInteractor =
+                TaskInteractor(TaskRepository(), UsersRepository())
+            val assignmentInteractor =
+                AssignmentInteractor(AssignmentRepository(), TaskRepository())
 
-        application {
-            mockUserInteractor = mock {
-                on { verifyLocalUser(eq("bob@builder.ch"), any()) } doReturn
-                        UserDto(email = "bob@builder.ch", birthdate = "", id = 53)
+            application {
+                mockUserInteractor = mock {
+                    on { verifyLocalUser(eq("bob@builder.ch"), any()) } doReturn
+                        UserDto(
+                            email = "bob@builder.ch",
+                            birthdate = "",
+                            id = 53,
+                        )
+                }
+                doNothing()
+                    .whenever(mockUserInteractor)
+                    .updateIssuedTime(eq("bob@builder.ch"), any())
+
+                mockOfferInteractor = mock()
+
+                configureRouting(
+                    mockUserInteractor,
+                    mockOfferInteractor,
+                    taskInteractor,
+                    assignmentInteractor,
+                )
             }
-            doNothing().whenever(mockUserInteractor)
-                .updateIssuedTime(eq("bob@builder.ch"), any())
 
-            mockOfferInteractor = mock()
+            val client = createClient { install(ContentNegotiation) { json() } }
+            val jwt = fetchJwt(client)
 
-            configureRouting(
-                mockUserInteractor,
-                mockOfferInteractor,
-                taskInteractor,
-                assignmentInteractor,
-            )
+            val payload =
+                OfferDto(
+                    id = null,
+                    userId = 999,
+                    taskId = 7,
+                    status = OfferStatus.SUBMITTED,
+                    active = true,
+                    text = "hello",
+                    title = "test",
+                    validUntil = null,
+                )
+
+            val res =
+                client.post("/v1/offer") {
+                    header(HttpHeaders.Authorization, "Bearer $jwt")
+                    contentType(ContentType.Application.Json)
+                    setBody(payload)
+                }
+
+            assertEquals(HttpStatusCode.Forbidden, res.status)
+            verify(mockOfferInteractor, never()).createOffer(any())
         }
-
-        val client = createClient { install(ContentNegotiation) { json() } }
-        val jwt = fetchJwt(client)
-
-        val payload = OfferDto(
-            id = null, userId = 999, taskId = 7,
-            status = OfferStatus.SUBMITTED, active = true,
-            text = "hello", title = "test", validUntil = null
-        )
-
-        val res = client.post("/v1/offer") {
-            header(HttpHeaders.Authorization, "Bearer $jwt")
-            contentType(ContentType.Application.Json)
-            setBody(payload)
-        }
-
-        assertEquals(HttpStatusCode.Forbidden, res.status)
-        verify(mockOfferInteractor, never()).createOffer(any())
-    }
-
 }
