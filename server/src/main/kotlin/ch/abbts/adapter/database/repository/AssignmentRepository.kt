@@ -21,6 +21,34 @@ class AssignmentRepository {
     val log = logger()
 
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    private val taskCreator = UsersTable.alias("taskCreator")
+    private val offerCreator = UsersTable.alias("offerCreator")
+
+    private val joinDto =
+        AssignmentTable.join(
+                TasksTable,
+                JoinType.INNER,
+                AssignmentTable.taskId,
+                TasksTable.id,
+            )
+            .join(
+                OffersTable,
+                JoinType.INNER,
+                AssignmentTable.offerId,
+                OffersTable.id,
+            )
+            .join(
+                taskCreator,
+                JoinType.INNER,
+                TasksTable.userId,
+                taskCreator[UsersTable.id],
+            )
+            .join(
+                offerCreator,
+                JoinType.INNER,
+                OffersTable.userId,
+                offerCreator[UsersTable.id],
+            )
 
     fun getAssignmentById(id: Int): AssignmentModel {
         return transaction {
@@ -30,18 +58,20 @@ class AssignmentRepository {
         }
     }
 
-    fun createAssignment(assignment: AssignmentModel): AssignmentModel {
+    fun createAssignment(assignment: AssignmentModel): AssignmentDto {
         val timeStamp = Instant.now().epochSecond
-        val id = transaction {
-            AssignmentTable.insert {
-                it[AssignmentTable.taskId] = assignment.taskId
-                it[AssignmentTable.offerId] = assignment.offerId
-                it[AssignmentTable.status] = assignment.status
-                it[AssignmentTable.active] = assignment.active
-                it[AssignmentTable.createdAt] = timeStamp
-            } get AssignmentTable.id
+        return transaction {
+            val id =
+                AssignmentTable.insert {
+                    it[AssignmentTable.taskId] = assignment.taskId
+                    it[AssignmentTable.offerId] = assignment.offerId
+                    it[AssignmentTable.status] = assignment.status
+                    it[AssignmentTable.active] = assignment.active
+                    it[AssignmentTable.createdAt] = timeStamp
+                } get AssignmentTable.id
+
+            joinDto.select { AssignmentTable.id eq id }.single().toDto()
         }
-        return assignment.copy(id = id, createdAt = timeStamp)
     }
 
     fun getAssignmentByUserId(id: Int): List<AssignmentDto>? {
@@ -51,96 +81,13 @@ class AssignmentRepository {
                     .reduce { acc, op -> acc or op }
             }
 
-        val taskCreator = UsersTable.alias("taskCreator")
-        val offerCreator = UsersTable.alias("offerCreator")
-
-        val join =
-            AssignmentTable.join(
-                    TasksTable,
-                    JoinType.INNER,
-                    AssignmentTable.taskId,
-                    TasksTable.id,
-                )
-                .join(
-                    OffersTable,
-                    JoinType.INNER,
-                    AssignmentTable.offerId,
-                    OffersTable.id,
-                )
-                .join(
-                    taskCreator,
-                    JoinType.INNER,
-                    TasksTable.userId,
-                    taskCreator[UsersTable.id],
-                )
-                .join(
-                    offerCreator,
-                    JoinType.INNER,
-                    OffersTable.userId,
-                    offerCreator[UsersTable.id],
-                )
-
         return transaction {
-            join
-                .select { filter }
-                .map { row ->
-                    AssignmentDto(
-                        id = row[AssignmentTable.id],
-                        createdAt = row[AssignmentTable.createdAt],
-                        status = row[AssignmentTable.status],
-                        active = row[AssignmentTable.active],
-                        taskCreatorUser =
-                            UserDto(
-                                id = row[taskCreator[UsersTable.id]],
-                                name = row[taskCreator[UsersTable.name]],
-                                email = row[taskCreator[UsersTable.email]],
-                                birthdate =
-                                    row[taskCreator[UsersTable.birthdate]]
-                                        .format(dateFormatter),
-                            ),
-                        offerCreatorUser =
-                            UserDto(
-                                id = row[offerCreator[UsersTable.id]],
-                                name = row[offerCreator[UsersTable.name]],
-                                email = row[offerCreator[UsersTable.email]],
-                                birthdate =
-                                    row[offerCreator[UsersTable.birthdate]]
-                                        .format(dateFormatter),
-                            ),
-                        task =
-                            TaskPublicDto(
-                                id = row[TasksTable.id],
-                                zipCode = row[TasksTable.zipCode],
-                                title = row[TasksTable.title],
-                                description = row[TasksTable.description],
-                                category = row[TasksTable.category],
-                                status = row[TasksTable.status],
-                                active = row[TasksTable.active],
-                                taskInterval = row[TasksTable.taskInterval],
-                                createdAt = row[TasksTable.createdAt],
-                            ),
-                        offer =
-                            OfferDto(
-                                id = row[OffersTable.id],
-                                userId = row[OffersTable.userId],
-                                taskId = row[OffersTable.taskId],
-                                title = row[OffersTable.title],
-                                text = row[OffersTable.text],
-                                status = row[OffersTable.status],
-                                active = row[OffersTable.active],
-                                validUntil =
-                                    row[OffersTable.validUntil]?.format(
-                                        dateFormatter
-                                    ),
-                            ),
-                    )
-                }
-                .toList()
+            joinDto.select { filter }.map { it.toDto() }.toList()
         }
     }
 
     fun updateAssignment(updateAssignment: AssignmentUpdateDto, id: Int): Unit {
-        return transaction {
+        transaction {
             val existingAssignment = getAssignmentById(id)
             AssignmentTable.update({ AssignmentTable.id eq id }) {
                 it[AssignmentTable.status] =
@@ -177,5 +124,58 @@ class AssignmentRepository {
                 ?.get(TasksTable.userId)
                 ?: throw AssignmentNotFound(assignmentId)
         }
+    }
+
+    fun ResultRow.toDto(): AssignmentDto {
+        return AssignmentDto(
+            id = this[AssignmentTable.id],
+            createdAt = this[AssignmentTable.createdAt],
+            status = this[AssignmentTable.status],
+            active = this[AssignmentTable.active],
+            taskCreatorUser =
+                UserDto(
+                    id = this[taskCreator[UsersTable.id]],
+                    name = this[taskCreator[UsersTable.name]],
+                    email = this[taskCreator[UsersTable.email]],
+                    birthdate =
+                        this[taskCreator[UsersTable.birthdate]].format(
+                            dateFormatter
+                        ),
+                ),
+            offerCreatorUser =
+                UserDto(
+                    id = this[offerCreator[UsersTable.id]],
+                    name = this[offerCreator[UsersTable.name]],
+                    email = this[offerCreator[UsersTable.email]],
+                    birthdate =
+                        this[offerCreator[UsersTable.birthdate]].format(
+                            dateFormatter
+                        ),
+                ),
+            task =
+                TaskPublicDto(
+                    id = this[TasksTable.id],
+                    zipCode = this[TasksTable.zipCode],
+                    title = this[TasksTable.title],
+                    description = this[TasksTable.description],
+                    category = this[TasksTable.category],
+                    status = this[TasksTable.status],
+                    active = this[TasksTable.active],
+                    taskInterval = this[TasksTable.taskInterval],
+                    createdAt = this[TasksTable.createdAt],
+                ),
+            offer =
+                OfferDto(
+                    id = this[OffersTable.id],
+                    userId = this[OffersTable.userId],
+                    taskId = this[OffersTable.taskId],
+                    title = this[OffersTable.title],
+                    text = this[OffersTable.text],
+                    status = this[OffersTable.status],
+                    active = this[OffersTable.active],
+                    validUntil =
+                        this[OffersTable.validUntil]?.format(dateFormatter),
+                ),
+        )
     }
 }
