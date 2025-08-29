@@ -10,7 +10,6 @@ import ch.abbts.error.UserAlreadyExists
 import ch.abbts.error.UserNotFound
 import ch.abbts.error.WebserverError
 import ch.abbts.error.WebserverErrorMessage
-import ch.abbts.utils.LoggerService
 import ch.abbts.utils.receiveHandled
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
@@ -19,10 +18,8 @@ import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.authenticate
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.Json
 
 @Tag(["User"])
 fun Application.userRoutes(userInteractor: UserInteractor) {
@@ -45,9 +42,7 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
             post("/register") {
                 try {
                     val dto = call.receiveHandled<UserDto>()
-                    LoggerService.debugLog("DTO OK: $dto")
                     val newUser = userInteractor.createUser(dto)
-                    LoggerService.debugLog(newUser.toString())
                     if (newUser?.id != null) {
                         val token = JWebToken(newUser.email, newUser.id)
                         userInteractor.updateIssuedTime(
@@ -102,11 +97,7 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                 val userId = JWebToken.getUserIdFromCall(call)
                 val user =
                     userInteractor.getUserById(userId) ?: throw UserNotFound()
-                LoggerService.debugLog(user.toString())
                 val updateUser = call.receiveHandled<UserUpdateDto>()
-                LoggerService.debugLog(
-                    "Received JSON: ${Json.encodeToString(updateUser)}"
-                )
 
                 val updateDto =
                     UserDto(
@@ -117,7 +108,8 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                         birthdate =
                             updateUser.birthdate ?: user.birthdate.toString(),
                         authProvider = user.authProvider,
-                        imgBase64 = updateUser.imgBase64,
+                        imgBase64 =
+                            updateUser.imgBase64 ?: user.image.toString(),
                     )
 
                 val updatedUserDto =

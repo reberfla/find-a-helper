@@ -4,7 +4,6 @@ import ch.abbts.adapter.database.table.UsersTable
 import ch.abbts.domain.model.UserModel
 import ch.abbts.error.UpdatingIssuedTimeFailed
 import ch.abbts.error.UserCreationFailed
-import ch.abbts.utils.LoggerService
 import ch.abbts.utils.logger
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
@@ -58,13 +57,11 @@ class UsersRepository {
     }
 
     fun getUserByEmail(email: String): UserModel? {
-        LoggerService.debugLog("fetching user for in UserRespo $email")
         return try {
             transaction {
                 val user =
                     UsersTable.select { UsersTable.email eq email }
                         .singleOrNull()
-                LoggerService.debugLog(user.toString())
                 user?.toUserModel()
             }
         } catch (e: Exception) {

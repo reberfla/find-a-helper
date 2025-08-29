@@ -10,7 +10,6 @@ import ch.abbts.domain.model.AssignmentStatus
 import ch.abbts.domain.model.OfferStatus
 import ch.abbts.error.*
 import ch.abbts.utils.Log
-import ch.abbts.utils.LoggerService
 
 class OfferInteractor(
     private val offerRepo: OfferRepository,
@@ -53,8 +52,6 @@ class OfferInteractor(
 
     fun deleteOffer(userId: Int, offerId: Int): Boolean {
         val offer = offerRepo.getOfferById(offerId)
-
-        LoggerService.debugLog(offer.toString())
 
         if (offer?.userId != userId) {
             throw OfferForbidden()
@@ -105,8 +102,6 @@ class OfferInteractor(
     fun acceptOffer(offerId: Int, currentUserId: Int): AssignmentDto {
         val offer = getOfferById(offerId)
         val task = taskRepo.getTaskById(offer.taskId)
-        LoggerService.debugLog(offer.toString())
-        LoggerService.debugLog(task.toString())
 
         if (task.userId != currentUserId) {
             throw OfferForbidden()
@@ -121,8 +116,6 @@ class OfferInteractor(
                 offerRepo.setOfferStatus(other.id!!, OfferStatus.REJECTED)
             }
 
-        LoggerService.debugLog("here")
-
         val assignment =
             AssignmentModel(
                 taskId = task.id!!,
@@ -130,8 +123,6 @@ class OfferInteractor(
                 status = AssignmentStatus.OPEN,
                 active = true,
             )
-
-        LoggerService.debugLog("here")
 
         return assignmentRepo.createAssignment(assignment)
     }

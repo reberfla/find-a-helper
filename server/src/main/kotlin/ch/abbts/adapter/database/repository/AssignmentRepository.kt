@@ -11,7 +11,6 @@ import ch.abbts.application.dto.TaskPublicDto
 import ch.abbts.application.dto.UserDto
 import ch.abbts.domain.model.AssignmentModel
 import ch.abbts.error.AssignmentNotFound
-import ch.abbts.utils.LoggerService
 import ch.abbts.utils.logger
 import java.time.format.DateTimeFormatter
 import org.jetbrains.exposed.sql.*
@@ -59,7 +58,6 @@ class AssignmentRepository {
     }
 
     fun createAssignment(assignment: AssignmentModel): AssignmentDto {
-        LoggerService.debugLog(assignment)
         return transaction {
             val id =
                 AssignmentTable.insert {

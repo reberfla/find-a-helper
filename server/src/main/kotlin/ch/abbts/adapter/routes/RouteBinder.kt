@@ -11,7 +11,6 @@ import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.WebserverError
-import ch.abbts.utils.LoggerService
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -56,7 +55,6 @@ fun Application.configureRouting(
         bearer("jwt-auth") {
             realm = "Access to protected routes"
             authenticate { jwt ->
-                LoggerService.debugLog(jwt)
                 JWebToken.validateToken(jwt.token)
                 JWebToken.verifyToken(jwt.token)
             }

@@ -9,7 +9,6 @@ import ch.abbts.domain.model.JWebToken
 import ch.abbts.domain.model.OfferStatus
 import ch.abbts.error.OfferForbidden
 import ch.abbts.error.WebserverError
-import ch.abbts.utils.LoggerService
 import ch.abbts.utils.receiveHandled
 import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.http.*
@@ -54,7 +53,6 @@ fun Application.offerRoutes(
                 post {
                     try {
                         val dto = call.receiveHandled<OfferDto>()
-                        LoggerService.debugLog(dto)
                         val userId = JWebToken.getUserIdFromCall(call)
 
                         if (userId != dto.userId) {
@@ -62,8 +60,6 @@ fun Application.offerRoutes(
                         }
 
                         val createdOffer = offerInteractor.createOffer(dto)
-                        LoggerService.debugLog("created")
-                        LoggerService.debugLog(createdOffer.toString())
                         call.respond(
                             HttpStatusCode.Created,
                             createdOffer as OfferDto,
@@ -74,7 +70,6 @@ fun Application.offerRoutes(
                 }
 
                 put("/accept/{id}") {
-                    LoggerService.debugLog("here")
                     val offerId = call.parameters["id"]!!.toInt()
                     val currentUserId = JWebToken.getUserIdFromCall(call)
                     call.respond(
@@ -83,8 +78,6 @@ fun Application.offerRoutes(
                 }
 
                 put("/reject/{id}") {
-                    LoggerService.debugLog("here")
-
                     val offerId = call.parameters["id"]!!.toInt()
                     val offer = offerInteractor.getOfferById(offerId)
                     call.respond(

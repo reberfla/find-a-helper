@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref, toRaw, watch } from 'vue'
 import { useAuth } from '@/service/userAuthService.ts'
-import { UserModel } from '@/models/UserModel.ts'
+import { type AuthResponse, UserModel } from '@/models/UserModel.ts'
 import SnackBar from '@/components/Snackbar.vue'
 import { translate } from '@/service/translationService.ts'
 import UserService from '@/service/UserService.ts'
 
-const { getCurrentUser, getCurrentUserAvatar, login } = useAuth()
+const { getCurrentUser, getCurrentUserAvatar, updateUser } = useAuth()
 const token = getCurrentUser()?.token
 
 const user = ref<UserModel>(new UserModel('', ''))
@@ -22,6 +22,7 @@ async function loadUserData() {
   if (!token) return
   await UserService.getUser()
     .then((userData: UserModel) => {
+      console.log(userData)
       user.value = userData
       originalUser.value = { ...userData }
     })
@@ -57,6 +58,7 @@ function onImageSelected(event: Event) {
     reader.onload = async () => {
       const result = reader.result?.toString()
       if (result) {
+        updateUser({ avatar: result })
         changedFields.value.imgBase64 = result.split(',')[1]
         await saveChanges()
       }
@@ -80,6 +82,18 @@ async function saveChanges() {
     .then(async () => {
       editMode.value = false
       snackBar.value?.show(t('SAVE_SUCESS'), 'info')
+      const newBase64 = changedFields.value.imgBase64
+      const avatar = newBase64
+        ? `data:image/png;base64,${newBase64}`
+        : user.value.imageUrl
+          ? `${user.value.imageUrl}?v=${Date.now()}`
+          : 'https://www.gravatar.com/avatar?d=mp'
+
+      updateUser({
+        name: user.value.name,
+        email: user.value.email,
+        avatar,
+      })
       changedFields.value = {}
       await loadUserData()
     })
@@ -94,7 +108,6 @@ onMounted(loadUserData)
 
 <template>
   <v-container class="text-center mt-10">
-    <!-- Profilbild mit Overlay -->
     <v-row justify="center">
       <v-col cols="12" md="6" class="position-relative">
         <div class="avatar-wrapper">
@@ -114,7 +127,6 @@ onMounted(loadUserData)
       </v-col>
     </v-row>
 
-    <!-- Benutzerdaten -->
     <v-row justify="center" class="mt-4">
       <v-col cols="12" md="6">
         <v-form>
