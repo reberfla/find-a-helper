@@ -52,7 +52,7 @@
 
             <v-card-actions>
               <v-btn variant="text" color="primary" @click.stop="toTasksWith(s.slug)">
-                {{ t('MEHR_ERFAHREN') }}
+                Mehr erfahren
                 <v-icon class="ml-2">arrow_right</v-icon>
               </v-btn>
             </v-card-actions>
@@ -67,12 +67,10 @@
 import { computed, onMounted, ref } from 'vue'
 import { serviceCategories } from '@/data/serviceCategories.ts'
 import { useNav } from '@/utils/nav.ts'
-import { translate } from '@/service/translationService'
+
 onMounted(() => {
   window.particlesJS?.load('particles-js', '/particles.json')
 })
-
-const t = translate
 
 const { toTasksWith } = useNav()
 const services = ref(serviceCategories)
@@ -80,8 +78,8 @@ const services = ref(serviceCategories)
 const viewModels = computed(() =>
   services.value.map((s) => ({
     ...s,
-    title: t(s.titleKey),
-    description: t(s.descKey),
+    title: s.titleKey,
+    description: s.descKey,
   })),
 )
 

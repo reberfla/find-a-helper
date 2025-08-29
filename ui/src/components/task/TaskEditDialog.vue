@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { categories, interval, type Task, TaskInterval, Weekday } from '@/models/TaskModel.ts'
-import { translate } from '@/service/translationService.ts'
+import {
+  categories,
+  interval,
+  type Task,
+  TaskInterval,
+  Weekday,
+  weekdayMap,
+} from '@/models/TaskModel.ts'
 import taskService from '@/service/TaskService.ts'
 import TaskEditDialog from '@/components/task/TaskEditDialog.vue'
 import router from '@/router'
@@ -158,7 +164,7 @@ const emit = defineEmits(['save', 'update', 'close', 'delete'])
         >
           <v-chip
             v-for="day in Weekday"
-            :text="translate(day.toString())"
+            :text="weekdayMap.get(day)"
             :key="day"
             :value="day"
             selected-class="day-active"

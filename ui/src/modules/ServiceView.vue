@@ -2,9 +2,6 @@
 import { computed, ref } from 'vue'
 import { serviceCategories } from '@/data/serviceCategories.ts'
 import { useNav } from '@/utils/nav.ts'
-import { translate } from '@/service/translationService.ts'
-
-const t = translate
 
 const { toTasksWith } = useNav()
 const services = ref(serviceCategories)
@@ -12,8 +9,8 @@ const services = ref(serviceCategories)
 const viewModels = computed(() =>
   services.value.map((s) => ({
     ...s,
-    title: t(s.titleKey),
-    description: t(s.descKey),
+    title: s.titleKey,
+    description: s.descKey,
   })),
 )
 </script>
@@ -36,15 +33,6 @@ const viewModels = computed(() =>
         </v-card>
       </v-col>
     </v-row>
-    <!--      <div v-for="service in services" :key="service.id" class="service-card">
-        <v-card>
-          <v-card-item>
-            <v-icon size="large" :icon="service.icon" class="service-icon"></v-icon>
-            <v-card-title>{{ service.title }}</v-card-title>
-            <v-card-text>{{ service.description }}</v-card-text>
-          </v-card-item>
-        </v-card>
-      </div>-->
   </div>
 </template>
 

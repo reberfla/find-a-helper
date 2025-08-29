@@ -111,7 +111,6 @@ function toDateStringSec(ts?: number | null) {
           <div v-if="offer">
             <div><strong>Titel: </strong>{{ offer.title }}</div>
             <div class="mb-2"><strong>Text: </strong>{{ offer.text }}</div>
-            <div><strong>Erstellt am: </strong>{{ toDateStringSec(offer.createdAt) }}</div>
           </div>
           <div v-else class="text-medium-emphasis">Angebot ist nicht geladen.</div>
         </v-expansion-panel-text>

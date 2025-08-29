@@ -10,11 +10,7 @@ import * as components from 'vuetify/components'
 import { VDateInput } from 'vuetify/labs/VDateInput'
 import * as directives from 'vuetify/directives'
 
-import { loadTranslations, setLanguage } from '@/service/translationService'
 import { md, aliases } from 'vuetify/iconsets/md'
-
-await loadTranslations()
-setLanguage('de')
 
 const vuetify = createVuetify({
   components: {

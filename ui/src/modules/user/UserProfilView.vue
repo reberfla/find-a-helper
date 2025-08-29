@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, toRaw, watch } from 'vue'
 import { useAuth } from '@/service/userAuthService.ts'
-import { type AuthResponse, UserModel } from '@/models/UserModel.ts'
+import { UserModel } from '@/models/UserModel.ts'
 import SnackBar from '@/components/Snackbar.vue'
-import { translate } from '@/service/translationService.ts'
 import UserService from '@/service/UserService.ts'
 
 const { getCurrentUser, getCurrentUserAvatar, updateUser } = useAuth()
@@ -15,7 +14,6 @@ const changedFields = ref<Partial<UserModel>>({})
 const newAvatar = ref<File | null>(null)
 const editMode = ref(false)
 const snackBar = ref<InstanceType<typeof SnackBar> | null>(null)
-const t = translate
 const fileInput = ref<HTMLInputElement | null>(null)
 
 async function loadUserData() {
@@ -88,7 +86,7 @@ async function saveChanges() {
   UserService.updateUser(rest)
     .then(async () => {
       editMode.value = false
-      snackBar.value?.show(t('SAVE_SUCESS'), 'info')
+      snackBar.value?.show('Erfolgreich gespeichert', 'info')
       const newBase64 = changedFields.value.imgBase64
       const avatar = newBase64
         ? `data:image/png;base64,${newBase64}`
@@ -105,7 +103,7 @@ async function saveChanges() {
       await loadUserData()
     })
     .catch((e: any) => {
-      snackBar.value?.show(t('ERROR_SAVE_FAILED'), 'error')
+      snackBar.value?.show('Fehler beim speichern', 'error')
       console.error('Fehler beim Speichern:', e)
     })
 }

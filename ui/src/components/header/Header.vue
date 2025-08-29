@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import AuthView from '@/modules/auth/AuthView.vue'
 import { computed, onMounted, ref } from 'vue'
-import { getLanguage, setLanguage, translate } from '@/service/translationService.js'
 import { useAuth } from '@/service/userAuthService.ts'
 import SnackBar from '@/components/Snackbar.vue'
 import { drawer } from '@/utils/nav.ts'
+import { useRouter } from 'vue-router'
 
 const { isLoggedIn, logout, getCurrentUser, getCurrentUserAvatar } = useAuth()
-import { useRouter } from 'vue-router'
 
 const authDialogVisible = ref(false)
 const authMode = ref<'login' | 'register'>('login')
@@ -21,15 +20,11 @@ function openAuth(mode: 'login' | 'register') {
 
 const router = useRouter()
 const dropdownOpen = ref(false)
-const languageDropdownOpen = ref(false)
-const currentLanguage = ref(getLanguage())
-
-const t = translate
 
 const emit = defineEmits(['onAuthChange'])
 
 function onLogin() {
-  snackBar.value?.show(t('LABEL_LOGIN_SUCCESS'), 'info')
+  snackBar.value?.show('Anmeldung erfolgreich')
   dropdownOpen.value = false
   emit('onAuthChange')
 }
@@ -40,32 +35,10 @@ function goHome() {
 
 function handleLogout() {
   logout()
-  snackBar.value?.show(t('LABEL_LOGOUT_SUCCESS'), 'info')
+  snackBar.value?.show('Abmeldung erfolgreich')
   dropdownOpen.value = false
   emit('onAuthChange')
 }
-
-function getFlagIcon(lang: any) {
-  switch (lang) {
-    case 'en':
-      return '🇬🇧'
-    case 'de':
-      return '🇩🇪'
-    default:
-      return '🌐'
-  }
-}
-
-function getAvailableLanguages() {
-  return ['en', 'de'].filter((lang) => lang !== currentLanguage.value)
-}
-
-function changeLanguage(lang: any) {
-  currentLanguage.value = lang
-  setLanguage(lang)
-  languageDropdownOpen.value = false
-}
-
 onMounted(() => {})
 
 const authorizedMenuItems = [
@@ -121,10 +94,10 @@ const menuItems = computed(() => {
       <v-list>
         <template v-if="!isLoggedIn">
           <v-list-item @click="openAuth('login')">
-            <v-list-item-title>{{ t('LABEL_LOGIN') }}</v-list-item-title>
+            <v-list-item-title>Anmelden</v-list-item-title>
           </v-list-item>
           <v-list-item @click="openAuth('register')">
-            <v-list-item-title>{{ t('LABEL_REGISTRATION') }}</v-list-item-title>
+            <v-list-item-title>Registrieren</v-list-item-title>
           </v-list-item>
         </template>
         <template v-else>
@@ -141,7 +114,7 @@ const menuItems = computed(() => {
 
           <v-divider />
           <v-list-item @click="handleLogout">
-            <v-list-item-title>{{ t('LABEL_LOGOUT') }}</v-list-item-title>
+            <v-list-item-title>Abmelden</v-list-item-title>
           </v-list-item>
         </template>
       </v-list>
