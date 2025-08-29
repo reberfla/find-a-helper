@@ -108,7 +108,7 @@ const menuItems = computed(() => {
     <!-- User/Profile -->
     <v-menu offset-y>
       <template #activator="{ props }">
-        <v-avatar size="36" v-bind="props">
+        <v-avatar size="36" v-bind="props" class="mr-2">
           <img
             :src="getCurrentUserAvatar()"
             alt="Avatar"

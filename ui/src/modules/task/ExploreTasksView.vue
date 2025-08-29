@@ -10,7 +10,6 @@ import { useRouter } from 'vue-router'
 import { useAuth } from '@/service/userAuthService.ts'
 import { drawer } from '@/utils/nav.ts'
 import SnackBar from '@/components/Snackbar.vue'
-import offerService from '@/service/OfferService.ts'
 
 const route = useRouter()
 const snackBar = ref<InstanceType<typeof SnackBar> | null>(null)
