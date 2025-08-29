@@ -71,7 +71,7 @@ onMounted(() => {})
 const authorizedMenuItems = [
   { title: 'Meine Aufgaben', icon: 'task', path: '/tasks/my' },
   { title: 'Meine Verträge', icon: 'assignment', path: '/assignments/my' },
-  { title: 'Meine Angeboten', icon: 'local_offer', path: '/offers/my' },
+  { title: 'Meine Angebote', icon: 'local_offer', path: '/offers/my' },
 ]
 
 const publicMenuItems = [
@@ -104,24 +104,6 @@ const menuItems = computed(() => {
     <v-toolbar-title class="d-flex align-center brand-link" @click="goHome">
       <span class="font-weight-bold">Find A Helper</span>
     </v-toolbar-title>
-
-    <!-- Language Switch -->
-    <v-menu offset-y>
-      <template #activator="{ props }">
-        <v-btn icon v-bind="props">
-          <span>{{ getFlagIcon(currentLanguage) }}</span>
-        </v-btn>
-      </template>
-      <v-list>
-        <v-list-item
-          v-for="lang in getAvailableLanguages()"
-          :key="lang"
-          @click="changeLanguage(lang)"
-        >
-          <v-list-item-title>{{ getFlagIcon(lang) }}</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-menu>
 
     <!-- User/Profile -->
     <v-menu offset-y>

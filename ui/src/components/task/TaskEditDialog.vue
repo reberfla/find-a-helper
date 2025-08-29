@@ -73,8 +73,7 @@ const emit = defineEmits(['save', 'update', 'close', 'delete'])
 
 <template>
   <v-card>
-    <template v-slot:title v-if="props.task">Aufgabe bearbeiten</template>
-    <template v-slot:title v-else>Aufgabe erstellen</template>
+    <template v-slot:title>{{ task.id ? 'Aufgabe bearbeiten' : 'Aufgabe erstellen' }}</template>
     <template v-slot:text>
       <v-form
         @submit.prevent="update ? updateTask(toUpdateTask, task.id) : createTask(editTask)"
@@ -167,7 +166,7 @@ const emit = defineEmits(['save', 'update', 'close', 'delete'])
         </v-chip-group>
         <p>*erforderlich</p>
         <div class="d-flex justify-end mt-4">
-          <v-btn type="submit" color="success" class="mr-4">Speichern</v-btn>
+          <v-btn type="submit" @click="$emit('save')" color="success" class="mr-4">Speichern</v-btn>
           <v-btn @click="$emit('close')" color="error">Abbrechen</v-btn>
         </div>
       </v-form>

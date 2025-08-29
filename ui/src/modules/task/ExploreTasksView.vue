@@ -69,7 +69,9 @@ function openOffer(task: Task) {
 function onSaveOrUpdate($event: 'save' | 'update') {
   console.log($event)
   createTaskDialog.value = false
+  offerDialog.value = false
   snackBar.value?.show(`Angebot erfolgreich ${$event == 'save' ? 'abgegeben' : 'geändert'}`, 'info')
+  loadTasks()
 }
 
 onMounted(() => loadTasks())
@@ -85,7 +87,11 @@ onMounted(() => loadTasks())
     />
   </v-dialog>
   <v-dialog v-model="offerDialog" max-width="800">
-    <TaskOfferDialog :task="selectedTask" @close-offer="offerDialog = false" />
+    <TaskOfferDialog
+      :task="selectedTask"
+      @save="onSaveOrUpdate('save')"
+      @close-offer="offerDialog = false"
+    />
   </v-dialog>
   <div class="fixed-header" :style="{ left: drawer ? '250px' : '0px' }">
     <div class="d-flex w-100 align-top">

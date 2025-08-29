@@ -106,7 +106,7 @@ function rejectOffer(offer: Offer) {
                   :color="offersFor(task.id).length ? 'primary' : 'grey'"
                   label
                 >
-                  {{ offersFor(task.id).length }}
+                  {{ 'Erhaltene Angebote: ' + offersFor(task.id).length }}
                 </v-chip>
                 <v-chip
                   v-if="hasAcceptedOffer(task.id)"

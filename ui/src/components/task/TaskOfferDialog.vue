@@ -6,7 +6,7 @@ import offerService from '@/service/OfferService.ts'
 import type { Offer, OfferDto } from '@/models/OfferModel.ts'
 
 const props = defineProps<{ task: Task }>()
-const emit = defineEmits(['close-offer'])
+const emit = defineEmits(['close-offer', 'save'])
 
 const offer = ref<Offer>({
   taskId: props.task.id,
@@ -29,7 +29,7 @@ async function sendOffer() {
     text: offer.value.text,
   }
   await offerService.createOffer(payload)
-  emit('close-offer')
+  emit('save')
 }
 </script>
 <template>

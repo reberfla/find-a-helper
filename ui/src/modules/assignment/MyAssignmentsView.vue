@@ -14,7 +14,7 @@ onMounted(loadMyAssignments)
 
 <template>
   <div v-if="assignments.length === 0" class="no-offers-banner">
-    <v-alert color="blue" type="info"> Sie haben noch kein Angebot abgegeben. </v-alert>
+    <v-alert color="blue" type="info"> Sie haben noch keine Veträge. </v-alert>
   </div>
 
   <v-container :width="'100%'" class="py-0">

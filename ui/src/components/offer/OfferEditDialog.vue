@@ -56,7 +56,7 @@ onMounted(() => {
   }
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'save'])
 </script>
 
 <template>
@@ -110,7 +110,9 @@ const emit = defineEmits(['close'])
         <p v-if="!isRO">*erforderlich</p>
 
         <div class="d-flex justify-end mt-4">
-          <v-btn v-if="!isRO" type="submit" color="success" class="mr-4">Speichern</v-btn>
+          <v-btn v-if="!isRO" @click="emit('save')" type="submit" color="success" class="mr-4"
+            >Speichern</v-btn
+          >
           <v-btn @click="$emit('close')" :color="isRO ? 'primary' : 'error'">
             {{ isRO ? 'Schließen' : 'Abbrechen' }}
           </v-btn>
