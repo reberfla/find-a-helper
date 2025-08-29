@@ -112,6 +112,7 @@ onMounted(() => loadTasks())
         clearable
         class="mx-2 w-30"
         @update:menu="filterTasks"
+        @click:clear="loadTasks"
       ></v-select>
       <v-select
         title="Interval"
@@ -123,6 +124,7 @@ onMounted(() => loadTasks())
         multiple
         class="mx-2 w-30"
         @update:menu="filterTasks"
+        @click:clear="loadTasks"
       ></v-select>
       <v-btn
         v-if="isLoggedIn"

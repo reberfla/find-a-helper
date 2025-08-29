@@ -34,18 +34,22 @@ export default {
       intervalQuery = intervalQuery.slice(0, -1)
     }
 
-    let tasks = [] as Task[]
-
+    let tasks = [] as { task: Task; offerUserIds: number[] }[]
     if (categoryQuery == '' || intervalQuery == '') {
-      tasks = await getJSON<Task[]>(`${BASE_URL}/v1/task?${categoryQuery}${intervalQuery}`)
+      tasks = await getJSON(`${BASE_URL}/v1/task?${categoryQuery}${intervalQuery}`)
     } else if (categoryQuery == '') {
-      tasks = await getJSON<Task[]>(`${BASE_URL}/v1/task?${intervalQuery}`)
+      tasks = await getJSON(`${BASE_URL}/v1/task?${intervalQuery}`)
     } else if (intervalQuery == '') {
-      tasks = await getJSON<Task[]>(`${BASE_URL}/v1/task?${categoryQuery}`)
+      tasks = await getJSON(`${BASE_URL}/v1/task?${categoryQuery}`)
     } else {
-      tasks = await getJSON<Task[]>(`${BASE_URL}/v1/task?${categoryQuery}&${intervalQuery}`)
+      tasks = await getJSON(`${BASE_URL}/v1/task?${categoryQuery}&${intervalQuery}`)
     }
-    return tasks
+    return tasks.map((entry: { task: Task; offerUserIds: number[] }) => {
+      return {
+        ...entry.task,
+        offerUserIds: entry.offerUserIds,
+      }
+    })
   },
 
   async getMyTasks(): Promise<Task[]> {
