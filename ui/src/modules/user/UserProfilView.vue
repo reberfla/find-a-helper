@@ -55,8 +55,15 @@ function onImageSelected(event: Event) {
   if (file) {
     newAvatar.value = file
     const reader = new FileReader()
+    const maxSize = 4 * 1024 * 1024
+    if (file.size > maxSize) {
+      console.log(file.size)
+      snackBar.value?.show('Profilbild ist zu gross')
+      return
+    }
     reader.onload = async () => {
       const result = reader.result?.toString()
+
       if (result) {
         updateUser({ avatar: result })
         changedFields.value.imgBase64 = result.split(',')[1]
@@ -153,6 +160,7 @@ onMounted(loadUserData)
       </v-col>
     </v-row>
   </v-container>
+  <snackBar ref="snackBar" />
 </template>
 
 <style scoped>
