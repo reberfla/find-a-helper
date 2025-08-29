@@ -35,10 +35,10 @@ class TaskInteractor(
     }
 
     fun getTasks(
-        filterQuery: TaskQueryParams? = null
+        filterQuery: TaskQueryParams? = null,
+        userId: Int? = null,
     ): List<TaskWithOfferUsersModel> {
-        return taskRepository.getAllTasksWithOfferUsers(filterQuery)
-            ?: listOf<TaskWithOfferUsersModel>()
+        return taskRepository.getAllTasksWithOfferUsers(filterQuery, userId)
     }
 
     fun getTasksByCreator(userId: Int): List<TaskPrivateDto> {

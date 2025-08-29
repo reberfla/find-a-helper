@@ -1,5 +1,6 @@
 package ch.abbts.adapter.database.repository
 
+import ch.abbts.adapter.database.table.AssignmentTable
 import ch.abbts.adapter.database.table.OffersTable
 import ch.abbts.adapter.database.table.OffersTable.nullable
 import ch.abbts.adapter.database.table.TasksTable
@@ -14,6 +15,9 @@ import java.time.Instant
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNull
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.neq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class TaskRepository {
@@ -45,40 +49,56 @@ class TaskRepository {
     }
 
     fun getAllTasksWithOfferUsers(
-        queryParams: TaskQueryParams? = null
+        queryParams: TaskQueryParams? = null,
+        userId: Int? = null,
     ): List<TaskWithOfferUsersModel> = transaction {
         val join =
             TasksTable.leftJoin(
-                otherTable = OffersTable,
-                onColumn = { TasksTable.id },
-                otherColumn = { OffersTable.taskId },
-            )
+                    otherTable = OffersTable,
+                    onColumn = { TasksTable.id },
+                    otherColumn = { OffersTable.taskId },
+                )
+                .leftJoin(
+                    otherTable = AssignmentTable,
+                    onColumn = { TasksTable.id },
+                    otherColumn = { AssignmentTable.taskId },
+                )
 
         val offerUserId = OffersTable.userId.nullable().alias("offerUserId")
+
+        val userFilter =
+            if (userId != null) {
+                TasksTable.userId neq userId
+            } else Op.TRUE
 
         val cols: List<Expression<*>> =
             TasksTable.columns + listOf<Expression<*>>(offerUserId)
 
+        val queryList = listOfNotNull(userFilter, AssignmentTable.id.isNull())
+
         val filter: Op<Boolean> =
-            if (queryParams == null) {
-                Op.TRUE
+            if (queryParams != null) {
+                Op.build {
+                    (queryList +
+                            listOfNotNull(
+                                queryParams.category
+                                    .takeIf { it.isNotEmpty() }
+                                    ?.let {
+                                        (TasksTable.category inList it)
+                                            as Op<Boolean>
+                                    },
+                                queryParams.status
+                                    .takeIf { it.isNotEmpty() }
+                                    ?.let { TasksTable.status inList it },
+                                queryParams.interval
+                                    .takeIf { it.isNotEmpty() }
+                                    ?.let { TasksTable.taskInterval inList it },
+                            ))
+                        .reduceOrNull { acc, op -> acc and op } ?: Op.TRUE
+                }
             } else {
                 Op.build {
-                    listOfNotNull(
-                            queryParams.category
-                                .takeIf { it.isNotEmpty() }
-                                ?.let {
-                                    (TasksTable.category inList it)
-                                        as Op<Boolean>
-                                },
-                            queryParams.status
-                                .takeIf { it.isNotEmpty() }
-                                ?.let { TasksTable.status inList it },
-                            queryParams.interval
-                                .takeIf { it.isNotEmpty() }
-                                ?.let { TasksTable.taskInterval inList it },
-                        )
-                        .reduceOrNull { acc, op -> acc and op } ?: Op.TRUE
+                    queryList.reduceOrNull { acc, op -> acc and op } ?: Op.TRUE
                 }
             }
 
