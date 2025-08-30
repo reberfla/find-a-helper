@@ -1,18 +1,28 @@
 package ch.abbts.config
 
-import ch.abbts.adapter.database.table.UsersTable
+import ch.abbts.utils.getEnvVariableWithFallback
+import ch.abbts.utils.logger
 import com.typesafe.config.ConfigFactory
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
 
 object DatabaseConfig {
     fun init() {
-        val fileConfig = ConfigFactory.load()
-        val dbUrl = fileConfig.getString("database.url")
-        val user = fileConfig.getString("database.user")
-        val password = fileConfig.getString("database.password")
-        val driver = fileConfig.getString("database.driver")
+        val log = logger()
+        val config = ConfigFactory.load()
+        val user = config.getEnvVariableWithFallback("MYSQL_USER", "db.user")
+        val password =
+            config.getEnvVariableWithFallback("MYSQL_PASSWORD", "db.password")
+        val databaseHost =
+            config.getEnvVariableWithFallback("DB_HOST", "db.host")
+        val databasePort =
+            config.getEnvVariableWithFallback("DB_PORT", "db.port")
+        val databaseName = config.getString("db.database")
+        val dbUrl = "jdbc:mysql://$databaseHost:$databasePort/$databaseName"
+        val driver = JWTConfig.config.getString("db.driver")
+
+        log.info(
+            "db-user: $user\n pass: $password\n host: $databaseHost\nport: $databasePort"
+        )
 
         Database.connect(
             url = dbUrl,
@@ -20,7 +30,5 @@ object DatabaseConfig {
             user = user,
             password = password,
         )
-
-        transaction { SchemaUtils.create(UsersTable) }
     }
 }

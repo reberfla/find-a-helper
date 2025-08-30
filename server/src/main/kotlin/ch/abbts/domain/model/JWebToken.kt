@@ -1,9 +1,9 @@
 package ch.abbts.domain.model
 
 import ch.abbts.adapter.database.repository.UsersRepository
+import ch.abbts.config.JWTConfig
 import ch.abbts.error.*
 import ch.abbts.utils.logger
-import com.typesafe.config.ConfigFactory
 import io.ktor.server.request.authorization
 import io.ktor.server.routing.RoutingCall
 import java.time.Instant
@@ -16,9 +16,8 @@ import kotlinx.serialization.json.Json
 
 class JWebToken(email: String, id: Int) {
     private val validDuration = 43500L // 12h + 5min
-    private val config = ConfigFactory.load()
-    private val alg = config.getString("jwt.auth.alg")
-    private val typ = config.getString("jwt.auth.typ")
+    private val alg = "HS256"
+    private val typ = "JWT"
     private val iat: Long = Instant.now().epochSecond
     private val exp: Long = iat.plus(validDuration)
     val header = JWebTokenHeader(alg, typ)
@@ -28,8 +27,7 @@ class JWebToken(email: String, id: Int) {
     companion object {
         val b64Encoder = Base64.getUrlEncoder().withoutPadding()
         val b64Decoder = Base64.getUrlDecoder()
-        val config = ConfigFactory.load()
-        val secret = config.getString("jwt.secret")
+        val secret = JWTConfig.secret
         val usersRepository = UsersRepository()
         val log = logger()
 
