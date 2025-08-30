@@ -19,8 +19,7 @@ services:
 
   server:
     build:
-      context: .
-      dockerfile: ./server/Dockerfile
+      dockerfile: ./Dockerfile
     container_name: server
     ports:
       - "8080:8080"
@@ -31,10 +30,5 @@ services:
      db:
        condition: service_healthy
 
-  ui:
-    build: ./ui
-    container_name: ui
-    ports:
-      - "8085:80"
 volumes:
   db_data:
