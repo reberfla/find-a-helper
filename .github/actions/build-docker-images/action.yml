@@ -47,14 +47,6 @@ runs:
       with:
         context: .
         push: ${{ inputs.push }}
-        file: ./server/Dockerfile
+        file: ./Dockerfile
         platforms: ${{ inputs.platform }}
         tags: ${{ inputs.registry }}/${{ github.repository }}/server:${{ inputs.version }},${{ inputs.registry }}/${{ github.repository }}/server:latest
-
-    - name: Build UI Image
-      uses: docker/build-push-action@v6
-      with:
-        context: ./ui
-        push: ${{ inputs.push }}
-        platforms: ${{ inputs.platform }}
-        tags: ${{ inputs.registry }}/${{ github.repository }}/ui:${{ inputs.version }},${{ inputs.registry }}/${{ github.repository }}/ui:latest

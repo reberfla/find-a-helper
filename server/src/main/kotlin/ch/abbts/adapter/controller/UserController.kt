@@ -75,6 +75,21 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
             }
 
             authenticate("jwt-auth") {
+                @KtorResponds(
+                    mapping =
+                        [
+                            ResponseEntry("200", UserDto::class),
+                            ResponseEntry("400", WebserverErrorMessage::class),
+                            ResponseEntry("401", WebserverErrorMessage::class),
+                            ResponseEntry("500", WebserverErrorMessage::class),
+                        ]
+                )
+                @KtorDescription(
+                    summary = "Returns the users profile details",
+                    description =
+                        """ This API uses the jwt to identify the user.
+                If the user exists it returns the users details"""",
+                )
                 get("/profile") {
                     val userId = JWebToken.getUserIdFromCall(call)
                     val user =
@@ -93,6 +108,21 @@ fun Application.userRoutes(userInteractor: UserInteractor) {
                 }
             }
 
+            @KtorResponds(
+                mapping =
+                    [
+                        ResponseEntry("200", AuthResponseDto::class),
+                        ResponseEntry("400", WebserverErrorMessage::class),
+                        ResponseEntry("401", WebserverErrorMessage::class),
+                        ResponseEntry("500", WebserverErrorMessage::class),
+                    ]
+            )
+            @KtorDescription(
+                summary = "Updates user details",
+                description =
+                    """ This API uses the jwt to identify the user.
+                Then updates the users information based on the request body."""",
+            )
             put() {
                 val userId = JWebToken.getUserIdFromCall(call)
                 val user =

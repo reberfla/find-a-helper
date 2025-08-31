@@ -3,6 +3,7 @@ package ch.abbts.adapter.routes
 import ch.abbts.adapter.controller.assignmentRoutes
 import ch.abbts.adapter.controller.authenticationRoutes
 import ch.abbts.adapter.controller.offerRoutes
+import ch.abbts.adapter.controller.serveSinglePageApplication
 import ch.abbts.adapter.controller.taskRoutes
 import ch.abbts.adapter.controller.userRoutes
 import ch.abbts.application.interactor.AssignmentInteractor
@@ -65,4 +66,5 @@ fun Application.configureRouting(
     routing { offerRoutes(offerInteractor, userInteractor, taskInteractor) }
     routing { taskRoutes(taskInteractor) }
     routing { assignmentRoutes(assignmentInteractor) }
+    routing { serveSinglePageApplication() }
 }
