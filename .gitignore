@@ -34,6 +34,9 @@ logs
 */pnpm-debug.log*
 */lerna-debug.log*
 
+# Config Files
+*.env
+
 # Package Files
 *.jar
 *.war

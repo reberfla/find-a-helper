@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://localhost:8080'
+export const BASE_URL = ''
 
 function getToken(): string | null {
   const user = sessionStorage.getItem('user')

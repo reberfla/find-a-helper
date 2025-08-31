@@ -57,7 +57,7 @@ class OfferInteractor(
             throw OfferForbidden()
         }
 
-        if (offer.status == ch.abbts.domain.model.OfferStatus.SUBMITTED) {
+        if (offer.status == OfferStatus.SUBMITTED) {
             throw OfferForbidden()
         }
 
