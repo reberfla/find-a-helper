@@ -60,7 +60,7 @@ export const serviceCategories: ServiceCategory[] = [
   {
     id: 8,
     slug: 'CHILDCARE',
-    titleKey: 'inderbetreuung',
+    titleKey: 'Kinderbetreuung',
     descKey: 'Zuverlässige Betreuung, Abholen/Bringen oder flexible Unterstützung.',
     icon: 'child_care',
     image: 'https://picsum.photos/id/822/800/600',
