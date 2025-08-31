@@ -1,6 +1,9 @@
 package ch.abbts.adapter.controller
 
+import ch.abbts.application.dto.AssignmentDto
 import ch.abbts.application.dto.OfferDto
+import ch.abbts.application.dto.OfferWithTaskDto
+import ch.abbts.application.dto.SuccessMessage
 import ch.abbts.application.dto.toWithTaskDto
 import ch.abbts.application.interactor.OfferInteractor
 import ch.abbts.application.interactor.TaskInteractor
@@ -9,7 +12,11 @@ import ch.abbts.domain.model.JWebToken
 import ch.abbts.domain.model.OfferStatus
 import ch.abbts.error.OfferForbidden
 import ch.abbts.error.WebserverError
+import ch.abbts.error.WebserverErrorMessage
 import ch.abbts.utils.receiveHandled
+import io.github.tabilzad.ktor.annotations.KtorDescription
+import io.github.tabilzad.ktor.annotations.KtorResponds
+import io.github.tabilzad.ktor.annotations.ResponseEntry
 import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -32,6 +39,19 @@ fun Application.offerRoutes(
                     call.respond(offerInteractor.getOfferById(id))
                 }
 
+                @KtorResponds(
+                    mapping =
+                        [
+                            ResponseEntry("200", OfferWithTaskDto::class),
+                            ResponseEntry("400", WebserverErrorMessage::class),
+                            ResponseEntry("500", WebserverErrorMessage::class),
+                        ]
+                )
+                @KtorDescription(
+                    summary = "Get all offers",
+                    description =
+                        """ Returning all available offers that the user has created."""",
+                )
                 get("/my") {
                     val token = call.request.authorization()!!.split(" ")[1]
                     val id = JWebToken.getUserIdFromToken(token)
@@ -50,6 +70,22 @@ fun Application.offerRoutes(
                     call.respond(offerInteractor.getOffersForTask(id))
                 }
 
+                @KtorResponds(
+                    mapping =
+                        [
+                            ResponseEntry("200", OfferDto::class),
+                            ResponseEntry("400", WebserverErrorMessage::class),
+                            ResponseEntry("401", WebserverErrorMessage::class),
+                            ResponseEntry("500", WebserverErrorMessage::class),
+                        ]
+                )
+                @KtorDescription(
+                    summary = "Create an offer",
+                    description =
+                        """ Creates a offer and then returns it with the given id of the DB. User ID gets
+                        populated by the JWT of the authorization and checks if the users of the task is not the
+                        same user that creates the offer."""",
+                )
                 post {
                     try {
                         val dto = call.receiveHandled<OfferDto>()
@@ -69,6 +105,22 @@ fun Application.offerRoutes(
                     }
                 }
 
+                @KtorResponds(
+                    mapping =
+                        [
+                            ResponseEntry("200", AssignmentDto::class),
+                            ResponseEntry("401", WebserverErrorMessage::class),
+                            ResponseEntry("403", WebserverErrorMessage::class),
+                            ResponseEntry("500", WebserverErrorMessage::class),
+                        ]
+                )
+                @KtorDescription(
+                    summary = "Accept an offer",
+                    description =
+                        """Accepts an offer which rejects other open offers for a task.
+                           Then it creates an assignment and returns it.
+                        """",
+                )
                 put("/accept/{id}") {
                     val offerId = call.parameters["id"]!!.toInt()
                     val currentUserId = JWebToken.getUserIdFromCall(call)
@@ -76,7 +128,21 @@ fun Application.offerRoutes(
                         offerInteractor.acceptOffer(offerId, currentUserId)
                     )
                 }
-
+                @KtorResponds(
+                    mapping =
+                        [
+                            ResponseEntry("200", OfferDto::class),
+                            ResponseEntry("401", WebserverErrorMessage::class),
+                            ResponseEntry("403", WebserverErrorMessage::class),
+                            ResponseEntry("500", WebserverErrorMessage::class),
+                        ]
+                )
+                @KtorDescription(
+                    summary = "Reject an offer",
+                    description =
+                        """Rejects an offer.
+                        """",
+                )
                 put("/reject/{id}") {
                     val offerId = call.parameters["id"]!!.toInt()
                     val offer = offerInteractor.getOfferById(offerId)
@@ -88,6 +154,21 @@ fun Application.offerRoutes(
                     )
                 }
 
+                @KtorResponds(
+                    mapping =
+                        [
+                            ResponseEntry("200", SuccessMessage::class),
+                            ResponseEntry("401", WebserverErrorMessage::class),
+                            ResponseEntry("403", WebserverErrorMessage::class),
+                            ResponseEntry("500", WebserverErrorMessage::class),
+                        ]
+                )
+                @KtorDescription(
+                    summary = "Delete an offer",
+                    description =
+                        """Deletes an offer which is only possible if there is no assignment for it.
+                        """",
+                )
                 delete("/{id}") {
                     try {
                         val id =

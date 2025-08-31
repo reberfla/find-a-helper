@@ -63,5 +63,13 @@ fun Application.main() {
         taskInteractor,
         assignmentInteractor,
     )
-    configureOpenApi()
+    val env =
+        try {
+            System.getenv("KTOR_ENV").lowercase()
+        } catch (_: Exception) {
+            ""
+        }
+    if (env != "prod") {
+        configureOpenApi()
+    }
 }

@@ -11,7 +11,7 @@ services:
       - db_data:/var/lib/mysql
       - ./shema/:/docker-entrypoint-initdb.d/
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 5s
       timeout: 10s
       retries: 10
@@ -27,8 +27,8 @@ services:
       - KTOR_ENV=prod
     env_file: ".env"
     depends_on:
-     db:
-       condition: service_healthy
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:
