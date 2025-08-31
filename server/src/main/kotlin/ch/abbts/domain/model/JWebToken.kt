@@ -115,6 +115,16 @@ class JWebToken(email: String, id: Int) {
                 .id
         }
 
+        fun getOptionalUserIdFromCall(call: RoutingCall): Int? {
+            val bearerToken = call.request.authorization() ?: return null
+            val token = bearerToken.split(" ")[1]
+            val tokenBody = token.split(".")[1]
+            return Json.decodeFromString<JWebTokenBody>(
+                    b64Decoder.decode(tokenBody).decodeToString()
+                )
+                .id
+        }
+
         fun decodeEmailFromToken(token: String): String {
             val parts = token.split(".")
             if (parts.size != 3)

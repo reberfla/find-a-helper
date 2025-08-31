@@ -5,7 +5,6 @@ import ch.abbts.application.dto.UserDto
 import ch.abbts.domain.model.UserModel
 import ch.abbts.error.*
 import ch.abbts.utils.Log
-import ch.abbts.utils.LoggerService
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.javanet.NetHttpTransport
@@ -25,7 +24,6 @@ class UserInteractor(private val userRepository: UsersRepository) {
             throw UserAlreadyExists()
         }
         val newUserModel = userRepository.createUser(dto.toModel())
-        LoggerService.debugLog(newUserModel.toString())
         return newUserModel?.let { UserDto.toDTO(it) }
     }
 

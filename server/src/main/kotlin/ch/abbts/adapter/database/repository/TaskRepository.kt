@@ -1,10 +1,13 @@
 package ch.abbts.adapter.database.repository
 
+import ch.abbts.adapter.database.table.AssignmentTable
+import ch.abbts.adapter.database.table.OffersTable
+import ch.abbts.adapter.database.table.OffersTable.nullable
 import ch.abbts.adapter.database.table.TasksTable
 import ch.abbts.application.dto.TaskQueryParams
 import ch.abbts.application.dto.TaskUpdateDto
-import ch.abbts.domain.model.TaskModel
-import ch.abbts.domain.model.Weekdays
+import ch.abbts.application.dto.TaskWithOfferUsersModel
+import ch.abbts.domain.model.*
 import ch.abbts.error.TaskNotFound
 import ch.abbts.error.TaskOfOtherUser
 import ch.abbts.utils.logger
@@ -12,6 +15,9 @@ import java.time.Instant
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNull
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.neq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class TaskRepository {
@@ -42,6 +48,79 @@ class TaskRepository {
         return transaction { TasksTable.selectAll().map { it.toModel() } }
     }
 
+    fun getAllTasksWithOfferUsers(
+        queryParams: TaskQueryParams? = null,
+        userId: Int? = null,
+    ): List<TaskWithOfferUsersModel> = transaction {
+        val join =
+            TasksTable.leftJoin(
+                    otherTable = OffersTable,
+                    onColumn = { TasksTable.id },
+                    otherColumn = { OffersTable.taskId },
+                )
+                .leftJoin(
+                    otherTable = AssignmentTable,
+                    onColumn = { TasksTable.id },
+                    otherColumn = { AssignmentTable.taskId },
+                )
+
+        val offerUserId = OffersTable.userId.nullable().alias("offerUserId")
+
+        val userFilter =
+            if (userId != null) {
+                TasksTable.userId neq userId
+            } else Op.TRUE
+
+        val cols: List<Expression<*>> =
+            TasksTable.columns + listOf<Expression<*>>(offerUserId)
+
+        val queryList = listOfNotNull(userFilter, AssignmentTable.id.isNull())
+
+        val filter: Op<Boolean> =
+            if (queryParams != null) {
+                Op.build {
+                    (queryList +
+                            listOfNotNull(
+                                queryParams.category
+                                    .takeIf { it.isNotEmpty() }
+                                    ?.let {
+                                        (TasksTable.category inList it)
+                                            as Op<Boolean>
+                                    },
+                                queryParams.status
+                                    .takeIf { it.isNotEmpty() }
+                                    ?.let { TasksTable.status inList it },
+                                queryParams.interval
+                                    .takeIf { it.isNotEmpty() }
+                                    ?.let { TasksTable.taskInterval inList it },
+                            ))
+                        .reduceOrNull { acc, op -> acc and op } ?: Op.TRUE
+                }
+            } else {
+                Op.build {
+                    queryList.reduceOrNull { acc, op -> acc and op } ?: Op.TRUE
+                }
+            }
+
+        val acc = mutableMapOf<Int, Pair<TaskModel, MutableSet<Int>>>()
+
+        join
+            .slice(cols)
+            .select { filter }
+            .forEach { row ->
+                val taskId: Int = row[TasksTable.id]
+                val task: TaskModel = row.toModel()
+                val uid: Int? = row[offerUserId]
+
+                val entry = acc.getOrPut(taskId) { task to mutableSetOf() }
+                if (uid != null) entry.second.add(uid)
+            }
+
+        acc.values.map { (task, users) ->
+            TaskWithOfferUsersModel(task = task, offerUserIds = users.toList())
+        }
+    }
+
     fun getTasks(queryParams: TaskQueryParams): List<TaskModel>? {
         val query =
             Op.build {
@@ -67,7 +146,7 @@ class TaskRepository {
         return transaction {
             TasksTable.select { TasksTable.id eq taskId }
                 .singleOrNull()
-                ?.let { it.toModel() } ?: throw TaskNotFound(taskId)
+                ?.toModel() ?: throw TaskNotFound(taskId)
         }
     }
 

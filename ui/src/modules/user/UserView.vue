@@ -1,22 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
-import { translate } from '@/service/translationService.js'
 import UserProfilView from '@/modules/user/UserProfilView.vue'
 import BackHeader from '@/components/header/BackHeader.vue'
-import MyOffers from '@/modules/offer/MyOffers.vue'
 import router from '@/router'
 import { useAuth } from '@/service/userAuthService.ts'
 
-const t = translate
 const tab = ref('data')
 const hasNewMessages = ref(false)
 const { isLoggedIn } = useAuth()
 
 const menuItems = [
-  { value: 'data', label: 'PROFILE_DATA' },
-  { value: 'messages', label: 'MESSAGES' },
-  { value: 'offers', label: 'MY_OFFERS' },
-  { value: 'orders', label: 'MY_ORDERS' },
+  { value: 'data', label: 'Profildaten' },
+  { value: 'messages', label: 'Nachrichten' },
 ]
 
 const currentComponent = computed(() => {
@@ -25,8 +20,6 @@ const currentComponent = computed(() => {
       return UserProfilView
     case 'messages':
       return UserProfilView
-    case 'offers':
-      return MyOffers
     default:
       return null
   }
@@ -61,7 +54,7 @@ watch(
             @click="tab = item.value"
             class="cursor-pointer"
           >
-            <v-list-item-title>{{ t(item.label) }}</v-list-item-title>
+            <v-list-item-title>{{ item.label }}</v-list-item-title>
             <v-badge
               v-if="item.value === 'messages' && hasNewMessages"
               color="red"

@@ -1,15 +1,16 @@
 package ch.abbts.adapter.routes
 
+import ch.abbts.adapter.controller.assignmentRoutes
 import ch.abbts.adapter.controller.authenticationRoutes
 import ch.abbts.adapter.controller.offerRoutes
 import ch.abbts.adapter.controller.taskRoutes
 import ch.abbts.adapter.controller.userRoutes
+import ch.abbts.application.interactor.AssignmentInteractor
 import ch.abbts.application.interactor.OfferInteractor
 import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.application.interactor.UserInteractor
 import ch.abbts.domain.model.JWebToken
 import ch.abbts.error.WebserverError
-import ch.abbts.utils.LoggerService
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -26,6 +27,7 @@ fun Application.configureRouting(
     userInteractor: UserInteractor,
     offerInteractor: OfferInteractor,
     taskInteractor: TaskInteractor,
+    assignmentInteractor: AssignmentInteractor,
 ) {
     val log = LoggerFactory.getLogger(object {}::class.java.`package`.name)
     install(StatusPages) {
@@ -53,7 +55,6 @@ fun Application.configureRouting(
         bearer("jwt-auth") {
             realm = "Access to protected routes"
             authenticate { jwt ->
-                LoggerService.debugLog(jwt)
                 JWebToken.validateToken(jwt.token)
                 JWebToken.verifyToken(jwt.token)
             }
@@ -63,4 +64,5 @@ fun Application.configureRouting(
     routing { authenticationRoutes(userInteractor) }
     routing { offerRoutes(offerInteractor, userInteractor, taskInteractor) }
     routing { taskRoutes(taskInteractor) }
+    routing { assignmentRoutes(assignmentInteractor) }
 }

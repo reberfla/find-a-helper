@@ -1,16 +1,20 @@
 package ch.abbts.application.interactor
 
+import ch.abbts.adapter.database.repository.AssignmentRepository
 import ch.abbts.adapter.database.repository.OfferRepository
 import ch.abbts.adapter.database.repository.TaskRepository
+import ch.abbts.application.dto.AssignmentDto
 import ch.abbts.application.dto.OfferDto
+import ch.abbts.domain.model.AssignmentModel
+import ch.abbts.domain.model.AssignmentStatus
 import ch.abbts.domain.model.OfferStatus
 import ch.abbts.error.*
 import ch.abbts.utils.Log
-import ch.abbts.utils.LoggerService
 
 class OfferInteractor(
     private val offerRepo: OfferRepository,
     private val taskRepo: TaskRepository,
+    private val assignmentRepo: AssignmentRepository,
 ) {
     companion object : Log()
 
@@ -48,8 +52,6 @@ class OfferInteractor(
 
     fun deleteOffer(userId: Int, offerId: Int): Boolean {
         val offer = offerRepo.getOfferById(offerId)
-
-        LoggerService.debugLog(offer.toString())
 
         if (offer?.userId != userId) {
             throw OfferForbidden()
@@ -90,30 +92,23 @@ class OfferInteractor(
         return offers.map { OfferDto.toDTO(it) }
     }
 
-    fun setOfferStatus(
-        offerId: Int,
-        currentUserId: Int,
-        status: OfferStatus,
-    ): OfferDto {
+    fun setOfferStatus(offerId: Int, status: OfferStatus): OfferDto {
         val saved =
             offerRepo.setOfferStatus(offerId, status)
                 ?: throw OfferUpdateFailed()
         return saved.let { OfferDto.toDTO(it) }
     }
 
-    fun acceptOffer(offerId: Int, currentUserId: Int): OfferDto {
+    fun acceptOffer(offerId: Int, currentUserId: Int): AssignmentDto {
         val offer = getOfferById(offerId)
-        val task =
-            taskRepo.getTaskById(offer.taskId)
-                ?: throw TaskNotFound(offer.taskId)
+        val task = taskRepo.getTaskById(offer.taskId)
 
         if (task.userId != currentUserId) {
             throw OfferForbidden()
         }
 
-        val accepted =
-            offerRepo.setOfferStatus(offerId, OfferStatus.ACCEPTED)
-                ?: throw OfferUpdateFailed()
+        offerRepo.setOfferStatus(offerId, OfferStatus.ACCEPTED)
+            ?: throw OfferUpdateFailed()
 
         getOffersForTask(offer.taskId)
             .filter { it.id != offerId }
@@ -121,6 +116,14 @@ class OfferInteractor(
                 offerRepo.setOfferStatus(other.id!!, OfferStatus.REJECTED)
             }
 
-        return accepted.let { OfferDto.toDTO(it) }
+        val assignment =
+            AssignmentModel(
+                taskId = task.id!!,
+                offerId = offer.id!!,
+                status = AssignmentStatus.OPEN,
+                active = true,
+            )
+
+        return assignmentRepo.createAssignment(assignment)
     }
 }

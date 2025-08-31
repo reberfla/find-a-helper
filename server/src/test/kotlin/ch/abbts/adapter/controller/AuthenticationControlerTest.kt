@@ -1,11 +1,13 @@
 package ch.abbts.adapter.controller
 
+import ch.abbts.adapter.database.repository.AssignmentRepository
 import ch.abbts.adapter.database.repository.OfferRepository
 import ch.abbts.adapter.database.repository.TaskRepository
 import ch.abbts.adapter.database.repository.UsersRepository
 import ch.abbts.adapter.routes.configureRouting
 import ch.abbts.application.dto.AuthenticationDto
 import ch.abbts.application.dto.UserDto
+import ch.abbts.application.interactor.AssignmentInteractor
 import ch.abbts.application.interactor.OfferInteractor
 import ch.abbts.application.interactor.TaskInteractor
 import ch.abbts.application.interactor.UserInteractor
@@ -45,13 +47,20 @@ class AuthenticationTest() {
                 }
 
             val offerInteractor =
-                OfferInteractor(OfferRepository(), TaskRepository())
+                OfferInteractor(
+                    OfferRepository(),
+                    TaskRepository(),
+                    AssignmentRepository(),
+                )
             val taskInteractor =
                 TaskInteractor(TaskRepository(), UsersRepository())
+            val assignmentInteractor =
+                AssignmentInteractor(AssignmentRepository(), TaskRepository())
             configureRouting(
                 mockUserInteractor,
                 offerInteractor,
                 taskInteractor,
+                assignmentInteractor,
             )
         }
         val customClient = createClient {

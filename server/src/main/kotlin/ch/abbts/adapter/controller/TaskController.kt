@@ -18,7 +18,6 @@ import io.github.tabilzad.ktor.annotations.ResponseEntry
 import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.slf4j.LoggerFactory
@@ -43,14 +42,17 @@ fun Application.taskRoutes(taskInteractor: TaskInteractor) {
                 to protect users privacy."""",
             )
             get {
+                val userId = JWebToken.getOptionalUserIdFromCall(call)
                 if (call.queryParameters.isEmpty()) {
                     log.info("${call.route} with no query params set")
-                    call.respond(taskInteractor.getTasks())
+                    call.respond(taskInteractor.getTasks(userId = userId))
                 } else {
                     val params = TaskQueryParams(call.queryParameters)
-                    log.info("${call.route} with query = ${params.toString()}")
+                    log.info("${call.route} with query = $params")
                     call.respond(
-                        taskInteractor.getTasks(params).map { it.toPublicDto() }
+                        taskInteractor.getTasks(params, userId).map {
+                            it.toPublicDto()
+                        }
                     )
                 }
             }

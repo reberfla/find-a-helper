@@ -14,7 +14,7 @@ CREATE TABLE assignments (
   offer_id int(11) NOT NULL,
   status enum('IN_PROGRESS','OPEN','COMPLETED') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'OPEN',
   active tinyint(1) NOT NULL,
-  created_at datetime DEFAULT current_timestamp(),
+  created_at bigint DEFAULT NULL,
   CONSTRAINT assignments_pk PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -30,7 +30,7 @@ CREATE TABLE offers (
   active tinyint(1) NOT NULL DEFAULT 1,
   valid_until date DEFAULT NULL,
   id int(11) NOT NULL AUTO_INCREMENT,
-  CONSTRAINT offres_pk PRIMARY KEY (id)
+  CONSTRAINT offers_pk PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Table structure for table ratings */

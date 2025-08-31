@@ -22,7 +22,9 @@ if (storedUser) {
 const isLoggedIn = computed(() => !!user.value?.token)
 
 function login(payload: AuthResponse) {
-  const avatar = payload.imgUrl || 'https://www.gravatar.com/avatar?d=mp'
+  const avatar = payload.imgBlob
+    ? `data:image/png;base64,${payload.imgBlob}`
+    : payload.imgUrl || 'https://www.gravatar.com/avatar?d=mp'
 
   user.value = {
     token: payload.jwt,
@@ -56,6 +58,12 @@ function getCurrentUserId() {
   return user.value?.id || null
 }
 
+function updateUser(partial: { avatar?: string; name?: string; email?: string }) {
+  if (!user.value) return
+  user.value = { ...user.value, ...partial }
+  sessionStorage.setItem('user', JSON.stringify(user.value))
+}
+
 export function useAuth() {
   return {
     user,
@@ -66,5 +74,6 @@ export function useAuth() {
     getCurrentUserAvatar,
     getCurrentUserEmail,
     getCurrentUserId,
+    updateUser,
   }
 }

@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { categories, interval, type Task, TaskInterval, Weekday } from '@/models/TaskModel.ts'
-import { translate } from '@/service/translationService.ts'
+import {
+  categories,
+  interval,
+  type Task,
+  TaskInterval,
+  Weekday,
+  weekdayMap,
+} from '@/models/TaskModel.ts'
 import taskService from '@/service/TaskService.ts'
 import TaskEditDialog from '@/components/task/TaskEditDialog.vue'
 import router from '@/router'
@@ -52,14 +58,14 @@ async function createTask(this: typeof TaskEditDialog, task: Partial<Task>) {
     return
   }
   await taskService.createTask(task).then(() => {
-    this.emit('close')
     router.push({ path: '/tasks/my' })
+    this.emit('save')
   })
 }
 
 async function updateTask(this: typeof TaskEditDialog, task: Partial<Task>, id: number) {
   await taskService.updateTask(task, id)
-  this.emit('close')
+  this.emit('update')
 }
 
 onMounted(() => {
@@ -68,13 +74,12 @@ onMounted(() => {
   }
 })
 
-const emit = defineEmits(['close', 'delete'])
+const emit = defineEmits(['save', 'update', 'close', 'delete'])
 </script>
 
 <template>
   <v-card>
-    <template v-slot:title v-if="props.task">Aufgabe bearbeiten</template>
-    <template v-slot:title v-else>Aufgabe erstellen</template>
+    <template v-slot:title>{{ task.id ? 'Aufgabe bearbeiten' : 'Aufgabe erstellen' }}</template>
     <template v-slot:text>
       <v-form
         @submit.prevent="update ? updateTask(toUpdateTask, task.id) : createTask(editTask)"
@@ -159,7 +164,7 @@ const emit = defineEmits(['close', 'delete'])
         >
           <v-chip
             v-for="day in Weekday"
-            :text="translate(day.toString())"
+            :text="weekdayMap.get(day)"
             :key="day"
             :value="day"
             selected-class="day-active"
@@ -167,7 +172,7 @@ const emit = defineEmits(['close', 'delete'])
         </v-chip-group>
         <p>*erforderlich</p>
         <div class="d-flex justify-end mt-4">
-          <v-btn type="submit" color="success" class="mr-4">Speichern</v-btn>
+          <v-btn type="submit" @click="$emit('save')" color="success" class="mr-4">Speichern</v-btn>
           <v-btn @click="$emit('close')" color="error">Abbrechen</v-btn>
         </div>
       </v-form>

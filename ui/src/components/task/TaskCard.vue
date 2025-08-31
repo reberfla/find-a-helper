@@ -10,14 +10,18 @@ import {
 import { getIconOfCategory, getColorOfCategory } from '@/models/TaskModel.ts'
 import { green, red } from 'vuetify/util/colors'
 import { useAuth } from '@/service/userAuthService.ts'
+import { computed } from 'vue'
 
 const { isLoggedIn } = useAuth()
 
 const props = defineProps<{
   task: Task
   private: boolean
+  hasOffer?: boolean
+  canOffer?: boolean
 }>()
 
+const actionsLocked = computed(() => props.hasOffer)
 const emit = defineEmits(['open-offer', 'edit-task', 'delete-task'])
 </script>
 
@@ -77,11 +81,20 @@ const emit = defineEmits(['open-offer', 'edit-task', 'delete-task'])
       <div class="mb-8"></div>
     </template>
     <v-card-actions class="justify-center position-bottom">
-      <v-btn v-if="!private && isLoggedIn" @click="$emit('open-offer', task)">Angebot machen</v-btn>
+      <v-btn v-if="!private && isLoggedIn && canOffer" @click="$emit('open-offer', task)"
+        >Angebot machen</v-btn
+      >
+      <v-chip
+        class="ml-2"
+        v-if="!canOffer && !private && isLoggedIn"
+        :disabled="true"
+        :text="'Angebot eingereicht'"
+      ></v-chip>
       <div v-if="private">
         <v-btn
           variant="elevated"
           class="mx-1"
+          :disabled="actionsLocked"
           :color="green.accent1"
           @click="$emit('edit-task', task)"
           >Bearbeiten
@@ -89,6 +102,7 @@ const emit = defineEmits(['open-offer', 'edit-task', 'delete-task'])
         <v-btn
           variant="elevated"
           class="mx-1"
+          :disabled="actionsLocked"
           :color="red.accent1"
           @click="$emit('delete-task', task.id)"
         >
@@ -96,6 +110,7 @@ const emit = defineEmits(['open-offer', 'edit-task', 'delete-task'])
         </v-btn>
       </div>
     </v-card-actions>
+    <slot name="offers" />
   </v-card>
 </template>
 
@@ -104,13 +119,5 @@ const emit = defineEmits(['open-offer', 'edit-task', 'delete-task'])
   background-color: green;
   opacity: 100%;
   color: white;
-}
-
-.position-bottom {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1;
 }
 </style>

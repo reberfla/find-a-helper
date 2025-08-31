@@ -1,9 +1,7 @@
-import type { AuthRequest, AuthResponse, UserModel } from '@/models/UserModel.ts'
-
 export const BASE_URL = 'http://localhost:8080'
 
 function getToken(): string | null {
-  const user = localStorage.getItem('user')
+  const user = sessionStorage.getItem('user')
   return user ? JSON.parse(user).token : null
 }
 
@@ -64,33 +62,4 @@ export async function deleteRequest(url: string): Promise<{ message: string }> {
   return await response.json()
 }
 
-export default {
-  //Offers
-  async getMyOffers() {
-    return getJSON(`${BASE_URL}/v1/offer/my`)
-  },
-
-  async getOfferById(id: number) {
-    return getJSON(`${BASE_URL}/v1/offer/${id}`)
-  },
-
-  async getOffersForTask(taskId: number) {
-    return getJSON(`${BASE_URL}/v1/offer/task/${taskId}`)
-  },
-
-  async submitOffer(data: any) {
-    return postJSON(`${BASE_URL}/v1/offer`, data)
-  },
-
-  async acceptOffer(offerId: number) {
-    return putJSON(`${BASE_URL}/v1/offer/accept/${offerId}`, null)
-  },
-
-  async rejectOffer(offerId: number) {
-    return putJSON(`${BASE_URL}/v1/offer/reject/${offerId}`, null)
-  },
-
-  async deleteOffer(offerId: number) {
-    return deleteRequest(`${BASE_URL}/v1/offer/${offerId}`)
-  },
-}
+export default {}

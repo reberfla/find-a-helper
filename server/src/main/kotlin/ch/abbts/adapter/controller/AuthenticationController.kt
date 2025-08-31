@@ -12,7 +12,6 @@ import ch.abbts.error.MissingGoogleToken
 import ch.abbts.error.MissingPassword
 import ch.abbts.error.WebserverError
 import ch.abbts.error.WebserverErrorMessage
-import ch.abbts.utils.LoggerService
 import ch.abbts.utils.receiveHandled
 import io.github.tabilzad.ktor.annotations.KtorDescription
 import io.github.tabilzad.ktor.annotations.KtorResponds
@@ -60,8 +59,6 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                             } ?: throw MissingPassword()
                         }
                     }
-
-                LoggerService.debugLog(verifiedUser)
 
                 if (verifiedUser.id != null) {
                     val token = JWebToken(verifiedUser.email, verifiedUser.id)
@@ -118,13 +115,11 @@ fun Application.authenticationRoutes(userInteractor: UserInteractor) {
                 get("/validate") {
                     try {
                         val dto = call.receive<UserDto>()
-                        LoggerService.debugLog(dto)
                         dto.password?.let {
                             userInteractor.verifyLocalUser(dto.email, it)
                         }
                         call.respond(HttpStatusCode.OK)
                     } catch (e: WebserverError) {
-                        LoggerService.debugLog("❌: ${e}")
                         call.respond(e.getStatus(), e.getMessage())
                     }
                 }

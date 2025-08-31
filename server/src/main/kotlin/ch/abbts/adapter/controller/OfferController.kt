@@ -9,6 +9,7 @@ import ch.abbts.domain.model.JWebToken
 import ch.abbts.domain.model.OfferStatus
 import ch.abbts.error.OfferForbidden
 import ch.abbts.error.WebserverError
+import ch.abbts.utils.receiveHandled
 import io.github.tabilzad.ktor.annotations.Tag
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -51,33 +52,18 @@ fun Application.offerRoutes(
 
                 post {
                     try {
-                        val dto = call.receive<OfferDto>()
-                        val token = call.request.authorization()!!.split(" ")[1]
-                        val email = JWebToken.decodeEmailFromToken(token)
-                        val user = userInteractor.getUserByEmail(email)
+                        val dto = call.receiveHandled<OfferDto>()
+                        val userId = JWebToken.getUserIdFromCall(call)
 
-                        if (user?.id != dto.userId) {
+                        if (userId != dto.userId) {
                             throw OfferForbidden()
                         }
 
                         val createdOffer = offerInteractor.createOffer(dto)
-
-                        val response =
-                            createdOffer?.id?.let {
-                                OfferDto(
-                                    id = createdOffer.id,
-                                    userId = createdOffer.userId,
-                                    taskId = createdOffer.taskId,
-                                    status = OfferStatus.SUBMITTED,
-                                    active = true,
-                                    text = createdOffer.text,
-                                    title = createdOffer.title,
-                                )
-                            }
-
-                        if (response != null) {
-                            call.respond(HttpStatusCode.Created, response)
-                        }
+                        call.respond(
+                            HttpStatusCode.Created,
+                            createdOffer as OfferDto,
+                        )
                     } catch (e: WebserverError) {
                         call.respond(e.getStatus(), e.getMessage())
                     }
@@ -85,9 +71,9 @@ fun Application.offerRoutes(
 
                 put("/accept/{id}") {
                     val offerId = call.parameters["id"]!!.toInt()
-                    val offer = offerInteractor.getOfferById(offerId)
+                    val currentUserId = JWebToken.getUserIdFromCall(call)
                     call.respond(
-                        offerInteractor.acceptOffer(offerId, offer.userId)
+                        offerInteractor.acceptOffer(offerId, currentUserId)
                     )
                 }
 
@@ -97,7 +83,6 @@ fun Application.offerRoutes(
                     call.respond(
                         offerInteractor.setOfferStatus(
                             offerId,
-                            offer.userId,
                             OfferStatus.REJECTED,
                         )
                     )

@@ -1,0 +1,31 @@
+@startuml
+title Test-Build-Check
+
+start
+:Push auf develop;
+
+partition "Job: Testen" {
+    :Checkout Repository;
+    :Kotlin-Unit-Tests ausführen;
+    if (Kotlin-Test erfolgreich ?) then (ja)
+    else (Nein)
+        :Test Report (Kotlin) als Artifact bereitstellen;
+        end
+    endif
+    :Vitest-Unit-Tests ausführen;
+    if (Vitest erfolgreich ?) then (ja)
+    else (Nein)
+        :Test Report (Vitest) als Artifakt bereitstellen;
+        end
+    endif
+}
+
+partition "Job: Docker Images erstellen" {
+    :Warte auf erfolgreichen test-Job;
+    :Matrix: linux/amd64, linux/arm64;
+    :Checkout Repository;
+    :Build Docker Images;
+}
+
+stop
+@enduml

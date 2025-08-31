@@ -80,6 +80,12 @@ async function handleLogin(authProvider: AuthProvider) {
 }
 
 async function handleRegister(authProvider: AuthProvider) {
+  console.log(user.value)
+  if (!user.value.birthdate) {
+    snackBar.value?.show('Sie müssen Ihr Geburtsdatum angeben')
+    console.log('kein Geburtsdatum mitgegeben')
+    return
+  }
   user.value.authProvider = authProvider
   UserService.registerUser(user.value)
     .then((res: AuthResponse) => {

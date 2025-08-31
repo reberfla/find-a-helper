@@ -4,7 +4,6 @@ import ch.abbts.adapter.database.table.OffersTable
 import ch.abbts.domain.model.OfferModel
 import ch.abbts.domain.model.OfferStatus
 import ch.abbts.utils.Log
-import ch.abbts.utils.LoggerService
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -71,7 +70,6 @@ class OfferRepository {
     }
 
     fun getOffersByCreator(userId: Int): List<OfferModel>? {
-        LoggerService.debugLog(userId)
         return try {
             transaction {
                 OffersTable.select { OffersTable.userId eq userId }
@@ -108,7 +106,6 @@ class OfferRepository {
                 validUntil = this[OffersTable.validUntil],
             )
         } catch (e: Exception) {
-            LoggerService.debugLog("toModel() error: ${e.message}")
             throw e
         }
     }

@@ -9,9 +9,12 @@ import { green } from 'vuetify/util/colors'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/service/userAuthService.ts'
 import { drawer } from '@/utils/nav.ts'
+import SnackBar from '@/components/Snackbar.vue'
 
 const route = useRouter()
-const { isLoggedIn } = useAuth()
+const snackBar = ref<InstanceType<typeof SnackBar> | null>(null)
+
+const { isLoggedIn, getCurrentUserId } = useAuth()
 
 async function loadTasks() {
   const category = route.currentRoute.value.query['category'] as string | null
@@ -19,6 +22,12 @@ async function loadTasks() {
     filterCategories.value = [category.toUpperCase() as TaskCategory]
   }
   tasks.value = await taskService.getTasks(category)
+}
+
+function canOffer(task: Task & { offerUserIds?: number[] }): boolean {
+  const userId = getCurrentUserId()
+  if (!isLoggedIn.value || !userId) return false
+  return !(task.offerUserIds ?? []).includes(userId)
 }
 
 const searchTerm = ref('')
@@ -56,14 +65,32 @@ function openOffer(task: Task) {
   offerDialog.value = true
 }
 
+function onSaveOrUpdate($event: 'save' | 'update') {
+  console.log($event)
+  createTaskDialog.value = false
+  offerDialog.value = false
+  snackBar.value?.show(`Angebot erfolgreich ${$event == 'save' ? 'abgegeben' : 'geändert'}`, 'info')
+  loadTasks()
+}
+
 onMounted(() => loadTasks())
 </script>
 <template>
   <v-dialog v-model="createTaskDialog" max-width="800">
-    <TaskEditDialog :task="{} as Task" @close="createTaskDialog = false" :update="false" />
+    <TaskEditDialog
+      :task="{} as Task"
+      @save="onSaveOrUpdate($event)"
+      @update="onSaveOrUpdate($event)"
+      @close="createTaskDialog = false"
+      :update="false"
+    />
   </v-dialog>
   <v-dialog v-model="offerDialog" max-width="800">
-    <TaskOfferDialog :task="selectedTask" @close-offer="offerDialog = false" />
+    <TaskOfferDialog
+      :task="selectedTask"
+      @save="onSaveOrUpdate('save')"
+      @close-offer="offerDialog = false"
+    />
   </v-dialog>
   <div class="fixed-header" :style="{ left: drawer ? '250px' : '0px' }">
     <div class="d-flex w-100 align-top">
@@ -84,6 +111,7 @@ onMounted(() => loadTasks())
         clearable
         class="mx-2 w-30"
         @update:menu="filterTasks"
+        @click:clear="loadTasks"
       ></v-select>
       <v-select
         title="Interval"
@@ -95,6 +123,7 @@ onMounted(() => loadTasks())
         multiple
         class="mx-2 w-30"
         @update:menu="filterTasks"
+        @click:clear="loadTasks"
       ></v-select>
       <v-btn
         v-if="isLoggedIn"
@@ -119,10 +148,13 @@ onMounted(() => loadTasks())
       class="task"
       v-bind:key="task.id"
       :task="task"
+      :can-offer="canOffer(task)"
       :private="false"
       @open-offer="openOffer"
     />
   </v-container>
+
+  <snackBar ref="snackBar" />
 </template>
 
 <style scoped>

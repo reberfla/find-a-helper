@@ -21,20 +21,20 @@ var pJS = function (tag_id, params) {
     },
     particles: {
       number: {
-        value: 20,
+        value: 50,
         density: {
           enable: true,
           value_area: 50,
         },
       },
       color: {
-        value: "#C0C0C0",
+        value: "#2a3f3d",
       },
       shape: {
         type: "circle",
         stroke: {
           width: 0.5,
-          color: "#C0C0C0",
+          color: "#000000",
         },
         polygon: {
           nb_sides: 10,
@@ -68,7 +68,7 @@ var pJS = function (tag_id, params) {
       line_linked: {
         enable: true,
         distance: 130,
-        color: "#fff",
+        color: "#000000",
         opacity: .4,
         width: .5,
       },
