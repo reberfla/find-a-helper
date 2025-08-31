@@ -21,7 +21,7 @@ object DatabaseConfig {
         val driver = JWTConfig.config.getString("db.driver")
 
         log.info(
-            "db-user: $user\n pass: $password\n host: $databaseHost\nport: $databasePort"
+            "databaseconfig => host: $databaseHost\tport: $databasePort\tdb-user: $user\tpass: ***"
         )
 
         Database.connect(
