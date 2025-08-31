@@ -4,7 +4,9 @@
       <div id="particles-js"></div>
       <div class="overlay"></div>
 
-      <div class="header-container d-flex flex-column fill-height justify-center align-center text-white">
+      <div
+        class="header-container d-flex flex-column fill-height justify-center align-center text-white"
+      >
         <h1 class="text-h4 text-md-h2 font-weight-bold mb-3 text-center">
           Finden Sie den perfekten Helfer für Ihre Aufgaben
         </h1>
@@ -73,7 +75,7 @@ const heroSrc = '/assets/images/home.jpg'
 const { toTasksWith } = useNav()
 const services = ref(serviceCategories)
 const viewModels = computed(() =>
-  services.value.map((s) => ({ ...s, title: s.titleKey, description: s.descKey }))
+  services.value.map((s) => ({ ...s, title: s.titleKey, description: s.descKey })),
 )
 
 // Vuetify Breakpoints
